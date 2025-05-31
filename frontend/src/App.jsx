@@ -1,13 +1,26 @@
 import { Route, Router, Routes } from "react-router-dom";
 import HomePageLayout from "./layouts/HomePageLayout";
 import HomePage from "./pages/HomePage";
+import ShopPage from "./pages/ShopPage";
+import LoginPage from "./pages/LoginPage";
+import NoBannerLayout from "./layouts/NoBannerLayout";
+import SignUpPage from "./pages/SignUpPage";
+import ForgetPage from "./pages/ForgetPage";
+import CartPage from "./pages/CartPage";
 
 export default function App() {
   return (
-      <Routes>
-        <Route path="/" element={<HomePageLayout />}>
-          <Route index element={<HomePage />} />
-        </Route>
-      </Routes>
+    <Routes>
+      <Route path="/" element={<HomePageLayout />}>
+        <Route index element={<HomePage />} />
+        <Route path="shop" element={<ShopPage />} />
+      </Route>
+      <Route path="/" element={<NoBannerLayout />}>
+        <Route path="login" element={<LoginPage />} />
+        <Route path="signup" element={<SignUpPage />} />
+        <Route path="forget" element={<ForgetPage />} />
+        <Route path="cart" element={<CartPage/>}/>
+      </Route>
+    </Routes>
   );
 }

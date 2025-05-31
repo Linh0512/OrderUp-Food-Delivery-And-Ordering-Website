@@ -1,0 +1,31 @@
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import food1 from "../assets/food1.jpg";
+import { faClock, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+
+export default function BigShopCard() {
+  return (
+    <div className="flex rounded-2xl shadow-2xl">
+      <img src={food1} alt="" className="rounded-l-2xl w-[50%]" />
+      <div className="p-2 space-y-1 flex flex-col justify-start w-fit">
+        <h3 className="font-bold text-2xl">Cafe Amazone - Hai Bà Trưng</h3>
+        <p className="">95 Hai Bà Trưng, P.Bến Nghé, Quận 1, TP. HCM</p>
+        <div className="flex items-center justify-between text-yellow-500">
+          <div className="flex space-x-2">
+            <p>876+ </p>
+            <p> 5★ </p>
+          </div>
+        </div>
+        <div className="flex justify-between items-center ">
+          <p className="text-green-400">Mở cửa</p>
+          <div className="space-x-2 flex items-center">
+            <FontAwesomeIcon icon={faClock} />
+            <p>7:00 - 22:00</p>
+          </div>
+        </div>
+        <p className="text-xl">
+          <FontAwesomeIcon icon={faMoneyBill} /> 20.000 - 100.000
+        </p>
+      </div>
+    </div>
+  );
+}
