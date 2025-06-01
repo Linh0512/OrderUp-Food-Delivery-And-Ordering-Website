@@ -7,6 +7,9 @@ import NoBannerLayout from "./layouts/NoBannerLayout";
 import SignUpPage from "./pages/SignUpPage";
 import ForgetPage from "./pages/ForgetPage";
 import CartPage from "./pages/CartPage";
+import PaymentPage from "./pages/PaymentPage";
+import TrackingPage from "./pages/TrackingPage";
+import ProfilePage from "./pages/ProfilePage";
 
 export default function App() {
   return (
@@ -20,6 +23,9 @@ export default function App() {
         <Route path="signup" element={<SignUpPage />} />
         <Route path="forget" element={<ForgetPage />} />
         <Route path="cart" element={<CartPage/>}/>
+        <Route path="payment" element={<PaymentPage/>}/>
+        <Route path="tracking" element={<TrackingPage/>}/>
+        <Route path="profile" element={<ProfilePage/>}/>
       </Route>
     </Routes>
   );

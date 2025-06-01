@@ -1,6 +1,9 @@
+
 import product from '../assets/product.jpg'
+import ProductPopUp from './ProductPopUp'
 
 export default function ProductCard() {
+
   return (
     <div className='flex shadow-2xl p-3 space-x-2 items-center'>
         <img src={product} alt=""  className='size-24 shadow-lg'/>
@@ -11,6 +14,8 @@ export default function ProductCard() {
                 <button className='bg-orange-500 p-1 px-2 text-lg rounded-lg text-white font-semibold'>+</button>
             </div>
         </div>
+        {/* Popup */}
+      
     </div>
   )
 }
