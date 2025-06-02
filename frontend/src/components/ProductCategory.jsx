@@ -21,7 +21,7 @@ export default function ProductCategory() {
     <ul>
         {categories.map((item,index)=>(
             <div key={index}>
-                <p className="p-2 font-semibold">{item.name}</p>
+                <p className="p-4 font-semibold">{item.name}</p>
                 <hr className="opacity-10"/>
             </div>
         ))}

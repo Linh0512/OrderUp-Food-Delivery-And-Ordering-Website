@@ -36,10 +36,10 @@ export default function Pagination() {
 
   const displayPages = getPagesToDisplay();
   return (
-    <div className="flex flex-wrap items-center gap-2 justify-center">
+    <div className="flex flex-wrap items-center gap-2 justify-center mt-10">
       <div className="flex items-center gap-2  text-sm justify-end">
         <button
-          className=" rounded-full hover:bg-surface active:bg-secondary-variant/20 text-lg size-10 bg-green-400 text-white"
+          className=" rounded-full hover:bg-surface active:bg-secondary-variant/20 text-lg size-10 "
         >
           <FontAwesomeIcon icon={faAngleLeft} />
         </button>
@@ -61,7 +61,7 @@ export default function Pagination() {
         )}
         <button
           disabled={current === totalPages}
-          className="rounded-full hover:bg-surface active:bg-secondary-variant/20 text-lg size-10 bg-green-400 text-white"
+          className="rounded-full hover:bg-surface active:bg-secondary-variant/20 text-lg size-10 "
         >
           <FontAwesomeIcon icon={faAngleRight} />
         </button>
@@ -72,7 +72,7 @@ export default function Pagination() {
           type="number"
           min={1}
           max={totalPages}
-          className="input-variant-1 px-2 text-center"
+          className="input-variant-1 px-2 text-center bg-[rgba(217,217,217,0.4)] focus:border-none rounded"
         />
       </div>
     </div>

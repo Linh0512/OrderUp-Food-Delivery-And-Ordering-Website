@@ -10,6 +10,7 @@ import CartPage from "./pages/CartPage";
 import PaymentPage from "./pages/PaymentPage";
 import TrackingPage from "./pages/TrackingPage";
 import ProfilePage from "./pages/ProfilePage";
+import HistoryPage from "./pages/HistoryPage";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="payment" element={<PaymentPage/>}/>
         <Route path="tracking" element={<TrackingPage/>}/>
         <Route path="profile" element={<ProfilePage/>}/>
+        <Route path="history" element={<HistoryPage/>}/>
       </Route>
     </Routes>
   );

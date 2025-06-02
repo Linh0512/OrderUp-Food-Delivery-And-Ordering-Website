@@ -8,15 +8,15 @@ export default function Header() {
         console.log("click!!!")
     }
     return (
-        <div className='flex space-x-3 w-full justify-between items-center mt-2 px-10'>
+        <div className='flex space-x-3 w-full justify-between items-center px-10'>
             <img src={logo} alt="logo" className='w-[10%]' />
             <div className='border rounded-2xl '>
-                <input type="text" id="" placeholder='tìm địa điểm, món ăn,...' className='py-2 px-4 w-[30vw] text-center' />
+                <input type="text" id="" placeholder='tìm địa điểm, món ăn,...' className='py-2 px-4 w-[30vw] focus:outline-none' />
                 <button className='bg-green-400 py-2 px-4 rounded-r-2xl ' onClick={click}>
                     <FontAwesomeIcon icon={faMagnifyingGlass} color='green' className='shadow-2xl' />
                 </button>
             </div>
-            <select id="" className='border rounded-2xl p-2'>
+            <select id="" className='border rounded-2xl p-2 hover:bg-black/20'>
                 <option value="hanoi">Hà Nội</option>
                 <option value="hochiminh">TP. Hồ Chí Minh</option>
                 <option value="danang">Đà Nẵng</option>
@@ -29,19 +29,19 @@ export default function Header() {
                 <option value="binhdinh">Bình Định</option>
             </select>
             <div className='flex space-x-5'>
-                <button className='border rounded-2xl p-2 px-4'>
+                <button className='border rounded-2xl p-2 px-4 hover:bg-black/20 '>
                     <FontAwesomeIcon icon={faNewspaper} />
                 </button>
-                <button className='border rounded-2xl p-2 px-4'>
+                <button className='border rounded-2xl p-2 px-4 hover:bg-black/20'>
                     <FontAwesomeIcon icon={faComment}/>
                 </button>
-                <div className='p-2 rounded-2xl border px-4'>
+                <div className='p-2 rounded-2xl border px-4 hover:bg-black/20'>
                     <span >0</span>
                     <button>
                         <FontAwesomeIcon icon={faCartShopping}/>
                     </button>
                 </div>
-                <button className='space-x-2 border p-2 rounded-2xl px-4'>
+                <button className='space-x-2 border p-2 rounded-2xl px-4 hover:bg-black/20'>
                     <FontAwesomeIcon icon={faList}/>
                     <FontAwesomeIcon icon={faUser}/>
                 </button>

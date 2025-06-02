@@ -32,7 +32,7 @@ export default function ShopPage() {
           <FontAwesomeIcon icon={faSearch}/>
           <input type="text" name="" id="" placeholder="Tìm món" className="w-full focus:outline-none focus:ring-0 focus:border-none "/>
         </div>
-          <div className="grid grid-cols-5 gap-5 ">
+          <div className="grid grid-cols-3 gap-7 ">
             {Array.from({ length: 20 }).map((_, index) => (
               <ProductCard key={index} />
             ))}

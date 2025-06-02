@@ -6,11 +6,11 @@ export default function NoBannerLayout() {
   return (
     <div>
       <Header />
-      <hr className="mb-5" />
+      <hr className="mb-10" />
       <main>
         <Outlet />
       </main>
-      <hr className="mt-5" />
+      <hr className="mt-10" />
       <Footer />
     </div>
   );

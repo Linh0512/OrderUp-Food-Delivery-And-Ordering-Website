@@ -18,8 +18,8 @@ export default function ReviewBox() {
         <h2 className="font-semibold text-lg">Review</h2>
       </div>
 
-      <div className="bg-gray-100 px-4 py-3">
-        <div className="flex items-center justify-between text-sm mb-2">
+      <div className="bg-gray-100 p-5">
+        <div className="flex items-center justify-between text-sm mb-2 px-6 py-2 bg-[rgba(217,217,217,0.4)] rounded-t-2xl">
           <div className="flex items-center space-x-1">
             <span className="text-lg font-semibold">{rating}</span>
             <FontAwesomeIcon icon={faStar} className="text-yellow-400" />
@@ -27,7 +27,7 @@ export default function ReviewBox() {
           <span className="text-gray-500">{totalReviews} đánh giá</span>
         </div>
 
-        <div className="space-y-1 text-sm text-gray-500">
+        <div className="space-y-1 text-sm text-gray-500 p-5 bg-[rgba(217,217,217,0.4)] rounded-b-2xl">
           {ratingBars.map((bar) => (
             <div key={bar.stars} className="flex items-center space-x-2">
               <span className="w-4">{bar.stars}</span>
@@ -42,7 +42,7 @@ export default function ReviewBox() {
         </div>
       </div>
 
-      <div className="py-2 border-t text-sm text-gray-700">
+      <div className="py-2 border-t text-sm text-gray-700 hover:bg-black/20">
         Chạm để xem thêm
       </div>
     </div>

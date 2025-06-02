@@ -11,11 +11,9 @@ export default function ProductCard() {
             <h3 className='font-bold text-lg'>Trà sữa thái đỏ</h3>
             <div className='flex items-center justify-between'>
                 <p>55.000 đ</p>
-                <button className='bg-orange-500 p-1 px-2 text-lg rounded-lg text-white font-semibold'>+</button>
+                <button className='bg-orange-500 p-0.5 px-2 text-lg rounded-lg text-white font-semibold hover:bg-orange-600'>+</button>
             </div>
         </div>
-        {/* Popup */}
-      
     </div>
   )
 }

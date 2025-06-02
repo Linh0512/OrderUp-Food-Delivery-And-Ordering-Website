@@ -6,7 +6,7 @@ export default function BigShopCard() {
   return (
     <div className="flex rounded-2xl shadow-2xl">
       <img src={food1} alt="" className="rounded-l-2xl w-[50%]" />
-      <div className="p-2 space-y-1 flex flex-col justify-start w-fit">
+      <div className="p-2 space-y-5 flex flex-col justify-start w-fit ml-5">
         <h3 className="font-bold text-2xl">Cafe Amazone - Hai Bà Trưng</h3>
         <p className="">95 Hai Bà Trưng, P.Bến Nghé, Quận 1, TP. HCM</p>
         <div className="flex items-center justify-between text-yellow-500">
