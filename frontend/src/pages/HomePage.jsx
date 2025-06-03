@@ -4,6 +4,30 @@ import ShopCard from "../components/ShopCard";
 
 
 export default function HomePage() {
+  const categories = [
+    { name: 'Tất cả', color: 'bg-green-500' },
+    { name: 'Cơm', color: 'bg-orange-400' },
+    { name: 'Bún / Phở / Hủ tiếu', color: 'bg-red-400' },
+    { name: 'Cháo / Soup / Canh', color: 'bg-blue-300' },
+    { name: 'Bánh mì / Bánh cuốn', color: 'bg-pink-400' },
+    { name: 'Burger / Pizza', color: 'bg-blue-400' },
+    { name: 'Salad / Healthy', color: 'bg-green-400' },
+  ];
+
+  const priceRanges = [
+  { name: 'Tất cả', color: 'bg-green-500' },
+  { name: 'Dưới 20 nghìn', color: 'bg-yellow-400' },
+  { name: '20 - 50 nghìn', color: 'bg-green-300' },
+  { name: '50 - 100 nghìn', color: 'bg-green-600' },
+  { name: 'Trên 100 nghìn', color: 'bg-green-700' },
+];
+
+const otherCriteria = [
+  { name: 'Tất cả', color: 'bg-green-500' },
+  { name: 'Được đánh giá cao',  color: 'bg-yellow-500' }, 
+  { name: 'Giao nhanh', color: 'bg-blue-500' },     
+  { name: 'Khuyến mãi', color: 'bg-pink-500' },       
+];
   return (
     <div className="w-[80vw] mx-auto flex">
       <div className="w-[80%] space-y-3">
@@ -19,42 +43,9 @@ export default function HomePage() {
         <Pagination />
       </div>
       <div className="space-y-3 mt-10 ml-4">
-        <select className="border p-2 text-lg rounded-2xl">
-          <option defaultChecked>Sắp xếp theo</option>
-          <option value="1">tăng dần</option>
-          <option value="-1">giảm dần</option>
-        </select>
-        <div className="flex border p-2 w-fit space-x-2 rounded-2xl">
-          <input type="checkbox" />
-          <p>Đang khuyến mãi</p>
-        </div>
-        <Category />
-        <div className="border h-fit p-2 rounded-2xl">
-          <h3 className="text-center font-bold">Mức giá</h3>
-          <hr />
-          <ul className="space-y-2">
-            <div className="flex space-x-2 items-center font-semibold text-lg">
-              <input type="checkbox" />
-              <p>Tất cả</p>
-            </div>
-            <div className="flex space-x-2 items-center font-semibold text-lg">
-              <input type="checkbox" />
-              <p>Dưới 50 nghìn</p>
-            </div>
-            <div className="flex space-x-2 items-center font-semibold text-lg">
-              <input type="checkbox" />
-              <p>từ 50-100 nghìn</p>
-            </div>
-            <div className="flex space-x-2 items-center font-semibold text-lg">
-              <input type="checkbox" />
-              <p>từ 100-200 nghìn</p>
-            </div>
-            <div className="flex space-x-2 items-center font-semibold text-lg">
-              <input type="checkbox" />
-              <p>200 nghìn trở lên</p>
-            </div>
-          </ul>
-        </div>
+        <Category header={'Danh mục món ăn'} items={categories}/>
+        <Category header={'Mức giá'} items={priceRanges}/>
+        <Category header={'Tiêu chí khác'} items={otherCriteria}/>
       </div>
     </div>
   );

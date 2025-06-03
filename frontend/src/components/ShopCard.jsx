@@ -1,8 +1,14 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import food1 from "../assets/food1.jpg";
 import { faClock, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 export default function ShopCard() {
+  const navigate=useNavigate()
+
+  function handleMove(){
+    navigate('shop')
+  }
   return (
     <div className="flex flex-col rounded-2xl shadow-2xl ">
       <img src={food1} alt="" className="rounded-t-2xl" />
@@ -15,7 +21,7 @@ export default function ShopCard() {
             <p>876+ </p>
             <p> 5★ </p>
           </div>
-          <button className="bg-[rgba(60,152,80,1)] border text-white p-1 px-2 rounded-2xl hover:opacity-80" >
+          <button className="bg-[rgba(60,152,80,1)] border text-white p-1 px-2 rounded-2xl hover:opacity-80" onClick={handleMove}>
             Đặt món
           </button>
         </div>

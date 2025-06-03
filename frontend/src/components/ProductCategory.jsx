@@ -20,7 +20,7 @@ export default function ProductCategory() {
   return(<div className="w-fit shadow-2xl">
     <ul>
         {categories.map((item,index)=>(
-            <div key={index}>
+            <div key={index} className="hover:bg-gray-100">
                 <p className="p-4 font-semibold">{item.name}</p>
                 <hr className="opacity-10"/>
             </div>

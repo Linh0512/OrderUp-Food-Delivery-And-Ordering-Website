@@ -7,4 +7,15 @@
   font-weight: 700;
 }
 
+@keyframes fillAnimation {
+  0% {
+    width: 0%;
+  }
+  100% {
+    width: 100%;
+  }
+}
 
+.animate-fill {
+  animation: fillAnimation 2s linear infinite;
+}

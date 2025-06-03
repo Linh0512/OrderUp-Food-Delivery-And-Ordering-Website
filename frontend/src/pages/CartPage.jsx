@@ -3,14 +3,20 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CartItem from "../components/CartItem";
 import VoucherPopUp from "../components/voucherPopUp";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function CartPage() {
-      const [showPopup,setShowPopup]=useState(false)
+  const [showPopup, setShowPopup] = useState(false);
+  const navigate = useNavigate();
   return (
-    <div className="w-[70vw] mx-auto    ">
+    <div className="w-[70vw] mx-auto">
       <div className="flex items-center">
-        <button className="flex items-center justify-start">
-          <FontAwesomeIcon icon={faAngleLeft} className="text-xl mr-1" />
+        <button className="flex items-center justify-start" onClick={() => navigate("/shop")}>
+          <FontAwesomeIcon
+            icon={faAngleLeft}
+            className="text-xl mr-1"
+            
+          />
           trở lại
         </button>
         <h2 className="dancing-script-700 text-5xl flex-1 text-center">
@@ -28,7 +34,10 @@ export default function CartPage() {
         </div>
         <div className=" w-[30%] ml-4">
           <div className="space-y-7 p-4 shadow-2xl h-fit rounded-4xl ">
-            <div className="flex items-center justify-between font-bold text-xl " onClick={()=>setShowPopup(true)}>
+            <div
+              className="flex items-center justify-between font-bold text-xl "
+              onClick={() => setShowPopup(true)}
+            >
               Voucher
               <FontAwesomeIcon icon={faAngleRight} />
             </div>
@@ -48,18 +57,21 @@ export default function CartPage() {
               <p>Phí giao hàng</p>
               <p>171.000đ</p>
             </div>
-            <hr className="w-[80%] mx-auto"/>
+            <hr className="w-[80%] mx-auto" />
             <div className="flex justify-between">
               <p>Tổng cộng</p>
               <p>171.000đ</p>
             </div>
           </div>
-          <button className="w-full bg-red-700 rounded-3xl shadow-2xl font-bold p-3 text-white text-xl mt-7">Thanh toán</button>
+          <button
+            className="w-full bg-red-700 rounded-3xl shadow-2xl font-bold p-3 text-white text-xl mt-7"
+            onClick={() => navigate("/payment")}
+          >
+            Thanh toán
+          </button>
         </div>
       </div>
-      {showPopup&&(
-        <VoucherPopUp handleClose={setShowPopup}/>
-      )}
+      {showPopup && <VoucherPopUp handleClose={setShowPopup} />}
     </div>
   );
 }

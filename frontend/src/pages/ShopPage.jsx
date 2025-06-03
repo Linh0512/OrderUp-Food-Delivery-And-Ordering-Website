@@ -21,9 +21,9 @@ export default function ShopPage() {
       <div className="mt-10 flex">
         <div className="space-y-4 w-1/5">
           <select className="border p-2 text-lg rounded-xl">
-            <option defaultChecked>Sắp xếp theo</option>
-            <option value="1">tăng dần</option>
-            <option value="-1">giảm dần</option>
+            <option disabled selected hidden  >Sắp xếp theo</option>
+            <option value="1">Tăng dần</option>
+            <option value="-1">Giảm dần</option>
           </select>
           <ProductCategory />
         </div>

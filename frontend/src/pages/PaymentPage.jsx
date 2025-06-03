@@ -2,14 +2,23 @@ import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import money from "../assets/money.png";
 import zalopay from "../assets/zalopay.png";
-import React from "react";
+import React, { useState } from "react";
 import CartItem from "../components/CartItem";
+import VoucherPopUp from "../components/voucherPopUp";
+import { useNavigate } from "react-router-dom";
 
 export default function PaymentPage() {
+  const [showPopup,setShowPopup]=useState(false)
+  const [paymentMethod,setPaymentMethod]=useState('')
+  const navigate=useNavigate()
+
+  const handlePaymentMethodChange=(event)=>{
+    setPaymentMethod(event.target.value)
+  }
   return (
-    <div className="w-[70vw] mx-auto    ">
+    <div className="w-[70vw] mx-auto">
       <div className="flex items-center">
-        <button className="flex items-center justify-start">
+        <button className="flex items-center justify-start"onClick={()=>navigate('/cart')}>
           <FontAwesomeIcon icon={faAngleLeft} className="text-xl mr-1" />
           trở lại
         </button>
@@ -73,6 +82,9 @@ export default function PaymentPage() {
                 <input
                   type="radio"
                   className="w-5 h-5 accent-blue-600 rounded-full"
+                  value={'cash'}
+                  checked={paymentMethod==='cash'}
+                  onChange={handlePaymentMethodChange}
                 />
                 <img src={money} alt="" className="w-8" />
                 <p>Tiền mặt</p>
@@ -81,6 +93,9 @@ export default function PaymentPage() {
                 <input
                   type="radio"
                   className="w-5 h-5 accent-blue-600 rounded-full"
+                  value={'zalopay'}
+                  checked={paymentMethod==='zalopay'}
+                  onChange={handlePaymentMethodChange}
                 />
                 <img src={zalopay} alt="" className="w-8" />
                 <p>ZaloPay</p>
@@ -90,7 +105,7 @@ export default function PaymentPage() {
         </div>
         <div className=" w-[30%] ml-4">
           <div className="space-y-7 p-4 shadow-2xl h-fit rounded-4xl ">
-            <div className="flex items-center justify-between font-bold text-xl ">
+            <div className="flex items-center justify-between font-bold text-xl " onClick={()=>setShowPopup(true)}>
               Voucher
               <FontAwesomeIcon icon={faAngleRight} />
             </div>
@@ -116,11 +131,14 @@ export default function PaymentPage() {
               <p>171.000đ</p>
             </div>
           </div>
-          <button className="w-full bg-red-700 rounded-3xl shadow-2xl font-bold p-3 text-white text-xl mt-7">
+          <button className="w-full bg-red-700 rounded-3xl shadow-2xl font-bold p-3 text-white text-xl mt-7" onClick={()=>navigate('/tracking')}>
             Đặt hàng
           </button>
         </div>
       </div>
+      {
+        showPopup&&(<VoucherPopUp handleClose={setShowPopup}/>)
+      }
     </div>
   );
 }

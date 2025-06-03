@@ -7,13 +7,21 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CartItem from "../components/CartItem";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function TrackingPage() {
+  const [stage, setStage] = useState("pending");
+  const navigate=useNavigate()
 
+  const isActive = (current) => {
+    const orderStage = ["pending", "cooking", "delivering", "completed"];
+    return orderStage.indexOf(stage) >= orderStage.indexOf(current);
+  };
   return (
     <div className="w-[70%] mx-auto">
       <div className="flex items-center">
-        <button className="flex items-center justify-start" >
+        <button className="flex items-center justify-start" onClick={()=>navigate('/payment')}>
           <FontAwesomeIcon icon={faAngleLeft} className="text-xl mr-1" />
           trở lại
         </button>
@@ -22,37 +30,64 @@ export default function TrackingPage() {
         </h2>
       </div>
       <div className="w-full p-5 shadow-2xl flex">
-        <div className="w-[50%]">
-          <p className="font-bold text-xl">Đặt hàng thành công</p>
+        <div className="w-[50%] ">
+          <p className="font-bold text-xl mb-4">Đặt hàng thành công</p>
           <p>Đơn hàng sẽ được giao vào lúc 11:30</p>
-          <div className="flex items-center space-x-3  mt-10 text-3xl w-full">
+          <div className="flex items-center space-x-3 mt-10 text-3xl w-full">
             {/* Bước 1: Đặt hàng */}
             <div className="flex items-center space-x-1 w-1/4">
-              <div className="text-red-600">
+              <div className="text-red-500">
                 <FontAwesomeIcon icon={faClipboardCheck} />
               </div>
-              <div className="w-full h-1 bg-red-500"></div>
+              <div className="bg-gray-300 w-full h-1">
+                <div
+                  className={`w-full h-1 bg-red-500 ${
+                    stage === "pending" ? "animate-fill" : ""
+                  }`}
+                ></div>
+              </div>
             </div>
 
             {/* Bước 2: Đang nấu */}
             <div className="flex items-center space-x-1 w-1/4">
-              <div className="text-black">
+              <div
+                className={isActive("cooking") ? "text-red-500" : "text-black"}
+              >
                 <FontAwesomeIcon icon={faBowlFood} />
-                {/* Thay bằng icon tương đương */}
               </div>
-              <div className="w-full h-1 bg-black"></div>
+              <div className="w-full h-1 bg-gray-300">
+                <div
+                  className={`w-full h-1 ${isActive('cooking')?'bg-red-500':''} ${
+                    stage === "cooking" ? "animate-fill" : ""
+                  }`}
+                ></div>
+              </div>
             </div>
 
             {/* Bước 3: Giao hàng */}
             <div className="flex items-center space-x-1 w-1/4">
-              <div className="text-black">
+              <div
+                className={
+                  isActive("delivering") ? "text-red-500" : "text-black"
+                }
+              >
                 <FontAwesomeIcon icon={faMotorcycle} />
               </div>
-              <div className="w-full h-1 bg-black"></div>
+              <div className="w-full h-1 bg-gray-300">
+                <div
+                  className={`w-full h-1 ${isActive('delivering')?'bg-red-500':''} ${
+                    stage === "delivering" ? "animate-fill" : ""
+                  }`}
+                ></div>
+              </div>
             </div>
 
             {/* Bước 4: Hoàn tất */}
-            <div className="text-black text-end">
+            <div
+              className={`${
+                isActive("delivering") ? "text-red-500" : "text-black"
+              } text-end`}
+            >
               <FontAwesomeIcon icon={faHome} />
             </div>
           </div>
@@ -82,7 +117,6 @@ export default function TrackingPage() {
           </div>
         </div>
       </div>
-      
     </div>
   );
 }
