@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 
 export default function ChatPage() {
-  const [chatActive, setChatActive] = useState({});
+  const [chatActive, setChatActive] = useState();
   const chatItems = [
     {
       id: "ORDER UP",
@@ -110,7 +110,7 @@ export default function ChatPage() {
             <div
               key={index}
               className={`flex items-center p-4 border space-x-4 ${
-                item.id === chatActive.id
+                item.id === chatActive?.id
                   ? "bg-blue-100"
                   : "bg-white hover:bg-gray-100"
               } rounded-2xl shadow  transition`}
@@ -130,7 +130,7 @@ export default function ChatPage() {
       </div>
       <div className="w-[65%]">
         {/* Phần header chat */}
-        <div className="flex justify-between items-center bg-blue-100 p-4 rounded-t-2xl">
+        {chatActive ? (<div className="flex justify-between items-center bg-blue-100 p-4 rounded-t-2xl">
           <div className="flex space-x-3">
             <img
               src={chatActive.avatar}
@@ -143,25 +143,28 @@ export default function ChatPage() {
             </div>
           </div>
           <InfoIcon className="w-6 h-6 cursor-pointer hover:text-blue-500" />
-        </div>
+        </div>):(<div className="flex justify-end bg-blue-100 p-4 rounded-t-2xl">
+            <InfoIcon className="w-6 h-6 cursor-pointer hover:text-blue-500 " />
+        </div>)}
         {/* Phần chứa message */}
-        <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-white h-[60vh]">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex ${
-                message.sender === "me" ? "justify-end" : "justify-start"
-              }`}
-            >
-              {message.sender === "other" && message.avatar && (
-                <img
-                  src={message.avatar}
-                  alt={`${message.name} Avatar`}
-                  className="w-8 h-8 rounded-full mr-3 self-end"
-                />
-              )}
+        {chatActive ? (
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-white h-[60vh]">
+            {messages.map((message) => (
               <div
-                className={`
+                key={message.id}
+                className={`flex ${
+                  message.sender === "me" ? "justify-end" : "justify-start"
+                }`}
+              >
+                {message.sender === "other" && message.avatar && (
+                  <img
+                    src={message.avatar}
+                    alt={`${message.name} Avatar`}
+                    className="w-8 h-8 rounded-full mr-3 self-end"
+                  />
+                )}
+                <div
+                  className={`
                   max-w-[70%] p-3 rounded-xl shadow
                   ${
                     message.sender === "me"
@@ -169,22 +172,31 @@ export default function ChatPage() {
                       : "bg-gray-100 text-gray-800 rounded-bl-none"
                   }
                 `}
-              >
-                <p>{message.text}</p>
-                <span
-                  className={`text-xs mt-1 ${
-                    message.sender === "me" ? "text-blue-200" : "text-gray-500"
-                  } block text-right`}
                 >
-                  {message.timestamp}
-                </span>
+                  <p>{message.text}</p>
+                  <span
+                    className={`text-xs mt-1 ${
+                      message.sender === "me"
+                        ? "text-blue-200"
+                        : "text-gray-500"
+                    } block text-right`}
+                  >
+                    {message.timestamp}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="flex-1 p-4 overflow-y-auto space-y-4 bg-white h-[60vh]"></div>
+        )}
         {/* Phần gửi tin nhắn */}
         <div className="flex bg-blue-100 items-center p-4 space-x-3 rounded-b-2xl">
-          <input type="text" placeholder="nhập tin nhắn ở đây..." className="w-full p-2 bg-white rounded-xl outline-none "/>
+          <input
+            type="text"
+            placeholder="nhập tin nhắn ở đây..."
+            className="w-full p-2 bg-white rounded-xl outline-none "
+          />
           <SendIcon className="w-6 h-6 text-blue-500 cursor-pointer hover:text-blue-700" />
         </div>
       </div>
