@@ -31,7 +31,7 @@ const bannerData = [
 
 export default function Banner() {
   return (
-    <div className="relative w-[80%] mx-auto h-auto">
+    <div className="relative w-[80vw] mx-auto h-auto mb-10">
       <Swiper
         modules={[Navigation, Pagination, Autoplay]}
         spaceBetween={0} // Không có khoảng cách giữa các slide
