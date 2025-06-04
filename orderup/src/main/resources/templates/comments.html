@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Comments</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Comments</h1>
+        
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Movie ID</th>
+                    <th>Text</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="comment : ${comments}">
+                    <td th:text="${comment.id}"></td>
+                    <td th:text="${comment.name}"></td>
+                    <td th:text="${comment.email}"></td>
+                    <td th:text="${comment.movieId}"></td>
+                    <td th:text="${comment.text}"></td> 
+                    <td th:text="${#dates.format(comment.date, 'yyyy-MM-dd')}"></td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <!-- Pagination -->
+        <nav>
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/comments(page=${currentPage-1}, size=${pageSize})}">Previous</a>
+                </li>
+                <li class="page-item" th:each="i: ${#numbers.sequence(0, totalPages-1)}" th:classappend="${currentPage == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/comments(page=${i}, size=${pageSize})}" th:text="${i+1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages-1 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/comments(page=${currentPage+1}, size=${pageSize})}">Next</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <a href="/" class="btn btn-secondary mt-3">Back to Home</a>
+    </div>
+</body>
+</html>
