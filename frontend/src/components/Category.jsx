@@ -22,7 +22,7 @@ export default function FoodCategories({header,items}) {
               flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-200
               ${activeCategory === category.name
                 ? 'bg-green-100 border border-green-500 text-green-700' 
-                : 'bg-gray-50 hover:bg-gray-100 border border-transparent text-gray-700' 
+                : 'bg-gray-100 hover:bg-gray-200 border border-transparent text-gray-700' 
               }
             `}  
             onClick={() => handleCategoryClick(category.name)}

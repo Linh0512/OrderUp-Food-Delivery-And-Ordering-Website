@@ -29,7 +29,7 @@ export default function TrackingPage() {
           Chi tiết đơn hàng
         </h2>
       </div>
-      <div className="w-full p-5 shadow-2xl flex">
+      <div className="w-full p-10 shadow-2xl flex mt-8 bg-white rounded-2xl ">
         <div className="w-[50%] ">
           <p className="font-bold text-xl mb-4">Đặt hàng thành công</p>
           <p>Đơn hàng sẽ được giao vào lúc 11:30</p>
@@ -93,7 +93,7 @@ export default function TrackingPage() {
           </div>
         </div>
         <div className="space-y-10">
-          <div className="space-y-7">
+          <div className="space-y-7 bg-gray-100 p-5 rounded-2xl">
             {Array.from({ length: 4 }).map((_, index) => (
               <CartItem key={index} />
             ))}

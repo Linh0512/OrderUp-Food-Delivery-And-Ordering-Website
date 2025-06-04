@@ -26,9 +26,9 @@ export default function PaymentPage() {
           Thanh Toán
         </h2>
       </div>
-      <div className="flex">
-        <div className="w-[70%] space-y-5">
-          <div className="p-4 shadow-2xl rounded-3xl ">
+      <div className="flex mt-8 space-x-10">
+        <div className="w-[65%] space-y-5 ">
+          <div className="p-4 shadow rounded-3xl bg-white px-7">
             <h3 className="font-semibold ">Giao đến</h3>
             <p>Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam</p>
             <p className="font-semibold my-3">Ghi chú</p>
@@ -40,7 +40,7 @@ export default function PaymentPage() {
               className="border p-3 w-full rounded-2xl"
             />
           </div>
-          <div className="p-4 shadow-2xl rounded-3xl">
+          <div className="p-4 shadow rounded-3xl bg-white px-7">
             <h3 className="font-semibold text-xl mb-7">Người đặt hàng</h3>
             <div>
               <p className="font-semibold my-3">Họ và tên</p>
@@ -73,7 +73,7 @@ export default function PaymentPage() {
               />
             </div>
           </div>
-          <div className="p-4 shadow-2xl rounded-3xl">
+          <div className="p-4 shadow rounded-3xl bg-white px-7">
             <h3 className="font-semibold text-xl mb-7">
               Phương thức thanh toán
             </h3>
@@ -103,15 +103,15 @@ export default function PaymentPage() {
             </ul>
           </div>
         </div>
-        <div className=" w-[30%] ml-4">
-          <div className="space-y-7 p-4 shadow-2xl h-fit rounded-4xl ">
+        <div className=" w-[30%]">
+          <div className="space-y-7 p-4 shadow h-fit rounded-4xl bg-white">
             <div className="flex items-center justify-between font-bold text-xl " onClick={()=>setShowPopup(true)}>
               Voucher
               <FontAwesomeIcon icon={faAngleRight} />
             </div>
             <p className="text-red-700 font-semibold">Chọn voucher</p>
           </div>
-          <div className="space-y-7 p-4 shadow-2xl h-fit rounded-4xl mt-5 font-semibold">
+          <div className="space-y-7 p-4 shadow h-fit rounded-4xl mt-5 font-semibold bg-white">
             <p>chi tiết thanh toán</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
@@ -131,7 +131,7 @@ export default function PaymentPage() {
               <p>171.000đ</p>
             </div>
           </div>
-          <button className="w-full bg-red-700 rounded-3xl shadow-2xl font-bold p-3 text-white text-xl mt-7" onClick={()=>navigate('/tracking')}>
+          <button className="w-full bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-3xl shadow font-bold p-3 text-white text-xl mt-7" onClick={()=>navigate('/tracking')}>
             Đặt hàng
           </button>
         </div>

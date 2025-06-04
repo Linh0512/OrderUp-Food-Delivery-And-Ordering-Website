@@ -1,9 +1,9 @@
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
+import React, { useState } from "react";
 
 export default function Pagination() {
-    const current=1;
+    const [current,setCurrent]=useState(1);
     const totalPages=7;
     const getPagesToDisplay = () => {
     const pages = [];
@@ -39,7 +39,8 @@ export default function Pagination() {
     <div className="flex flex-wrap items-center gap-2 justify-center mt-10">
       <div className="flex items-center gap-2  text-sm justify-end">
         <button
-          className=" rounded-full hover:bg-surface active:bg-secondary-variant/20 text-lg size-10 "
+          className=" rounded-full hover:bg-green-400 active:bg-secondary-variant/20 text-lg size-10 "
+          onClick={()=>setCurrent(prev => Math.max(1, prev - 1))}
         >
           <FontAwesomeIcon icon={faAngleLeft} />
         </button>
@@ -48,8 +49,9 @@ export default function Pagination() {
             <button
               key={idx}
               className={`${
-                page === idx + 1 ? "bg-surface" : ""
-              }  rounded-lg hover:bg-surface active:bg-secondary-variant/20 text-lg size-10 bg-white shadow-2xl`}
+                page === current  ? "bg-green-400" : "bg-white"
+              }  rounded-lg hover:bg-green-400 active:bg-secondary-variant/20 text-lg size-10 shadow-2xl transition`}
+              onClick={() => setCurrent(page)}
             >
               {page}
             </button>
@@ -61,7 +63,8 @@ export default function Pagination() {
         )}
         <button
           disabled={current === totalPages}
-          className="rounded-full hover:bg-surface active:bg-secondary-variant/20 text-lg size-10 "
+          className="rounded-full hover:bg-green-400 active:bg-secondary-variant/20 text-lg size-10 "
+          onClick={()=>setCurrent(prev => Math.min(totalPages, prev + 1))}
         >
           <FontAwesomeIcon icon={faAngleRight} />
         </button>

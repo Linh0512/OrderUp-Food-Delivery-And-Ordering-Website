@@ -11,6 +11,7 @@ import PaymentPage from "./pages/PaymentPage";
 import TrackingPage from "./pages/TrackingPage";
 import ProfilePage from "./pages/ProfilePage";
 import HistoryPage from "./pages/HistoryPage";
+import ChatPage from "./pages/ChatPage";
 
 export default function App() {
   return (
@@ -28,6 +29,7 @@ export default function App() {
         <Route path="tracking" element={<TrackingPage/>}/>
         <Route path="profile" element={<ProfilePage/>}/>
         <Route path="history" element={<HistoryPage/>}/>
+        <Route path="chat" element={<ChatPage/>}/>
       </Route>
     </Routes>
   );

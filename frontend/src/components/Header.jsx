@@ -12,14 +12,14 @@ import CustomIconButtonSelect from "./CustomSelect";
 export default function Header() {
   const navigate = useNavigate();
   return (
-    <div className="flex space-x-3 w-full justify-between items-center px-10">
+    <div className="flex space-x-3 w-full justify-between items-center px-10 caret-transparent">
       <img
         src={logo}
         alt="logo"
         className="w-[10%]"
         onClick={() => navigate("/")}
       />
-      <div className="border rounded-2xl ">
+      <div className="border rounded-2xl caret-black">
         <input
           type="text"
           id=""
@@ -27,7 +27,7 @@ export default function Header() {
           className="py-2 px-4 w-[30vw] focus:outline-none"
         />
         <button className="bg-green-400 py-2 px-4 rounded-r-2xl ">
-          <FontAwesomeIcon
+          <FontAwesomeIcon  
             icon={faMagnifyingGlass}
             color="green"
             className="shadow-2xl"
@@ -50,7 +50,7 @@ export default function Header() {
         <button className="border rounded-2xl p-2 px-4 hover:bg-black/20 ">
           <FontAwesomeIcon icon={faNewspaper} />
         </button>
-        <button className="border rounded-2xl p-2 px-4 hover:bg-black/20">
+        <button className="border rounded-2xl p-2 px-4 hover:bg-black/20" onClick={() => navigate('/chat')}>
           <FontAwesomeIcon icon={faComment} />
         </button>
         <div className="p-2 rounded-2xl space-x-1 border px-4 hover:bg-black/20" onClick={()=>navigate('/cart')}>

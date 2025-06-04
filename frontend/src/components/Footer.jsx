@@ -7,7 +7,7 @@ import { faEnvelope } from '@fortawesome/free-solid-svg-icons'
 
 export default function Footer() {
   return (
-    <footer className='flex items-center justify-between px-5'>
+    <footer className='flex items-center justify-between p-5'>
         <div className='flex space-x-10'>
             <div className='space-y-3'>
                 <h3 className='font-bold text-xl'>Về chúng tôi</h3>

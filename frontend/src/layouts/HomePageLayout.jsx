@@ -7,12 +7,14 @@ export default function HomePageLayout() {
   return (
     <div>
       <Header />
-      <hr className="mb-10" />
-      <Banner />
-      <main>
+
+      <div className="bg-gray-100 py-10">
+        <Banner/>
+      </div>
+      <main className="bg-gray-100 pb-10">
         <Outlet />
       </main>
-      <hr className="mt-10" />
+
       <Footer />
     </div>
   );

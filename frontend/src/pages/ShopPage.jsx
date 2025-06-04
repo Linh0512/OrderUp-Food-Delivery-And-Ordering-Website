@@ -10,8 +10,8 @@ import { faSearch } from "@fortawesome/free-solid-svg-icons";
 export default function ShopPage() {
   return (
     <div className="w-[80vw] mx-auto">
-      <div className="flex w-full gap-3">
-        <div className="w-[70%]">
+      <div className="flex w-full gap-20">
+        <div className="w-[65%]">
           <BigShopCard />
         </div>
         <div className="w-[30%]">
@@ -28,7 +28,7 @@ export default function ShopPage() {
           <ProductCategory />
         </div>
         <div className=" w-4/5 space-y-5">
-        <div className="flex items-center border p-2 gap-3">
+        <div className="flex items-center border p-2 gap-3 bg-white ">
           <FontAwesomeIcon icon={faSearch}/>
           <input type="text" name="" id="" placeholder="Tìm món" className="w-full focus:outline-none focus:ring-0 focus:border-none "/>
         </div>

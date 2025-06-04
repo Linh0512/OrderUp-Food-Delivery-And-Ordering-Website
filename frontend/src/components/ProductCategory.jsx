@@ -17,7 +17,7 @@ export default function ProductCategory() {
     { name: "Deal Flash Sale" },
   ];
 
-  return(<div className="w-fit shadow-2xl">
+  return(<div className="w-fit shadow-xl bg-white">
     <ul>
         {categories.map((item,index)=>(
             <div key={index} className="hover:bg-gray-100">

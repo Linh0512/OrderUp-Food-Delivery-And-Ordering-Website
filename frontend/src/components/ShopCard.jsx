@@ -10,7 +10,7 @@ export default function ShopCard() {
     navigate('shop')
   }
   return (
-    <div className="flex flex-col rounded-2xl shadow-2xl ">
+    <div className="flex flex-col rounded-2xl shadow-xl bg-white">
       <img src={food1} alt="" className="rounded-t-2xl" />
       <div className="p-2 space-y-1 flex flex-col justify-center">
         <h3 className="font-bold text-lg">Cafe Amazone - Hai Bà Trưng</h3>
@@ -32,7 +32,7 @@ export default function ShopCard() {
             <p>7:00 - 22:00</p>
           </div>
         </div>
-        <p className="text-xl">
+        <p className="text-xl py-2">
           <FontAwesomeIcon icon={faMoneyBill} /> 20.000 - 100.000
         </p>
       </div>

@@ -18,7 +18,7 @@ export default function ReviewBox() {
         <h2 className="font-semibold text-lg">Review</h2>
       </div>
 
-      <div className="bg-gray-100 p-5">
+      <div className="bg-white p-5">
         <div className="flex items-center justify-between text-sm mb-2 px-6 py-2 bg-[rgba(217,217,217,0.4)] rounded-t-2xl">
           <div className="flex items-center space-x-1">
             <span className="text-lg font-semibold">{rating}</span>
@@ -42,7 +42,7 @@ export default function ReviewBox() {
         </div>
       </div>
 
-      <div className="py-2 border-t text-sm text-gray-700 hover:bg-black/20">
+      <div className="py-2 border-t text-sm text-gray-700 hover:bg-black/20 transition-colors duration-200">
         Chạm để xem thêm
       </div>
     </div>
