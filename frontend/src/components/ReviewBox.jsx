@@ -1,5 +1,7 @@
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+import ReviewPopUp from "./ReviewPopUp";
 
 export default function ReviewBox() {
   const totalReviews = 876;
@@ -11,6 +13,7 @@ export default function ReviewBox() {
     { stars: 2, percent: 0 },
     { stars: 1, percent: 0 },
   ];
+  const [showPopup, setShowPopup] = useState(false);
 
   return (
     <div className="border rounded-t-2xl text-center bg-white h-fit">
@@ -42,9 +45,20 @@ export default function ReviewBox() {
         </div>
       </div>
 
-      <div className="py-2 border-t text-sm text-gray-700 hover:bg-black/20 transition-colors duration-200">
+      <div
+        className="py-2 border-t text-sm text-gray-700 hover:bg-black/20 transition-colors duration-200"
+        onClick={() => setShowPopup(true)}
+      >
         Chạm để xem thêm
       </div>
+      {showPopup && (
+        <ReviewPopUp
+          ratingBars={ratingBars}
+          rating={rating}
+          totalReviews={totalReviews}
+          handleClose={setShowPopup}
+        />
+      )}
     </div>
   );
 }

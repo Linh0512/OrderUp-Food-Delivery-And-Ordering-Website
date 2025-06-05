@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 export default function TrackingPage() {
   const [stage, setStage] = useState("pending");
-  const navigate=useNavigate()
+  const navigate = useNavigate();
 
   const isActive = (current) => {
     const orderStage = ["pending", "cooking", "delivering", "completed"];
@@ -21,7 +21,10 @@ export default function TrackingPage() {
   return (
     <div className="w-[70%] mx-auto">
       <div className="flex items-center">
-        <button className="flex items-center justify-start" onClick={()=>navigate('/payment')}>
+        <button
+          className="flex items-center justify-start"
+          onClick={() => navigate("/payment")}
+        >
           <FontAwesomeIcon icon={faAngleLeft} className="text-xl mr-1" />
           trở lại
         </button>
@@ -57,9 +60,9 @@ export default function TrackingPage() {
               </div>
               <div className="w-full h-1 bg-gray-300">
                 <div
-                  className={`w-full h-1 ${isActive('cooking')?'bg-red-500':''} ${
-                    stage === "cooking" ? "animate-fill" : ""
-                  }`}
+                  className={`w-full h-1 ${
+                    isActive("cooking") ? "bg-red-500" : ""
+                  } ${stage === "cooking" ? "animate-fill" : ""}`}
                 ></div>
               </div>
             </div>
@@ -75,9 +78,9 @@ export default function TrackingPage() {
               </div>
               <div className="w-full h-1 bg-gray-300">
                 <div
-                  className={`w-full h-1 ${isActive('delivering')?'bg-red-500':''} ${
-                    stage === "delivering" ? "animate-fill" : ""
-                  }`}
+                  className={`w-full h-1 ${
+                    isActive("delivering") ? "bg-red-500" : ""
+                  } ${stage === "delivering" ? "animate-fill" : ""}`}
                 ></div>
               </div>
             </div>
@@ -90,6 +93,22 @@ export default function TrackingPage() {
             >
               <FontAwesomeIcon icon={faHome} />
             </div>
+          </div>
+          <div className="mt-10 space-y-1">
+            <div className="flex items-center space-x-2">
+              <div className="size-4 bg-red-600 rounded-full"></div>
+              <span className="font-semibold">Từ</span>
+            </div>
+            <p className="font-semibold">Cơm Gà Số 23</p>
+            <p className="text-sm">64 số 23, P.A, Quận 7, TP.HCM</p>
+          </div>
+          <div className="mt-5 space-y-1">
+            <div className="flex items-center space-x-2">
+              <div className="size-4 bg-green-500 rounded-full"></div>
+              <span className="font-semibold">Đến</span>
+            </div>
+            <p className="font-semibold">Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam</p>
+            <p className="text-sm">Anh A - 0903xxxxxx</p>
           </div>
         </div>
         <div className="space-y-10">
@@ -113,7 +132,7 @@ export default function TrackingPage() {
               <p>Tạm tính</p>
               <p>171đ</p>
             </div>
-            <p className="text-end mt-10 text-xl">181đ</p>
+            <p className="text-end mt-7 text-2xl font-semibold">181đ</p>
           </div>
         </div>
       </div>

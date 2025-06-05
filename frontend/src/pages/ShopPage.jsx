@@ -6,8 +6,13 @@ import ProductCard from "../components/ProductCard";
 import Pagination from "../components/Pagination";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faSearch } from "@fortawesome/free-solid-svg-icons";
+import CustomSelect from "../components/CustomSelect";
 
 export default function ShopPage() {
+  const options=[
+    { label: "Tăng dần", value: "1" },
+    { label: "Giảm dần", value: "-1" },
+  ]
   return (
     <div className="w-[80vw] mx-auto">
       <div className="flex w-full gap-20">
@@ -20,11 +25,7 @@ export default function ShopPage() {
       </div>
       <div className="mt-10 flex">
         <div className="space-y-4 w-1/5">
-          <select className="border p-2 text-lg rounded-xl">
-            <option disabled selected hidden  >Sắp xếp theo</option>
-            <option value="1">Tăng dần</option>
-            <option value="-1">Giảm dần</option>
-          </select>
+          <CustomSelect options={options} head={'Sắp xếp theo'}/>
           <ProductCategory />
         </div>
         <div className=" w-4/5 space-y-5">
