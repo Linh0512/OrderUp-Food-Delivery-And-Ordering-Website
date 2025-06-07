@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý Người dùng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .avatar-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .badge-role {
+            font-size: 0.8rem;
+        }
+        .badge-admin { background-color: #dc3545; }
+        .badge-restaurantHost { background-color: #fd7e14; }
+        .badge-user { background-color: #198754; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Quản lý Người dùng</h1>
+        
+        <!-- Event Notification -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form method="GET" action="/admin/users/search" class="d-flex">
+                    <input type="text" name="userName" class="form-control me-2" placeholder="Tìm theo tên người dùng...">
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                </form>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="/admin/users/create" class="btn btn-success">Thêm người dùng mới</a>
+            </div>
+        </div>
+
+        <style>
+            .btn-primary {
+                min-width: 120px; /* Đảm bảo button đủ rộng */
+            }
+        </style>
+        
+        <!-- Hiển thị Users -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Ảnh đại diện</th>
+                        <th>Họ tên</th>
+                        <th>Email</th>
+                        <th>Số điện thoại</th>
+                        <th>Vai trò</th>
+                        <th>Trạng thái</th>
+                        <th>Đăng nhập cuối</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="user : ${Users}">
+                        <td th:text="${user.id}"></td>
+                        <td>
+                            <img th:if="${user.profile != null && user.profile.avatar != null}" 
+                                 th:src="${user.profile.avatar}" 
+                                 class="avatar-img" 
+                                 alt="Avatar">
+                            <span th:unless="${user.profile != null && user.profile.avatar != null}" 
+                                  class="avatar-img bg-secondary text-white d-flex align-items-center justify-content-center">
+                                <span th:if="${user.profile != null}" 
+                                      th:text="${#strings.substring(user.profile.firstName,0,1) + #strings.substring(user.profile.lastName,0,1)}">
+                                </span>
+                                <span th:unless="${user.profile != null}">N/A</span>
+                            </span>
+                        </td>
+                        <td>
+                            <span th:if="${user.profile != null}" 
+                                  th:text="${user.profile.firstName + ' ' + user.profile.lastName}">
+                            </span>
+                        </td>
+                        <td th:text="${user.email}"></td>
+                        <td th:text="${user.profile != null ? user.profile.phone : 'N/A'}"></td>
+                        <td>
+                            <span th:if="${user.role == 'admin'}" class="badge bg-danger badge-role">Admin</span>
+                            <span th:if="${user.role == 'restaurantHost'}" class="badge bg-warning badge-role">Chủ nhà hàng</span>
+                            <span th:if="${user.role == 'user'}" class="badge bg-success badge-role">Người dùng</span>
+                        </td>
+                        <td>
+                            <span th:if="${user.isActive}" class="badge bg-success">Hoạt động</span>
+                            <span th:unless="${user.isActive}" class="badge bg-danger">Đã khóa</span>
+                        </td>
+                        <td th:text="${#dates.format(user.lastLogin, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/admin/users/{id}/view(id=${user.id})}" class="btn btn-info">Xem</a>
+                                <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-warning">Sửa</a>
+                                <button type="button" class="btn btn-danger" 
+                                        th:attr="data-id=${user.id}, data-name=${user.profile != null ? user.profile.firstName + ' ' + user.profile.lastName : user.email}"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal">Xóa</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(Users)}">
+                        <td colspan="9" class="text-center">Không tìm thấy người dùng nào</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <nav th:if="${totalPages > 0}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/admin/users(page=${currentPage-1}, size=${pageSize})}">Trước</a>
+                </li>
+                <li class="page-item" th:each="i: ${#numbers.sequence(0, totalPages-1)}" th:classappend="${currentPage == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/admin/users(page=${i}, size=${pageSize})}" th:text="${i+1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages-1 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/admin/users(page=${currentPage+1}, size=${pageSize})}">Sau</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Thống kê -->
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                Thống kê người dùng
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Tổng số người dùng</h5>
+                                <h2 class="card-text" th:text="${stats != null ? stats.totalUsers : 0}">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Người dùng mới</h5>
+                                <h2 class="card-text" th:text="${stats != null ? stats.newUsers : 0}">0</h2>
+                                <small class="text-muted">30 ngày qua</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Người dùng hoạt động</h5>
+                                <h2 class="card-text" th:text="${stats != null ? stats.activeUsers : 0}">0</h2>
+                                <small class="text-muted">7 ngày qua</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="/" class="btn btn-secondary mt-3">Quay lại Trang chủ</a>
+    </div>
+    
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa người dùng <span id="userName"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="POST" action="">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript để xử lý modal xóa -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const userId = button.getAttribute('data-id');
+                    const userName = button.getAttribute('data-name');
+                    
+                    document.getElementById('userName').textContent = userName;
+                    document.getElementById('deleteForm').action = '/api/users/' + userId;
+                });
+            }
+        });
+    </script>
+</body>
+</html>
