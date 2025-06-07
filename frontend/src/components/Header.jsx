@@ -7,10 +7,24 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
-import CustomIconButtonSelect from "./CustomSelect";
+import CustomIconButtonSelect from "./ProfileSelect";
+import CustomSelect from "./CustomSelect";
 
 export default function Header() {
   const navigate = useNavigate();
+  const provinces = [
+  { label: "Hà Nội", value: "hanoi" },
+  { label: "TP. Hồ Chí Minh", value: "hochiminh" },
+  { label: "Đà Nẵng", value: "danang" },
+  { label: "Cần Thơ", value: "cantho" },
+  { label: "Hải Phòng", value: "haiphong" },
+  { label: "Khánh Hòa", value: "khanhhoa" },
+  { label: "Lâm Đồng", value: "lamdong" },
+  { label: "Quảng Ninh", value: "quangninh" },
+  { label: "Thừa Thiên Huế", value: "thue" },
+  { label: "Bình Định", value: "binhdinh" },
+];
+
   return (
     <div className="flex space-x-3 w-full justify-between items-center px-10 caret-transparent">
       <img
@@ -34,18 +48,8 @@ export default function Header() {
           />
         </button>
       </div>
-      <select id="" className="border rounded-2xl p-2">
-        <option value="hanoi">Hà Nội</option>
-        <option value="hochiminh">TP. Hồ Chí Minh</option>
-        <option value="danang">Đà Nẵng</option>
-        <option value="cantho">Cần Thơ</option>
-        <option value="haiphong">Hải Phòng</option>
-        <option value="khanhhoa">Khánh Hòa</option>
-        <option value="lamdong">Lâm Đồng</option>
-        <option value="quangninh">Quảng Ninh</option>
-        <option value="thue">Thừa Thiên Huế</option>
-        <option value="binhdinh">Bình Định</option>
-      </select>
+
+      <CustomSelect options={provinces} head={"Tỉnh thành"}/>
       <div className="flex space-x-5">
         <button className="border rounded-2xl p-2 px-4 hover:bg-black/20 ">
           <FontAwesomeIcon icon={faNewspaper} />
