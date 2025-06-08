@@ -1,8 +1,8 @@
 import { faCircleUser, faEnvelope } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import avatar from "../assets/avatar.png";
+import avatar from "../../assets/avatar.png";
 import React, { useState } from "react";
-import ChangePasswordPopUp from "../components/ChangePasswordPopUp";
+import ChangePasswordPopUp from "../../components/ChangePasswordPopUp";
 
 export default function ProfilePage() {
   const [showPopUp, setShowPopup] = useState(false);

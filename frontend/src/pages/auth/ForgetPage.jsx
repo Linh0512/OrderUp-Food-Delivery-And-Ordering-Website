@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import loginImage from "../assets/loginImage.png";
+import loginImage from "../../assets/loginImage.png";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
 
 export default function ForgetPage() {
