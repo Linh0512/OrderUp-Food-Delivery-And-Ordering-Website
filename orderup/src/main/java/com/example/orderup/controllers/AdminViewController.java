@@ -1,11 +1,17 @@
 package com.example.orderup.controllers;
 
-import com.example.orderup.models.Profile;
-import com.example.orderup.models.User;
+import com.example.orderup.models.entities.User.Profile;
+import com.example.orderup.models.entities.User.User;
 import com.example.orderup.services.UserService;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,7 +38,17 @@ public class AdminViewController {
             @RequestParam(defaultValue = "10") int size) {
         try {
             System.out.println("AdminViewController.viewUsers() called");
-            
+            System.out.println("Current authentication: " + SecurityContextHolder.getContext().getAuthentication());
+
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            if (auth != null && auth.getPrincipal() instanceof User) {
+                User user = (User) auth.getPrincipal();
+                System.out.println("Authenticated user: " + user.getEmail() + " with role: " + user.getRole());
+            } else {
+                System.out.println("Authentication principal is not a User object: " + auth.getPrincipal());
+            }
+
+
             Page<User> usersPage = userService.getAllUsers(page, size, new String[]{"updatedAt"}, "desc");
             
             // Debug thông tin
@@ -198,5 +214,16 @@ public class AdminViewController {
             redirectAttributes.addFlashAttribute("error", "An error occurred while deleting user: " + e.getMessage());
             return "redirect:/admin/users"; // Quay lại trang danh sách người dùng
         }
+    }
+
+    @PostMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        SecurityContextHolder.clearContext();
+        
+        return "redirect:http://localhost:5173/login";
     }
 }

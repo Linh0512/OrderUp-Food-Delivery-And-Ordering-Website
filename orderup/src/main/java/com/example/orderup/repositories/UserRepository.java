@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
-import com.example.orderup.models.User;
+import com.example.orderup.models.entities.User.User;
 
 public interface UserRepository  extends MongoRepository<User, String> {
 

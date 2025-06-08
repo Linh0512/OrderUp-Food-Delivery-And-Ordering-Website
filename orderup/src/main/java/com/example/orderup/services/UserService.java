@@ -13,7 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import com.example.orderup.models.User;
+import com.example.orderup.models.entities.User.User;
 import com.example.orderup.repositories.UserRepository;
 import com.example.orderup.utils.EntityUpdater;
 
@@ -34,6 +34,10 @@ public class UserService {
     }
 
     public User getUserById(String id) {
+        return userRepository.findById(id).orElse(null);
+    }
+
+    public User findById(String id) {
         return userRepository.findById(id).orElse(null);
     }
 
