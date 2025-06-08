@@ -1,7 +1,7 @@
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import CartItem from "../components/CartItem";
-import VoucherPopUp from "../components/voucherPopUp";
+import CartItem from "../../components/CartItem";
+import VoucherPopUp from "../../components/voucherPopUp";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 

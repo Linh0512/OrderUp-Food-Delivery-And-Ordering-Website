@@ -1,10 +1,10 @@
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import money from "../assets/money.png";
-import zalopay from "../assets/zalopay.png";
+import money from "../../assets/money.png";
+import zalopay from "../../assets/zalopay.png";
 import React, { useState } from "react";
-import CartItem from "../components/CartItem";
-import VoucherPopUp from "../components/voucherPopUp";
+import CartItem from "../../components/CartItem";
+import VoucherPopUp from "../../components/voucherPopUp";
 import { useNavigate } from "react-router-dom";
 
 export default function PaymentPage() {

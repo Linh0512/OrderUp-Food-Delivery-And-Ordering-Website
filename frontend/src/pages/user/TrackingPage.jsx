@@ -6,7 +6,7 @@ import {
   faMotorcycle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import CartItem from "../components/CartItem";
+import CartItem from "../../components/CartItem";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
