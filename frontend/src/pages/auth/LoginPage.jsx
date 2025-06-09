@@ -1,8 +1,8 @@
-import { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faLockOpen } from "@fortawesome/free-solid-svg-icons";
-import loginImage from "../../assets/loginImage.png";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
+import loginImage from '../../assets/loginImage.png';
 import authService from '../../services/auth';
 
 export default function LoginPage() {
@@ -12,58 +12,73 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
-  // QUAN TRỌNG: Ngăn chặn form submit mặc định
-  e.preventDefault();
-  
-  setError('');
-  setIsLoading(true);
-
-  try {
-    console.log('Attempting login with:', { email });
-    
-    // Gọi API đăng nhập trực tiếp bằng fetch để tránh các vấn đề với axios
-    const response = await fetch('http://localhost:8080/api/auth/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ email, password })
-    });
-    
-    const data = await response.json();
-    console.log('Login response data:', data);
-    
-    if (data.success) {
-      // Lưu dữ liệu người dùng
-      localStorage.setItem('user_data', JSON.stringify({
-        userId: data.userId,
-        role: data.role,
-        token: data.token,
-        email: email
-      }));
-      
-      alert('Đăng nhập thành công! Chuyển hướng đến trang chủ...');
-      
-        // Điều hướng dựa trên role
-      if (data.role === 'admin') {
-        window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${data.token}`;
-      } else if (data.role === 'restaurantHost') {
-        window.location.href = '/restaurant/dashboard';
-      } else {
-        // Chuyển đến /home thay vì /
-        window.location.href = '/home';
+  useEffect(() => {
+    try {
+      const lastEmail = localStorage.getItem('last_email');
+      if (lastEmail) {
+        setEmail(lastEmail);
+        console.log('Last used email loaded:', lastEmail);
       }
-    } else {
-      setError(data.message || 'Đăng nhập thất bại');
+    } catch (error) {
+      console.error('Error loading last email:', error);
     }
-  } catch (error) {
-    console.error('Login error:', error);
-    setError(`Có lỗi xảy ra khi đăng nhập: ${error.message || 'Unknown error'}`);
-  } finally {
-    setIsLoading(false);
-  }
-};
+  }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    setError('');
+    setIsLoading(true);
+
+    try {
+      console.log('Attempting login with:', { email });
+      
+      // Gọi API đăng nhập
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password })
+      });
+      
+      const data = await response.json();
+      console.log('Login response data:', data);
+      
+      if (data.success) {
+        // Tính thời gian hết hạn (24 giờ từ bây giờ)
+        const expiresAt = new Date().getTime() + 24 * 60 * 60 * 1000;
+        
+        // Lưu dữ liệu người dùng với thời gian hết hạn
+        const userData = {
+          userId: data.userId,
+          role: data.role,
+          token: data.token,
+          email: email,
+          expiresAt: expiresAt
+        };
+        
+        localStorage.setItem('user_data', JSON.stringify(userData));
+        console.log('User data saved to localStorage with expiration:', new Date(expiresAt).toLocaleString());
+                
+        // Điều hướng dựa trên role
+        if (data.role === 'admin') {
+          window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${data.token}`;
+        } else if (data.role === 'restaurantHost') {
+          navigate('/restaurant/dashboard');
+        } else {
+          navigate('/home');
+        }
+      } else {
+        setError(data.message || 'Đăng nhập thất bại');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(`Có lỗi xảy ra khi đăng nhập: ${error.message || 'Unknown error'}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <div className="relative w-[65vw] mx-auto">
@@ -78,48 +93,50 @@ export default function LoginPage() {
               <FontAwesomeIcon icon={faEnvelope} />
               <input
                 type="email"
-                name="email"
-                id="email"
+                className="bg-transparent outline-none w-full"
+                placeholder="Nhập email của bạn"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                className="focus:outline-none focus:ring-0 focus:border-none w-full bg-transparent"
                 required
               />
             </div>
-            <div className="text-white border-b py-2 text-xl space-x-2 opacity-90 flex items-center mt-7">
-              <FontAwesomeIcon icon={faLockOpen} />
+            <div className="text-white border-b py-2 text-xl space-x-2 mt-5 opacity-90 flex items-center">
+              <FontAwesomeIcon icon={faLock} />
               <input
                 type="password"
-                name="password"
-                id="password"
+                className="bg-transparent outline-none w-full"
+                placeholder="Nhập mật khẩu của bạn"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="focus:outline-none focus:ring-0 focus:border-none w-full bg-transparent"
                 required
               />
             </div>
-            <p className="text-end text-lime-500 font-light mt-2">
-              <a href="/forgot-password">Forget Password?</a>
-            </p>
           </div>
+          
           {error && (
-            <div className="text-red-400 mt-2 text-center">
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mt-4">
               {error}
             </div>
           )}
-          <button 
-            type="submit" 
-            className="w-[90%] mx-auto bg-lime-500 p-3 text-xl text-white rounded-3xl mt-5"
+          
+          <button
+            type="submit"
+            className={`w-full py-2 rounded-xl mt-5 text-white text-lg font-semibold ${
+              isLoading ? "bg-gray-500" : "bg-[rgba(227,70,63,1)] hover:bg-red-700"
+            } transition`}
             disabled={isLoading}
           >
-            {isLoading ? 'Processing...' : 'Login'}
+            {isLoading ? "Đang đăng nhập..." : "ĐĂNG NHẬP"}
           </button>
+          <div className="flex mt-2 justify-between text-white">
+            <a href="/forgot-password" className="opacity-80 hover:underline">
+              Quên mật khẩu
+            </a>
+            <a href="/register" className="opacity-80 hover:underline">
+              Đăng ký
+            </a>
+          </div>
         </form>
-        <p className="text-center text-white my-auto font-light">
-          Don't have an account? <span className="text-lime-500"><a href="/register">Sign Up</a></span>
-        </p>
       </div>
     </div>
   );

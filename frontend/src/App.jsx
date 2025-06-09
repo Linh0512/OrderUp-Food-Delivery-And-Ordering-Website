@@ -34,72 +34,103 @@ function Layout({ children, hideHeaderFooter = false }) {
 }
 
 // Component kiểm tra nếu người dùng đã đăng nhập
-function ProtectedRoute({ children }) {
+function ProtectedRoute({ children, redirectTo = "/login" }) {
   const isAuthenticated = authService.isAuthenticated();
   
+  console.log('ProtectedRoute Check:', { isAuthenticated });
+  
   if (!isAuthenticated) {
-    // Nếu không xác thực, chuyển hướng đến trang đăng nhập
-    return <Navigate to="/login" replace />;
+    console.log('Not authenticated, redirecting to:', redirectTo);
+    return <Navigate to={redirectTo} replace />;
   }
   
-  // Nếu đã xác thực, hiển thị nội dung được bảo vệ
+  return children;
+}
+
+// Component chỉ cho phép người dùng chưa đăng nhập
+function PublicOnlyRoute({ children, redirectTo = "/home" }) {
+  const isAuthenticated = authService.isAuthenticated();
+  
+  console.log('PublicOnlyRoute Check:', { isAuthenticated });
+  
+  if (isAuthenticated) {
+    console.log('Already authenticated, redirecting to:', redirectTo);
+    return <Navigate to={redirectTo} replace />;
+  }
+  
   return children;
 }
 
 function App() {
   return (
     <Routes>
-      {/* Route mặc định - chuyển hướng đến /home nếu đã đăng nhập, hoặc /login nếu chưa */}
-      <Route index element={
+      {/* Route mặc định - Chuyển hướng người dùng đã đăng nhập đến /home, chưa đăng nhập đến /login */}
+      <Route path="/" element={
         authService.isAuthenticated() 
-          ? <Navigate to="/home" replace />
+          ? <Navigate to="/home" replace /> 
           : <Navigate to="/login" replace />
       } />
       
-      {/* Các trang không yêu cầu đăng nhập */}
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      
-      {/* Trang Home - KHÔNG yêu cầu đăng nhập */}
-      <Route path="/" element={
-        <Layout>
-          <HomePage />
-        </Layout>
+      {/* Các trang KHÔNG yêu cầu đăng nhập và KHÔNG cho phép người dùng đã đăng nhập truy cập */}
+      <Route path="/login" element={
+        <PublicOnlyRoute>
+          <LoginPage />
+        </PublicOnlyRoute>
+      } />
+      <Route path="/register" element={
+        <PublicOnlyRoute>
+          <RegisterPage />
+        </PublicOnlyRoute>
+      } />
+      <Route path="/forgot-password" element={
+        <PublicOnlyRoute>
+          <ForgotPasswordPage />
+        </PublicOnlyRoute>
       } />
       
+      {/* Trang Home - PHẢI yêu cầu đăng nhập */}
       <Route path="/home" element={
-        <Layout>
-          <HomePage />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <HomePage />
+          </Layout>
+        </ProtectedRoute>
       } />
       
       {/* Trang giỏ hàng - yêu cầu đăng nhập */}
       <Route path="/cart" element={
-        <Layout>
-          <CartPage />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <CartPage />
+          </Layout>
+        </ProtectedRoute>
       } />
       
       {/* Trang profile - yêu cầu đăng nhập */}
       <Route path="/profile" element={
-        <Layout>
-          <ProfilePage />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <ProfilePage />
+          </Layout>
+        </ProtectedRoute>
       } />
       
       {/* Trang lịch sử - yêu cầu đăng nhập */}
       <Route path="/history" element={
-        <Layout>
-          <HistoryPage />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <HistoryPage />
+          </Layout>
+        </ProtectedRoute>
       } />
       
       {/* Trang chat - yêu cầu đăng nhập */}
       <Route path="/chat" element={
-        <Layout>
-          <ChatPage />
-        </Layout>
+        <ProtectedRoute>
+          <Layout>
+            <ChatPage />
+          </Layout>
+        </ProtectedRoute>
       } />
       
       {/* Error pages */}
