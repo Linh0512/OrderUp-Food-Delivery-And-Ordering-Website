@@ -44,7 +44,7 @@
     }
     };
 
-    export const isLogin = () => {
+    export const IsLogin = () => {
     try {
         const userData = JSON.parse(
         localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_KEY)

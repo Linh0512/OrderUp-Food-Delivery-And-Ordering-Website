@@ -1,4 +1,4 @@
-package com.example.orderup.models;
+package com.example.orderup.models.entities.User;
 
 import lombok.Data;
 

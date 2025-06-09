@@ -4,54 +4,44 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import CustomIconButtonSelect from "./ProfileSelect";
 import CustomSelect from "./CustomSelect";
-import { isLogin } from "../services/authServices/authServices";
+import { useAuth } from "./common/AuthContext";
+
 
 export default function Header() {
-  const isloggedIn = isLogin();
   const navigate = useNavigate();
-  const provinces = [
-    { label: "Hà Nội", value: "hanoi" },
-    { label: "TP. Hồ Chí Minh", value: "hochiminh" },
-    { label: "Đà Nẵng", value: "danang" },
-    { label: "Cần Thơ", value: "cantho" },
-    { label: "Hải Phòng", value: "haiphong" },
-    { label: "Khánh Hòa", value: "khanhhoa" },
-    { label: "Lâm Đồng", value: "lamdong" },
-    { label: "Quảng Ninh", value: "quangninh" },
-    { label: "Thừa Thiên Huế", value: "thue" },
-    { label: "Bình Định", value: "binhdinh" },
-  ];
+  const {isLogin}=useAuth()
+  console.log(isLogin)
 
   return (
-    <div className="flex space-x-3 w-full justify-between items-center px-10 caret-transparent">
+    <div className="flex space-x-3 w-full py-5 items-center px-20 caret-transparent">
       <img
         src={logo}
         alt="logo"
-        className="w-[10%]"
+        className="w-[8%]"
         onClick={() => navigate("/")}
       />
-      <div className="border rounded-2xl caret-black">
+      <div className="flex space-x-5 items-center ml-5">
+        <Link to={'/'} className="text-2xl font-extralight hover:font-normal transition">Trang chủ</Link>
+        <p className="text-2xl font-extralight">Cửa hàng</p>
+      </div>
+      <div className=" border border-gray-400 rounded-2xl caret-black px-4 ml-auto">
         <input
           type="text"
           id=""
-          placeholder="tìm địa điểm, món ăn,..."
-          className="py-2 px-4 w-[30vw] focus:outline-none"
+          placeholder="tìm kiếm..."
+          className="py-2 focus:outline-none w-[20vw]"
         />
-        <button className="bg-green-400 py-2 px-4 rounded-r-2xl ">
-          <FontAwesomeIcon
-            icon={faMagnifyingGlass}
-            color="green"
-            className="shadow-2xl"
-          />
-        </button>
+        <FontAwesomeIcon
+          icon={faMagnifyingGlass}
+          color="gray"
+          className="shadow-2xl"
+        />
       </div>
-
-      <CustomSelect options={provinces} head={"Tỉnh thành"} />
-      {isloggedIn ? (
+      { isLogin? (
         <div className="flex space-x-5">
           <button
             className="border rounded-2xl p-2 px-4 hover:bg-black/20"
@@ -71,13 +61,13 @@ export default function Header() {
       ) : (
         <div className="flex space-x-5">
           <button
-            className="border rounded-2xl p-3 px-4 hover:bg-black/20"
+            className="border rounded-2xl p-2 px-4 hover:bg-black/20 transition"
             onClick={() => navigate("/login")}
           >
             Đăng nhập
           </button>
           <button
-            className="border rounded-2xl p-3 px-4 hover:bg-black/20"
+            className="border rounded-2xl p-2 px-4 hover:bg-black/20 transition"
             onClick={() => navigate("/signup")}
           >
             Đăng Ký

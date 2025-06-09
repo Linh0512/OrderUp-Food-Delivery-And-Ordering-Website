@@ -1,6 +1,7 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import loginImage from "../../assets/loginImage.png";
 import { faEnvelope } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
 export default function ForgetPage() {
   return (
@@ -27,15 +28,15 @@ export default function ForgetPage() {
               className="focus:outline-none focus:ring-0 focus:border-none w-full"
             />
           </div>
-          <p className="text-end text-lime-500 font-light mt-2">
+          <Link to={'/login'} ><p className="text-end text-lime-500 font-light mt-2">
             You have account?
-          </p>
+          </p></Link>
         </div>
         <button className="w-[50%] mx-auto bg-lime-500 p-3 text-xl text-white rounded-3xl ">
-          Login
+          Reset password
         </button>
         <p className="text-center text-white my-auto font-light">
-          Don’t have an account? <span className="text-lime-500">Sign Up</span>
+          Don’t have an account? <Link to={'/signup'} className="text-lime-500">Sign Up</Link>
         </p>
       </div>
     </div>

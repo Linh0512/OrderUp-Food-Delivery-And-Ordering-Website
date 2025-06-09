@@ -1,24 +1,18 @@
 package com.example.orderup.controllers;
 
-import com.example.orderup.repositories.UserRepository;
+import com.example.orderup.models.entities.User.User;
 import com.example.orderup.services.UserService;
-import com.example.orderup.models.User;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Date;
 import java.util.HashMap;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 
 

@@ -1,10 +1,15 @@
 import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
 
-export default function Pagination() {
-    const [current,setCurrent]=useState(1);
-    const totalPages=7;
+export default function Pagination({limit,count,current,onPageChange}) {
+    const totalPages = Math.ceil(count / limit);
+
+    const handleClick = (page) => {
+    if (page !== current && page >= 1 && page <= totalPages) {
+      onPageChange(page);
+    }
+  };
+
     const getPagesToDisplay = () => {
     const pages = [];
 
@@ -40,7 +45,7 @@ export default function Pagination() {
       <div className="flex items-center gap-2  text-sm justify-end">
         <button
           className=" rounded-full hover:bg-green-400 active:bg-secondary-variant/20 text-lg size-10 "
-          onClick={()=>setCurrent(prev => Math.max(1, prev - 1))}
+          onClick={()=>handleClick(current - 1)}
         >
           <FontAwesomeIcon icon={faAngleLeft} />
         </button>
@@ -51,7 +56,7 @@ export default function Pagination() {
               className={`${
                 page === current  ? "bg-green-400" : "bg-white"
               }  rounded-lg hover:bg-green-400 active:bg-secondary-variant/20 text-lg size-10 shadow-2xl transition`}
-              onClick={() => setCurrent(page)}
+              onClick={() => handleClick(page)}
             >
               {page}
             </button>
@@ -64,19 +69,10 @@ export default function Pagination() {
         <button
           disabled={current === totalPages}
           className="rounded-full hover:bg-green-400 active:bg-secondary-variant/20 text-lg size-10 "
-          onClick={()=>setCurrent(prev => Math.min(totalPages, prev + 1))}
+          onClick={()=>handleClick(current + 1)}
         >
           <FontAwesomeIcon icon={faAngleRight} />
         </button>
-      </div>
-      <div className="flex flex-row gap-2 items-center">
-        <span>Go to:</span>
-        <input
-          type="number"
-          min={1}
-          max={totalPages}
-          className="input-variant-1 px-2 text-center bg-[rgba(217,217,217,0.4)] focus:border-none rounded"
-        />
       </div>
     </div>
   );

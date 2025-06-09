@@ -17,7 +17,6 @@ export function RequireAuth({ children }) {
 // Route chỉ cho user thông thường truy cập
 export function RequireUser({ children }) {
   const isAuthenticated = authService.isAuthenticated();
-  const userRole = authService.getUserRole();
   
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
