@@ -122,7 +122,7 @@ function CustomIconButtonSelect({ isLoggedIn, userRole, onProfileClick, onHistor
 }
 
 export default function Header() {
-  // const isloggedIn = isLogin();
+  const isloggedIn = isLogin();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
