@@ -45,10 +45,18 @@ export default function HomePage() {
     });
   }, [currentPage, selectedCategory, selectedPrice, selectedCriteria]);
 
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
-    // Cuộn lên đầu trang khi chuyển trang
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  const fetchShops = async () => {
+    try {
+      const response = await fetch("/sampleData/ShopDetail.json");
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      } else {
+        return {};
+      }
+    } catch (error) {
+      console.log("Error fetching shop data:", error);
+    }
   };
 
   return (

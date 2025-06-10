@@ -5,6 +5,7 @@ import {
   faLockOpen,
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 
 export default function SignUpPage() {
   return (
@@ -50,7 +51,7 @@ export default function SignUpPage() {
           Sign up
         </button>
         <p className="text-center text-white font-light">
-          If you have an account? <span className="text-lime-500">Login</span>
+          If you have an account? <Link to={'/login'}><span className="text-lime-500">Login</span></Link>
         </p>
         <p className="text-center text-sm text-white my-auto font-light">
           By creating an account, you agree to our{" "}

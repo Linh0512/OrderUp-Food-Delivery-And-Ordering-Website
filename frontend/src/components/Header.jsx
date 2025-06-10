@@ -1,94 +1,71 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import logo from '../assets/logo.png';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faShoppingCart, faSearch, faUser, faSignOutAlt, faHistory, faChevronDown, faComment } from '@fortawesome/free-solid-svg-icons';
-import authService from '../services/auth';
+import {
+  faCartShopping,
+  faMagnifyingGlass,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link, useNavigate } from "react-router-dom";
+import logo from "../assets/logo.png";
+import CustomIconButtonSelect from "./ProfileSelect";
+import { useAuth } from "./common/AuthContext";
 
-// Component chọn profile, history, và logout
-function CustomIconButtonSelect({ isLoggedIn, userRole, onProfileClick, onHistoryClick, onLoginClick, onLogoutClick, onAdminClick, onChatClick, onShoppingCartClick }) {
-  const [isOpen, setIsOpen] = useState(false);
-  
-  // Đóng dropdown khi click ra ngoài
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (isOpen && !event.target.closest('.profile-dropdown')) {
-        setIsOpen(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [isOpen]);
-
-  if (!isLoggedIn) {
-    return (
-      <button 
-        onClick={onLoginClick}
-        className="bg-[rgba(227,70,63,1)] text-white px-4 py-1.5 rounded-xl hover:bg-red-700 transition"
-      >
-        Đăng nhập
-      </button>
-    );
-  }
+export default function Header() {
+  const navigate = useNavigate();
+  const { isLogin } = useAuth();
+  console.log(isLogin);
 
   return (
-    <div className="profile-dropdown relative">
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center space-x-1 bg-[rgba(227,70,63,0.1)] text-[rgba(227,70,63,1)] px-3 py-1.5 rounded-xl hover:bg-[rgba(227,70,63,0.2)] transition"
-      >
-        <FontAwesomeIcon icon={faUser} />
-        <span>Tài khoản</span>
-        <FontAwesomeIcon icon={faChevronDown} className="text-xs" />
-      </button>
-      
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10 py-1">
-          <button
-            onClick={() => {
-              onProfileClick();
-              setIsOpen(false);
-            }}
-            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center"
+    <div className="flex space-x-3 w-full py-5 items-center px-20 caret-transparent">
+      <img
+        src={logo}
+        alt="logo"
+        className="w-[8%]"
+        onClick={() => navigate("/")}
+      />
+      <div className="flex space-x-5 items-center ml-5">
+        <Link
+          to={"/"}
+          className="text-2xl font-extralight hover:font-normal transition"
+        >
+          Trang chủ
+        </Link>
+        <Link
+          to={"/resDashboard"}
+          className="text-2xl font-extralight hover:font-normal transition"
+        >
+          Cửa hàng
+        </Link>
+      </div>
+      <div className=" border border-gray-400 rounded-2xl caret-black px-4 ml-auto">
+        <input
+          type="text"
+          id=""
+          placeholder="tìm kiếm..."
+          className="py-2 focus:outline-none w-[20vw]"
+        />
+        <FontAwesomeIcon
+          icon={faMagnifyingGlass}
+          color="gray"
+          className="shadow-2xl"
+        />
+      </div>
+      {isLogin ? (
+        <div className="flex space-x-5">
+          <div
+            className="p-2 rounded-2xl space-x-1 border px-4 hover:bg-black/20"
+            onClick={() => navigate("/cart")}
           >
-            <FontAwesomeIcon icon={faUser} className="mr-2" />
-            Hồ sơ
-          </button>
-          
+            <span className="text-xl">0</span>
+            <FontAwesomeIcon icon={faCartShopping} />
+          </div>
+          <CustomIconButtonSelect />
+        </div>
+      ) : (
+        <div className="flex space-x-5">
           <button
-            onClick={() => {
-              onHistoryClick();
-              setIsOpen(false);
-            }}
-            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center"
+            className="border rounded-2xl p-2 px-4 hover:bg-black/20 transition"
+            onClick={() => navigate("/login")}
           >
-            <FontAwesomeIcon icon={faHistory} className="mr-2" />
-            Lịch sử
-          </button>
-          
-          <button
-            onClick={() => {
-              onShoppingCartClick();
-              setIsOpen(false);
-            }}
-            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center"
-          >
-            <FontAwesomeIcon icon={faShoppingCart} className="mr-2" />
-            Giỏ hàng 0
-          </button>
-
-          <button
-            onClick={() => {
-              onChatClick();
-              setIsOpen(false);
-            }}
-            className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 flex items-center"
-          >
-            <FontAwesomeIcon icon={faComment} className="mr-2" />
-            Trò chuyện
+            Đăng nhập
           </button>
           {userRole === 'admin' && (
             <button
@@ -106,6 +83,11 @@ function CustomIconButtonSelect({ isLoggedIn, userRole, onProfileClick, onHistor
           <div className="border-t border-gray-200 my-1"></div>
           
           <button
+            className="border rounded-2xl p-2 px-4 hover:bg-black/20 transition"
+            onClick={() => navigate("/signup")}
+          >
+            Đăng Ký
+            <button
             onClick={() => {
               onLogoutClick();
               setIsOpen(false);

@@ -1,83 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faLock } from '@fortawesome/free-solid-svg-icons';
-import loginImage from '../../assets/loginImage.png';
-import authService from '../../services/auth';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import loginImage from "../../assets/loginImage.png";
+import { faEnvelope, faLockOpen } from "@fortawesome/free-solid-svg-icons";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/common/AuthContext";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [account, setAccount] = useState({ email: "", password: "" });
+  const { Login } = useAuth();
+  const nav = useNavigate();
 
-  useEffect(() => {
-    try {
-      const lastEmail = localStorage.getItem('last_email');
-      if (lastEmail) {
-        setEmail(lastEmail);
-        console.log('Last used email loaded:', lastEmail);
-      }
-    } catch (error) {
-      console.error('Error loading last email:', error);
+  const handleLogin = async () => {
+    const res = await Login(account.email, account.password);
+    if (res.token)
+    {
+      if(res.role==='admin')
+        window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${res.token}`
+      else if(res.role==='restaurantHost')
+        nav('hostres')
+      else
+        nav('/')
     }
-  }, []);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    setError('');
-    setIsLoading(true);
-
-    try {
-      console.log('Attempting login with:', { email });
-      
-      // Gọi API đăng nhập
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password })
-      });
-      
-      const data = await response.json();
-      console.log('Login response data:', data);
-      
-      if (data.success) {
-        // Tính thời gian hết hạn (24 giờ từ bây giờ)
-        const expiresAt = new Date().getTime() + 24 * 60 * 60 * 1000;
-        
-        // Lưu dữ liệu người dùng với thời gian hết hạn
-        const userData = {
-          userId: data.userId,
-          role: data.role,
-          token: data.token,
-          email: email,
-          expiresAt: expiresAt
-        };
-        
-        localStorage.setItem('user_data', JSON.stringify(userData));
-        console.log('User data saved to localStorage with expiration:', new Date(expiresAt).toLocaleString());
-                
-        // Điều hướng dựa trên role
-        if (data.role === 'admin') {
-          window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${data.token}`;
-        } else if (data.role === 'restaurantHost') {
-          navigate('/restaurant/dashboard');
-        } else {
-          navigate('/home');
-        }
-      } else {
-        setError(data.message || 'Đăng nhập thất bại');
-      }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError(`Có lỗi xảy ra khi đăng nhập: ${error.message || 'Unknown error'}`);
-    } finally {
-      setIsLoading(false);
-    }
+    else
+      alert('đăng nhập thất bại')
   };
 
   return (
@@ -87,56 +32,47 @@ export default function LoginPage() {
         <p className="text-9xl text-white dancing-script-700 text-center">
           Login
         </p>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <div className="text-white border-b py-2 text-xl space-x-2 opacity-90 flex items-center">
-              <FontAwesomeIcon icon={faEnvelope} />
-              <input
-                type="email"
-                className="bg-transparent outline-none w-full"
-                placeholder="Nhập email của bạn"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-            </div>
-            <div className="text-white border-b py-2 text-xl space-x-2 mt-5 opacity-90 flex items-center">
-              <FontAwesomeIcon icon={faLock} />
-              <input
-                type="password"
-                className="bg-transparent outline-none w-full"
-                placeholder="Nhập mật khẩu của bạn"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+        <div>
+          <div className="text-white border-b py-2 text-xl space-x-2 opacity-90 flex items-center">
+            <FontAwesomeIcon icon={faEnvelope} />
+            <input
+              type="text"
+              placeholder="Email"
+              className="focus:outline-none focus:ring-0 focus:border-none w-full"
+              onChange={(e) =>
+                setAccount({ ...account, email: e.target.value })
+              }
+            />
           </div>
-          
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded mt-4">
-              {error}
-            </div>
-          )}
-          
-          <button
-            type="submit"
-            className={`w-full py-2 rounded-xl mt-5 text-white text-lg font-semibold ${
-              isLoading ? "bg-gray-500" : "bg-[rgba(227,70,63,1)] hover:bg-red-700"
-            } transition`}
-            disabled={isLoading}
-          >
-            {isLoading ? "Đang đăng nhập..." : "ĐĂNG NHẬP"}
-          </button>
-          <div className="flex mt-2 justify-between text-white">
-            <a href="/forgot-password" className="opacity-80 hover:underline">
-              Quên mật khẩu
-            </a>
-            <a href="/register" className="opacity-80 hover:underline">
-              Đăng ký
-            </a>
+          <div className="text-white border-b py-2 text-xl space-x-2 opacity-90 flex items-center mt-7">
+            <FontAwesomeIcon icon={faLockOpen} />
+            <input
+              type="text"
+              placeholder="Password"
+              className="focus:outline-none focus:ring-0 focus:border-none w-full"
+              onChange={(e) =>
+                setAccount({ ...account, password: e.target.value })
+              }
+            />
           </div>
-        </form>
+          <Link to={"/forget"}>
+            <p className="text-end text-lime-500 font-light mt-2">
+              Forget Password?
+            </p>
+          </Link>
+        </div>
+        <button
+          className="w-[90%] mx-auto bg-lime-500 p-3 text-xl text-white rounded-3xl mt-5"
+          onClick={handleLogin}
+        >
+          Login
+        </button>
+        <p className="text-center text-white my-auto font-light">
+          Don’t have an account?{" "}
+          <Link to={"/signup"}>
+            <span className="text-lime-500">Sign Up</span>
+          </Link>
+        </p>
       </div>
     </div>
   );

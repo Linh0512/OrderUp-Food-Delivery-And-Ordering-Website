@@ -22,4 +22,8 @@
   animation: fillAnimation 2s linear infinite;
 }
 
+.sidebar_selected{
+  @apply bg-green-500 border-l-4 border-b-4 
+}
+
 

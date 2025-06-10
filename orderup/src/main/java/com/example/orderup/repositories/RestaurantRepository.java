@@ -61,9 +61,7 @@ public interface RestaurantRepository extends MongoRepository<Restaurant, String
     // Find restaurants by minimum rating
     @Query("{'ratings.averageRating': {$gte: ?0}, 'isActive': true}")
     Page<Restaurant> findByMinimumRating(double minRating, Pageable pageable);
-    
-    // THÊM MỚI CÁC PHƯƠNG THỨC THIẾU
-    
+        
     // Find restaurants by cuisine type with containing pattern
     @Query("{'businessInfo.cuisineTypes': {$regex: ?0, $options: 'i'}, 'isActive': true}")
     Page<Restaurant> findByBusinessInfoCuisineTypesContaining(String cuisineType, Pageable pageable);
