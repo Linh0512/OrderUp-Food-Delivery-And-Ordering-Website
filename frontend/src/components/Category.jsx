@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Category({header,items}) {
+export default function FoodCategories({header,items}) {
 
   const [activeCategory, setActiveCategory] = useState(items[0].name);
 

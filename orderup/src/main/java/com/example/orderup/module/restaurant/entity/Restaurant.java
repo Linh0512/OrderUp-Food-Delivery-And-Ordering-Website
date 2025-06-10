@@ -73,6 +73,7 @@ public class Restaurant {
         private List<String> images;
         private String logo;
         private String coverImage;
+        private String priceRange;
     }
 
     @Data

@@ -1,6 +1,6 @@
 import React from "react";
-import HistotyItem from "../../components/HistotyItem";
 import Pagination from "../../components/Pagination";
+import HistotyItem from "../../components/HistotyItem";
 
 export default function HistoryPage() {
   return (

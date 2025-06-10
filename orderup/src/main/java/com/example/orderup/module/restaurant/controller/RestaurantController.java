@@ -9,24 +9,34 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.orderup.module.restaurant.entity.Restaurant;
+import com.example.orderup.module.restaurant.mapper.RestaurantMapper;
 import com.example.orderup.module.restaurant.service.RestaurantService;
+import com.example.orderup.module.restaurant.dto.ShopThumbResponseDTO;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/restaurants")
-public class RestaurantController {
+@RequestMapping("/api/shop")
+@CrossOrigin(origins = "http://localhost:5173", 
+    methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
+    allowedHeaders = "*")
+    
+    public class RestaurantController {     
 
     @Autowired
     private RestaurantService restaurantService;
 
-    @GetMapping
+    @Autowired
+    private RestaurantMapper restaurantMapper;
+
+    @GetMapping()
     public ResponseEntity<?> getAllRestaurants(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantService.getAllRestaurantsPage(pageable);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @GetMapping("/{id}")
@@ -41,7 +51,8 @@ public class RestaurantController {
     @GetMapping("/name/{name}")
     public ResponseEntity<?> getRestaurantByName(@PathVariable String name) {
         List<Restaurant> restaurants = restaurantService.searchRestaurantsByName(name);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @PostMapping
@@ -99,7 +110,8 @@ public class RestaurantController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantService.getRestaurantsByCuisineType(cuisineType, pageable);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @GetMapping("/city/{city}")
@@ -109,7 +121,8 @@ public class RestaurantController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantService.getRestaurantsByCity(city, pageable);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @GetMapping("/search")
@@ -119,7 +132,8 @@ public class RestaurantController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantService.searchRestaurantsByName(name, pageable);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @GetMapping("/featured")
@@ -128,7 +142,8 @@ public class RestaurantController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantService.getFeaturedRestaurants(pageable);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @GetMapping("/delivery/{area}")
@@ -138,7 +153,8 @@ public class RestaurantController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantService.getRestaurantsByDeliveryArea(area, pageable);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @GetMapping("/rating")
@@ -148,6 +164,7 @@ public class RestaurantController {
             @RequestParam(defaultValue = "10") int size) {
         Pageable pageable = PageRequest.of(page, size);
         Page<Restaurant> restaurants = restaurantService.getRestaurantsByMinimumRating(minRating, pageable);
-        return ResponseEntity.ok(restaurants);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
+        return ResponseEntity.ok(shopThumbResponseDTO);
     }
 }
