@@ -27,7 +27,7 @@ export default function LoginPage() {
 
   return (
     <div className="relative w-[65vw] mx-auto">
-      <img src={loginImage} alt="" className="mx-auto"/>
+      <img src={loginImage} alt="" className="mx-auto" />
       <div className="absolute inset-0 space-y-12 flex flex-col w-[30%] top-25 left-40">
         <p className="text-9xl text-white dancing-script-700 text-center">
           Login
