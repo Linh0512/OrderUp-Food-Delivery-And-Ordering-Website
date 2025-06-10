@@ -122,7 +122,7 @@ function CustomIconButtonSelect({ isLoggedIn, userRole, onProfileClick, onHistor
 }
 
 export default function Header() {
-  const isloggedIn = isLogin();
+  // const isloggedIn = isLogin();
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userName, setUserName] = useState('');
@@ -239,7 +239,8 @@ export default function Header() {
           onShoppingCartClick={() => navigate('/cart')}
           onLoginClick={() => navigate('/login')}
           onLogoutClick={handleLogout}
-          onAdminClick={userRole === 'admin' ? () => navigate('/admin/users') : undefined}
+          // localhost:8080/ sẽ là trang quản trị, chỉ hiển thị nếu người dùng là admin
+          onAdminClick={userRole === 'admin' ? () => window.location.href = 'http://localhost:8080/' : undefined}
         />
       </div>
     </div>

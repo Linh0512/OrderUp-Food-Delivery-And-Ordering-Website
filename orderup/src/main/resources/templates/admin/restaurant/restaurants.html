@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Quản lý Nhà hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .restaurant-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+        .badge-status-active { background-color: #198754; }
+        .badge-status-inactive { background-color: #dc3545; }
+        .badge-status-pending { background-color: #fd7e14; }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1>Quản lý Nhà hàng</h1>
+        
+        <!-- Event Notification -->
+        <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${success}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col-md-6">
+                <form method="GET" action="/admin/restaurants/search" class="d-flex">
+                    <input type="text" name="name" class="form-control me-2" placeholder="Tìm theo tên nhà hàng...">
+                    <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+                </form>
+            </div>
+            <div class="col-md-6 text-end">
+                <a href="/admin/restaurants/create" class="btn btn-success">Thêm nhà hàng mới</a>
+            </div>
+        </div>
+        
+        <style>
+            .btn-primary {
+                min-width: 120px; /* Đảm bảo button đủ rộng */
+            }
+        </style>
+        
+        <!-- Hiển thị Restaurants -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Ảnh</th>
+                        <th>Tên nhà hàng</th>
+                        <th>Địa chỉ</th>
+                        <th>Liên hệ</th>
+                        <th>Trạng thái</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="restaurant : ${restaurants}">
+                        <td th:text="${restaurant.id}"></td>
+                        <td>
+                            <img th:if="${restaurant.basicInfo != null && restaurant.basicInfo.images != null && !restaurant.basicInfo.images.isEmpty()}" 
+                                 th:src="${restaurant.basicInfo.images[0]}" 
+                                 class="restaurant-img" alt="Restaurant Image">
+                            <img th:unless="${restaurant.basicInfo != null && restaurant.basicInfo.images != null && !restaurant.basicInfo.images.isEmpty()}" 
+                                 src="https://via.placeholder.com/50" 
+                                 class="restaurant-img" alt="No Image">
+                        </td>
+                        <td th:text="${restaurant.basicInfo != null ? restaurant.basicInfo.name : 'N/A'}"></td>
+                        <td th:text="${restaurant.address != null ? restaurant.address.fullAddress : 'N/A'}"></td>
+                        <td th:text="${restaurant.basicInfo != null ? restaurant.basicInfo.phone : 'N/A'}"></td>
+                        <td>
+                            <span th:if="${restaurant.isActive}" class="badge badge-status-active">Hoạt động</span>
+                            <span th:unless="${restaurant.isActive}" class="badge badge-status-inactive">Tạm dừng</span>
+                            <span th:if="${restaurant.verificationStatus == 'pending'}" class="badge badge-status-pending">Chờ duyệt</span>
+                        </td>
+                        <td th:text="${#temporals.format(restaurant.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a th:href="@{/admin/restaurants/{id}/view(id=${restaurant.id})}" class="btn btn-info">Xem</a>
+                                <a th:href="@{/admin/restaurants/{id}/edit(id=${restaurant.id})}" class="btn btn-warning">Sửa</a>
+                                <button type="button" class="btn btn-danger" 
+                                        th:attr="data-id=${restaurant.id}, data-name=${restaurant.basicInfo != null ? restaurant.basicInfo.name : 'Nhà hàng'}"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal">Xóa</button>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(restaurants)}">
+                        <td colspan="8" class="text-center">Không tìm thấy nhà hàng nào</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination -->
+        <nav th:if="${totalPages > 0}">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/admin/restaurants(page=${currentPage-1}, size=${pageSize})}">Trước</a>
+                </li>
+                <li class="page-item" th:each="i: ${#numbers.sequence(0, totalPages-1)}" th:classappend="${currentPage == i ? 'active' : ''}">
+                    <a class="page-link" th:href="@{/admin/restaurants(page=${i}, size=${pageSize})}" th:text="${i+1}"></a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage == totalPages-1 ? 'disabled' : ''}">
+                    <a class="page-link" th:href="@{/admin/restaurants(page=${currentPage+1}, size=${pageSize})}">Sau</a>
+                </li>
+            </ul>
+        </nav>
+        
+        <!-- Thống kê -->
+        <div class="card mt-4">
+            <div class="card-header bg-primary text-white">
+                Thống kê nhà hàng
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Tổng số nhà hàng</h5>
+                                <h2 class="card-text" th:text="${stats != null ? stats.totalRestaurants : 0}">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Nhà hàng mới</h5>
+                                <h2 class="card-text" th:text="${stats != null ? stats.newRestaurants : 0}">0</h2>
+                                <small class="text-muted">30 ngày qua</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h5 class="card-title">Nhà hàng hoạt động</h5>
+                                <h2 class="card-text" th:text="${stats != null ? stats.activeRestaurants : 0}">0</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <a href="/" class="btn btn-secondary mt-3">Quay lại Trang chủ</a>
+    </div>
+    
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa nhà hàng <span id="restaurantName"></span>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form id="deleteForm" method="POST" action="">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- JavaScript để xử lý modal xóa -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteModal = document.getElementById('deleteModal');
+            if (deleteModal) {
+                deleteModal.addEventListener('show.bs.modal', function(event) {
+                    const button = event.relatedTarget;
+                    const restaurantId = button.getAttribute('data-id');
+                    const restaurantName = button.getAttribute('data-name');
+                    
+                    document.getElementById('restaurantName').textContent = restaurantName;
+                    document.getElementById('deleteForm').action = '/admin/restaurants/' + restaurantId + '/delete';
+                });
+            }
+        });
+    </script>
+</body>
+</html>

@@ -9,9 +9,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.orderup.security.AdminSessionAuthenticationFilter;
-import com.example.orderup.security.JwtAuthorizationFilter;
-import com.example.orderup.services.UserService;
+import com.example.orderup.config.security.AdminSessionAuthenticationFilter;
+import com.example.orderup.config.security.JwtAuthorizationFilter;
+import com.example.orderup.module.user.service.UserService;
 
 
 @Configuration
