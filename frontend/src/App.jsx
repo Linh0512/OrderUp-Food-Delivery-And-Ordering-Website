@@ -13,6 +13,12 @@ import ProfilePage from "./pages/user/ProfilePage";
 import HistoryPage from "./pages/user/HistoryPage";
 import ChatPage from "./pages/user/ChatPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
+import AdminLayout from "./layouts/AdminLayout";
+import AdminUserListPage from "./pages/admin/AdminUserListPage";
+import AdminUserEditPage from "./pages/admin/AdminUserEditPage";
+import AdminUserDetailPage from "./pages/admin/AdminUserDetailPage";
+import RestaurentLayout from "./layouts/RestaurentLayout";
+import Dashboard from "./pages/hostRes/Dashboard";
 
 export default function App() {
   return (
@@ -32,6 +38,14 @@ export default function App() {
         <Route path="history" element={<HistoryPage/>}/>
         <Route path="chat" element={<ChatPage/>}/>
         <Route path="unAuth" element={<UnauthorizedPage/>}/>
+      </Route>
+      <Route path="/" element={<AdminLayout/>}>
+        <Route path="userpage" element={<AdminUserListPage/>}/>
+        <Route path="useredit" element={<AdminUserEditPage/>}/>
+        <Route path="userdetail" element={<AdminUserDetailPage/>}/>
+      </Route>
+      <Route path="/" element={<RestaurentLayout/>}>
+        <Route path="resDashBoard" element={<Dashboard/>}/>
       </Route>
     </Routes>
   );

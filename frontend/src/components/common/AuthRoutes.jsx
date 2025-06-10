@@ -25,23 +25,6 @@ export function RequireUser({ children }) {
   return children;
 }
 
-// Route chỉ cho admin truy cập
-export function RequireAdmin({ children }) {
-  const location = useLocation();
-  const isAuthenticated = authService.isAuthenticated();
-  const userRole = authService.getUserRole();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
-  
-  if (userRole !== 'admin') {
-    return <Navigate to="/unauthorized" replace />;
-  }
-  
-  return children ? children : <Outlet />;
-}
-
 // Route chỉ cho chủ nhà hàng truy cập
 export function RequireRestaurantHost({ children }) {
   const location = useLocation();

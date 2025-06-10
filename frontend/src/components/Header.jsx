@@ -1,20 +1,17 @@
 import {
   faCartShopping,
-  faComment,
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "../assets/logo.png";
 import CustomIconButtonSelect from "./ProfileSelect";
-import CustomSelect from "./CustomSelect";
 import { useAuth } from "./common/AuthContext";
-
 
 export default function Header() {
   const navigate = useNavigate();
-  const {isLogin}=useAuth()
-  console.log(isLogin)
+  const { isLogin } = useAuth();
+  console.log(isLogin);
 
   return (
     <div className="flex space-x-3 w-full py-5 items-center px-20 caret-transparent">
@@ -25,8 +22,18 @@ export default function Header() {
         onClick={() => navigate("/")}
       />
       <div className="flex space-x-5 items-center ml-5">
-        <Link to={'/'} className="text-2xl font-extralight hover:font-normal transition">Trang chủ</Link>
-        <p className="text-2xl font-extralight">Cửa hàng</p>
+        <Link
+          to={"/"}
+          className="text-2xl font-extralight hover:font-normal transition"
+        >
+          Trang chủ
+        </Link>
+        <Link
+          to={"/resDashboard"}
+          className="text-2xl font-extralight hover:font-normal transition"
+        >
+          Cửa hàng
+        </Link>
       </div>
       <div className=" border border-gray-400 rounded-2xl caret-black px-4 ml-auto">
         <input
@@ -41,14 +48,8 @@ export default function Header() {
           className="shadow-2xl"
         />
       </div>
-      { isLogin? (
+      {isLogin ? (
         <div className="flex space-x-5">
-          <button
-            className="border rounded-2xl p-2 px-4 hover:bg-black/20"
-            onClick={() => navigate("/chat")}
-          >
-            <FontAwesomeIcon icon={faComment} />
-          </button>
           <div
             className="p-2 rounded-2xl space-x-1 border px-4 hover:bg-black/20"
             onClick={() => navigate("/cart")}
