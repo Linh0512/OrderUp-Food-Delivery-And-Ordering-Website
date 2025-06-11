@@ -7,8 +7,10 @@ import {
   faTags,
   faTruck,
 } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 export default function SideBar() {
+
   const options = [
     { icon: faChartPie, name: "Dashboard" },
     { icon: faTruck, name: "Order" },
@@ -16,6 +18,8 @@ export default function SideBar() {
     { icon: faTags, name: "Category" },
   ];
   const [selectedOption, setSelectedOption] = useState(options[0].name);
+  const nav=useNavigate()
+
 
   return (
     <div className="w-[15vw] p-5 flex flex-col h-screen fixed top-0 left-0">
@@ -34,7 +38,7 @@ export default function SideBar() {
           </div>
         ))}
       </div>
-      <button className="font-semibold text-lg mx-auto border-none bg-gray-500 p-3 rounded-2xl justify-end text-white hover:bg-gray-400">
+      <button className="font-semibold text-lg mx-auto border-none bg-gray-500 p-3 rounded-2xl justify-end text-white hover:bg-gray-400" onClick={()=>nav('/')}>
         Quay lại trang chủ
       </button>
     </div>

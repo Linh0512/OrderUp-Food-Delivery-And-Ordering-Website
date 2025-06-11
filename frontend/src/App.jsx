@@ -15,6 +15,11 @@ import ChatPage from "./pages/user/ChatPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import RestaurentLayout from "./layouts/RestaurentLayout";
 import Dashboard from "./pages/hostRes/Dashboard";
+import {
+  RequireAnonymous,
+  RequireAuth,
+  RequireRestaurantHost,
+} from "./components/common/AuthRoutes";
 
 export default function App() {
   return (
@@ -23,20 +28,31 @@ export default function App() {
         <Route index element={<HomePage />} />
         <Route path="shop" element={<ShopPage />} />
       </Route>
+
       <Route path="/" element={<NoBannerLayout />}>
-        <Route path="login" element={<LoginPage />} />
-        <Route path="signup" element={<SignUpPage />} />
-        <Route path="forget" element={<ForgetPage />} />
-        <Route path="cart" element={<CartPage/>}/>
-        <Route path="payment" element={<PaymentPage/>}/>
-        <Route path="tracking" element={<TrackingPage/>}/>
-        <Route path="profile" element={<ProfilePage/>}/>
-        <Route path="history" element={<HistoryPage/>}/>
-        <Route path="chat" element={<ChatPage/>}/>
-        <Route path="unAuth" element={<UnauthorizedPage/>}/>
+
+        <Route element={<RequireAnonymous />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignUpPage />} />
+          <Route path="forget" element={<ForgetPage />} />
+        </Route>
+
+        <Route element={<RequireAuth />}>
+          <Route path="cart" element={<CartPage />} />
+          <Route path="payment" element={<PaymentPage />} />
+          <Route path="tracking" element={<TrackingPage />} />
+          <Route path="profile" element={<ProfilePage />} />
+          <Route path="history" element={<HistoryPage />} />
+          <Route path="chat" element={<ChatPage />} />
+        </Route>
+        <Route path="unAuth" element={<UnauthorizedPage />} />
       </Route>
-      <Route path="/" element={<RestaurentLayout/>}>
-        <Route path="resDashBoard" element={<Dashboard/>}/>
+
+
+      <Route element={<RequireRestaurantHost />}>
+        <Route path="/" element={<RestaurentLayout />}>
+          <Route path="resDashBoard" element={<Dashboard />} />
+        </Route>
       </Route>
     </Routes>
   );

@@ -1,47 +1,70 @@
-const API_BASE_URL = 'http://localhost:8080/api/shop';
+// const API_BASE_URL = 'http://localhost:8080/api/shop';
 
-export const restaurantService = {
-    getAllShops: async (page = 0, size = 10) => {
-        try {
-            const response = await fetch(`${API_BASE_URL}?page=${page}&size=${size}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                credentials: 'include',
-                mode: 'cors'
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.text();
-                throw new Error(`HTTP error! status: ${response.status} - ${errorData}`);
-            }
-            
-            return await response.json();
-        } catch (error) {
-            console.error('Chi tiết lỗi:', error);
-            throw error;
-        }
-    },
+import api from "../api";
 
-  searchShops: async (name, page = 0, size = 10) => {
-    const response = await fetch(`${API_BASE_URL}/search?name=${encodeURIComponent(name)}&page=${page}&size=${size}`);
-    return response.json();
-  },
+// export const restaurantService = {
+//     getAllShops: async (page = 0, size = 10) => {
+//         try {
+//             const response = await fetch(`${API_BASE_URL}?page=${page}&size=${size}`, {
+//                 method: 'GET',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                     'Accept': 'application/json'
+//                 },
+//                 credentials: 'include',
+//                 mode: 'cors'
+//             });
 
-  getFeaturedShops: async (page = 0, size = 10) => {
-    const response = await fetch(`${API_BASE_URL}/featured?page=${page}&size=${size}`);
-    return response.json();
-  },
+//             if (!response.ok) {
+//                 const errorData = await response.text();
+//                 throw new Error(`HTTP error! status: ${response.status} - ${errorData}`);
+//             }
 
-  getShopsByCuisine: async (cuisineType, page = 0, size = 10) => {
-    const response = await fetch(`${API_BASE_URL}/cuisine/${cuisineType}?page=${page}&size=${size}`);
-    return response.json();
-  },
+//             return await response.json();
+//         } catch (error) {
+//             console.error('Chi tiết lỗi:', error);
+//             throw error;
+//         }
+//     },
 
-  getShopsByCity: async (city, page = 0, size = 10) => {
-    const response = await fetch(`${API_BASE_URL}/city/${encodeURIComponent(city)}?page=${page}&size=${size}`);
-    return response.json();
+//   searchShops: async (name, page = 0, size = 10) => {
+//     const response = await fetch(`${API_BASE_URL}/search?name=${encodeURIComponent(name)}&page=${page}&size=${size}`);
+//     return response.json();
+//   },
+
+//   getFeaturedShops: async (page = 0, size = 10) => {
+//     const response = await fetch(`${API_BASE_URL}/featured?page=${page}&size=${size}`);
+//     return response.json();
+//   },
+
+//   getShopsByCuisine: async (cuisineType, page = 0, size = 10) => {
+//     const response = await fetch(`${API_BASE_URL}/cuisine/${cuisineType}?page=${page}&size=${size}`);
+//     return response.json();
+//   },
+
+//   getShopsByCity: async (city, page = 0, size = 10) => {
+//     const response = await fetch(`${API_BASE_URL}/city/${encodeURIComponent(city)}?page=${page}&size=${size}`);
+//     return response.json();
+//   }
+// };
+
+export const getAllShops = async (page, size) => {
+  try {
+    const response = await api.get(`/api/shop?page=${page}&size=${size}`);
+    if (response.data) {
+      const data=response.data
+      return { data: data.data, count: data.count };
+    } else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
   }
 };
+
+export const getShopsByCuisine=async (getShopsByCuisine,page,size)=>{
+  try {
+    
+  } catch (error) {
+    
+  }
+}

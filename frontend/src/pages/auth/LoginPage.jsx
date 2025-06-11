@@ -1,28 +1,29 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import loginImage from "../../assets/loginImage.png";
-import { faEnvelope, faLockOpen } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEnvelope,
+  faEye,
+  faEyeSlash,
+  faLockOpen,
+} from "@fortawesome/free-solid-svg-icons";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";
 
 export default function LoginPage() {
   const [account, setAccount] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const { Login } = useAuth();
   const nav = useNavigate();
 
   const handleLogin = async () => {
     const res = await Login(account.email, account.password);
-    if (res.token)
-    {
-      if(res.role==='admin')
-        window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${res.token}`
-      else if(res.role==='restaurantHost')
-        nav('hostres')
-      else
-        nav('/')
-    }
-    else
-      alert('đăng nhập thất bại')
+    if (res.token) {
+      if (res.role === "admin")
+        window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${res.token}`;
+      else if (res.role === "restaurantHost") nav("hostres");
+      else nav("/");
+    } else alert("đăng nhập thất bại");
   };
 
   return (
@@ -47,16 +48,21 @@ export default function LoginPage() {
           <div className="text-white border-b py-2 text-xl space-x-2 opacity-90 flex items-center mt-7">
             <FontAwesomeIcon icon={faLockOpen} />
             <input
-              type="text"
+              type={showPassword ? "text" : "password"}
               placeholder="Password"
               className="focus:outline-none focus:ring-0 focus:border-none w-full"
               onChange={(e) =>
                 setAccount({ ...account, password: e.target.value })
               }
             />
+            <FontAwesomeIcon
+              icon={showPassword ? faEyeSlash : faEye}
+              onClick={() => setShowPassword(!showPassword)}
+              className="cursor-pointer select-none"
+            />
           </div>
           <Link to={"/forget"}>
-            <p className="text-end text-lime-500 font-light mt-2">
+            <p className="text-end text-lime-500 font-light mt-4">
               Forget Password?
             </p>
           </Link>

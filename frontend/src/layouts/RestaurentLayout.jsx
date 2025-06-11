@@ -6,14 +6,13 @@ export default function RestaurentLayout() {
   return (
     <div className="flex">
       <SideBar />
-      <div className="ml-[15vw] flex">
+
+      <div className="ml-[15vw] w-full flex">
         <hr
-          className="h-auto w-px bg-gray-200 border-0 fixed"
+          className="h-auto w-0.5 bg-gray-200 border-0 fixed"
           style={{ height: "100vh" }}
         />
-        <div className="flex-1">
-          <Outlet />
-        </div>
+        <Outlet />
       </div>
     </div>
   );

@@ -11,7 +11,6 @@ import { useAuth } from "./common/AuthContext";
 export default function Header() {
   const navigate = useNavigate();
   const { isLogin } = useAuth();
-  console.log(isLogin);
 
   return (
     <div className="flex space-x-3 w-full py-5 items-center px-20 caret-transparent">
