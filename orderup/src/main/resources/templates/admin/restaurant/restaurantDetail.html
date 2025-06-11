@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết nhà hàng</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="" th:if="${_csrf != null}" th:content="${_csrf.token}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        .restaurant-image {
+            width: 100%;
+            max-height: 300px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 10px;
+        }
+        .thumbnail {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0 5px;
+        }
+        .badge-status-active { 
+            background-color: #198754; 
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .badge-status-inactive { 
+            background-color: #dc3545; 
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .badge-status-pending { 
+            background-color: #fd7e14; 
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .rating-star {
+            color: #ffc107;
+        }
+        .rating-count {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        #map {
+            width: 100%;
+            height: 250px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #map iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+        }
+        .nav-tabs .nav-link {
+            color: #495057;
+        }
+        .nav-tabs .nav-link.active {
+            color: #0d6efd;
+            font-weight: 500;
+        }
+        .status-toggle {
+            cursor: pointer;
+        }
+        .deliveryArea-badge {
+            background-color: #17a2b8;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Chi tiết nhà hàng</h1>
+            <a href="/admin/restaurants" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại danh sách
+            </a>
+        </div>
+        
+        <!-- Thanh trạng thái và hành động nhanh -->
+        <div class="card mb-4 bg-light">
+            <div class="card-body py-2">
+                <div class="row align-items-center">
+                    <div class="col-md-4">
+                        <div class="d-flex align-items-center">
+                            <span class="me-2">Trạng thái:</span>
+                            <span th:if="${restaurant != null && restaurant.active == true}" class="badge badge-status-active">Hoạt động</span>
+                            <span th:if="${restaurant != null && restaurant.active == false}" class="badge badge-status-inactive">Tạm dừng</span>
+                            <span th:if="${restaurant != null && restaurant.verificationStatus == 'pending'}" class="badge badge-status-pending ms-2">Chờ duyệt</span>
+                        </div>
+                    </div>
+                    <div class="col-md-8 text-md-end">
+                        <div class="btn-group" th:if="${restaurant != null}">
+                            <a th:href="@{/admin/restaurants/{id}/edit(id=${restaurant.id})}" class="btn btn-sm btn-warning">
+                                <i class="bi bi-pencil"></i> Chỉnh sửa
+                            </a>
+                            <button type="button" class="btn btn-sm btn-success" id="toggleStatusBtn"
+                                    th:data-id="${restaurant.id}" th:data-status="${!restaurant.active}">
+                                <i class="bi" th:classappend="${restaurant.active ? 'bi-toggle-on' : 'bi-toggle-off'}"></i>
+                                <span th:text="${restaurant.active ? 'Tạm dừng' : 'Kích hoạt'}">Trạng thái</span>
+                            </button>
+                            <button type="button" class="btn btn-sm btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                <i class="bi bi-trash"></i> Xóa
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-5">
+                        <!-- Ảnh chính và thumbnails -->
+                        <div th:if="${restaurant != null && restaurant.basicInfo != null && restaurant.basicInfo.images != null && !restaurant.basicInfo.images.isEmpty()}">
+                            <img th:src="${restaurant.basicInfo.images[0]}" class="restaurant-image" alt="Restaurant Image" id="mainImage">
+                            <div class="d-flex justify-content-center mt-2">
+                                <div th:each="image, status : ${restaurant.basicInfo.images}">
+                                    <img th:src="${image}" 
+                                        class="thumbnail thumbnail-img" 
+                                        th:data-image="${image}">
+                                </div>
+                            </div>
+                        </div>
+                        <div th:unless="${restaurant != null && restaurant.basicInfo != null && restaurant.basicInfo.images != null && !restaurant.basicInfo.images.isEmpty()}" class="text-center">
+                            <div class="bg-light p-5 rounded">
+                                <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                                <p class="text-muted mt-2">Không có hình ảnh</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4 text-center">
+                            <h3 th:text="${restaurant != null && restaurant.basicInfo != null ? restaurant.basicInfo.name : 'N/A'}">Tên nhà hàng</h3>
+                            <!-- Hiển thị đánh giá -->
+                            <div class="mb-3" th:if="${restaurant != null && restaurant.ratings != null}">
+                                <div class="d-flex justify-content-center align-items-center">
+                                    <span class="h4 mb-0 me-2" th:text="${restaurant.ratings.averageRating}">4.5</span>
+                                    <div>
+                                        <div class="rating-star">
+                                            <i class="bi bi-star-fill" th:each="i : ${#numbers.sequence(1, 5)}"
+                                               th:classappend="${i <= restaurant.ratings.averageRating ? '' : 'text-muted'}"></i>
+                                        </div>
+                                        <div class="rating-count" th:text="${restaurant.ratings.totalReviews + ' đánh giá'}">100 đánh giá</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Bản đồ nhà hàng -->
+                        <div class="mt-4">
+                            <h5 class="text-primary mb-2">Vị trí</h5>
+                            <div id="map" class="mb-2">
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.228425430923!2d108.24196751094287!3d16.05363198455945!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314217298158d929%3A0x6234302fecd8057b!2sPizza%20House!5e0!3m2!1sen!2s!4v1749495942207!5m2!1sen!2s" 
+                                    style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            </div>
+                            <p class="small text-muted text-center">
+                                <i class="bi bi-geo-alt"></i> 
+                                <span th:text="${restaurant != null && restaurant.address != null ? restaurant.address.fullAddress + ', ' + restaurant.address.district + ', ' + restaurant.address.city : 'Địa chỉ nhà hàng'}">
+                                    Địa chỉ đầy đủ
+                                </span>
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-7">
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" id="myTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="info-tab" data-bs-toggle="tab" data-bs-target="#info" type="button" role="tab" aria-controls="info" aria-selected="true">
+                                    <i class="bi bi-info-circle"></i> Thông tin
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="delivery-tab" data-bs-toggle="tab" data-bs-target="#delivery" type="button" role="tab" aria-controls="delivery" aria-selected="false">
+                                    <i class="bi bi-truck"></i> Giao hàng
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="schedule-tab" data-bs-toggle="tab" data-bs-target="#schedule" type="button" role="tab" aria-controls="schedule" aria-selected="false">
+                                    <i class="bi bi-clock"></i> Lịch làm việc
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="banking-tab" data-bs-toggle="tab" data-bs-target="#banking" type="button" role="tab" aria-controls="banking" aria-selected="false">
+                                    <i class="bi bi-bank"></i> Tài chính
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <!-- Tab content -->
+                        <div class="tab-content p-3 border border-top-0 rounded-bottom mb-4" id="myTabContent">
+                            <!-- Thông tin cơ bản -->
+                            <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 class="text-primary">Thông tin cơ bản</h5>
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <th><i class="bi bi-fingerprint"></i> ID:</th>
+                                                <td th:text="${restaurant != null ? restaurant.id : 'N/A'}">ID</td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-person"></i> Chủ nhà hàng:</th>
+                                                <td th:text="${restaurant != null && restaurant.hostId != null ? restaurant.hostId : 'N/A'}">Host ID</td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-telephone"></i> Số điện thoại:</th>
+                                                <td th:text="${restaurant != null && restaurant.basicInfo != null ? restaurant.basicInfo.phone : 'N/A'}">Số ĐT</td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-envelope"></i> Email:</th>
+                                                <td th:text="${restaurant != null && restaurant.basicInfo != null ? restaurant.basicInfo.email : 'N/A'}">Email</td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-globe"></i> Website:</th>
+                                                <td>
+                                                    <a th:if="${restaurant != null && restaurant.basicInfo != null && restaurant.basicInfo.website != null}" 
+                                                       th:href="${restaurant.basicInfo.website}" target="_blank" 
+                                                       th:text="${restaurant.basicInfo.website}">Website</a>
+                                                    <span th:unless="${restaurant != null && restaurant.basicInfo != null && restaurant.basicInfo.website != null}">N/A</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="col-md-6">
+                                        <h5 class="text-primary">Thông tin kinh doanh</h5>
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <th><i class="bi bi-card-text"></i> Mô tả:</th>
+                                                <td th:text="${restaurant != null && restaurant.basicInfo != null ? restaurant.basicInfo.description : 'N/A'}">Mô tả</td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-tags"></i> Loại ẩm thực:</th>
+                                                <td>
+                                                    <span th:each="cuisine : ${restaurant != null && restaurant.businessInfo != null && restaurant.businessInfo.cuisineTypes != null ? restaurant.businessInfo.cuisineTypes : {}}" 
+                                                          class="badge bg-success me-1" 
+                                                          th:text="${cuisine}">Ẩm thực</span>
+                                                    <span th:if="${restaurant == null || restaurant.businessInfo == null || restaurant.businessInfo.cuisineTypes == null || restaurant.businessInfo.cuisineTypes.isEmpty()}">N/A</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-bookmark"></i> Danh mục:</th>
+                                                <td>
+                                                    <span th:each="tag : ${restaurant != null && restaurant.tags != null ? restaurant.tags : {}}" 
+                                                          class="badge bg-info me-1" 
+                                                          th:text="${tag}">Tag</span>
+                                                    <span th:if="${restaurant == null || restaurant.tags == null || restaurant.tags.isEmpty()}">N/A</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-card-list"></i> Giấy phép:</th>
+                                                <td th:text="${restaurant != null && restaurant.businessInfo != null && restaurant.businessInfo.businessLicense != null ? restaurant.businessInfo.businessLicense : 'N/A'}">Giấy phép</td>
+                                            </tr>
+                                            <tr>
+                                                <th><i class="bi bi-receipt"></i> Mã số thuế:</th>
+                                                <td th:text="${restaurant != null && restaurant.businessInfo != null && restaurant.businessInfo.taxCode != null ? restaurant.businessInfo.taxCode : 'N/A'}">Mã số thuế</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab giao hàng -->
+                            <div class="tab-pane fade" id="delivery" role="tabpanel" aria-labelledby="delivery-tab">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <h5 class="text-primary">Thông tin giao hàng</h5>
+                                        <table class="table table-borderless">
+                                            <tr>
+                                                <th>Trạng thái:</th>
+                                                <td>
+                                                    <span th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}" 
+                                                          class="badge badge-status-active">Có giao hàng</span>
+                                                    <span th:unless="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}" 
+                                                          class="badge badge-status-inactive">Không giao hàng</span>
+                                                </td>
+                                            </tr>
+                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                                <th>Phí giao hàng:</th>
+                                                <td th:text="${restaurant.delivery.deliveryFee + ' VNĐ'}">30,000 VNĐ</td>
+                                            </tr>
+                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                                <th>Miễn phí giao hàng từ:</th>
+                                                <td th:text="${restaurant.delivery.freeDeliveryThreshold + ' VNĐ'}">200,000 VNĐ</td>
+                                            </tr>
+                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                                <th>Bán kính giao hàng:</th>
+                                                <td th:text="${restaurant.delivery.deliveryRadius + ' km'}">5 km</td>
+                                            </tr>
+                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                                <th>Thời gian giao hàng:</th>
+                                                <td th:text="${restaurant.delivery.estimatedDeliveryTime + ' phút'}">30-45 phút</td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                    
+                                    <div class="col-md-6" th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true && restaurant.delivery.deliveryAreas != null}">
+                                        <h5 class="text-primary">Khu vực giao hàng</h5>
+                                        <div class="mt-2">
+                                            <div th:if="${restaurant.delivery.deliveryAreas != null && !restaurant.delivery.deliveryAreas.isEmpty()}" class="mb-2">
+                                                <span th:each="area, areaStat : ${restaurant.delivery.deliveryAreas}" 
+                                                    th:if="${areaStat.index < 10}"
+                                                    class="deliveryArea-badge" 
+                                                    th:text="${area}">Khu vực</span>
+                                                <span th:if="${restaurant.delivery.deliveryAreas.size() > 10}" 
+                                                    class="badge bg-secondary">+<span th:text="${restaurant.delivery.deliveryAreas.size() - 10}"></span> khu vực khác</span>
+                                            </div>
+                                            <div th:if="${restaurant.delivery.deliveryAreas == null || restaurant.delivery.deliveryAreas.isEmpty()}" class="text-muted">
+                                                Không có khu vực được chỉ định
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Tab lịch làm việc -->
+                            <div class="tab-pane fade" id="schedule" role="tabpanel" aria-labelledby="schedule-tab">
+                                <h5 class="text-primary">Giờ App hoạt động</h5>
+                                <table class="table table-striped">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Ngày</th>
+                                            <th>Trạng thái</th>
+                                            <th>Giờ mở cửa</th>
+                                            <th>Giờ đóng cửa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="day, iterStat : ${{'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'}}">
+                                            <td th:text="${day}">Ngày</td>
+                                            <td>
+                                                <span th:if="${restaurant != null && restaurant.operatingHours != null && restaurant.operatingHours.size() > iterStat.index && restaurant.operatingHours[iterStat.index] != null && restaurant.operatingHours[iterStat.index].isOpen}" 
+                                                      class="badge badge-status-active">Mở cửa</span>
+                                                <span th:unless="${restaurant != null && restaurant.operatingHours != null && restaurant.operatingHours.size() > iterStat.index && restaurant.operatingHours[iterStat.index] != null && restaurant.operatingHours[iterStat.index].isOpen}" 
+                                                      class="badge badge-status-inactive">Đóng cửa</span>
+                                            </td>
+                                            <td th:text="${restaurant != null && restaurant.operatingHours != null && restaurant.operatingHours.size() > iterStat.index && restaurant.operatingHours[iterStat.index] != null ? restaurant.operatingHours[iterStat.index].openTime : 'N/A'}">Giờ mở</td>
+                                            <td th:text="${restaurant != null && restaurant.operatingHours != null && restaurant.operatingHours.size() > iterStat.index && restaurant.operatingHours[iterStat.index] != null ? restaurant.operatingHours[iterStat.index].closeTime : 'N/A'}">Giờ đóng</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <!-- Tab tài chính -->
+                            <div class="tab-pane fade" id="banking" role="tabpanel" aria-labelledby="banking-tab">
+                                <h5 class="text-primary">Thông tin tài khoản ngân hàng</h5>
+                                <div class="alert alert-info" th:if="${restaurant == null || restaurant.bankInfo == null}">
+                                    <i class="bi bi-info-circle"></i> Chưa có thông tin tài khoản ngân hàng
+                                </div>
+                                <table class="table table-borderless" th:if="${restaurant != null && restaurant.bankInfo != null}">
+                                    <tr>
+                                        <th><i class="bi bi-bank"></i> Ngân hàng:</th>
+                                        <td th:text="${restaurant.bankInfo.bankName}">Tên ngân hàng</td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="bi bi-person-badge"></i> Chủ tài khoản:</th>
+                                        <td th:text="${restaurant.bankInfo.accountHolder}">Tên chủ tài khoản</td>
+                                    </tr>
+                                    <tr>
+                                        <th><i class="bi bi-credit-card"></i> Số tài khoản:</th>
+                                        <td th:text="${restaurant.bankInfo.accountNumber}">Số tài khoản</td>
+                                    </tr>
+                                </table>
+                                
+                                <div class="mt-4">
+                                    <h6>Lịch sử thanh toán</h6>
+                                    <div class="alert alert-light">
+                                        <i class="bi bi-info-circle"></i> Chức năng đang được phát triển
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Thống kê hiệu suất -->
+                        <div class="card border-0 bg-light">
+                            <div class="card-header bg-transparent">
+                                <h5 class="mb-0"><i class="bi bi-graph-up"></i> Thống kê hiệu suất</h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="card text-center h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-muted">Đánh giá</h6>
+                                                <h2 class="mb-0" th:text="${restaurant != null && restaurant.ratings != null ? restaurant.ratings.averageRating : 'N/A'}">4.5</h2>
+                                                <div class="small text-muted" th:text="${restaurant != null && restaurant.ratings != null ? restaurant.ratings.totalReviews + ' đánh giá' : '0 đánh giá'}">100 đánh giá</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-center h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-muted">Đơn hàng</h6>
+                                                <h2 class="mb-0">--</h2>
+                                                <div class="small text-muted">Trong 30 ngày qua</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="card text-center h-100">
+                                            <div class="card-body">
+                                                <h6 class="card-title text-muted">Doanh thu</h6>
+                                                <h2 class="mb-0">--</h2>
+                                                <div class="small text-muted">Trong 30 ngày qua</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer bg-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="small text-muted">
+                        <span>Tạo: </span>
+                        <span th:text="${restaurant != null && restaurant.createdAt != null ? #dates.format(restaurant.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">Ngày tạo</span>
+                    </div>
+                    <div class="small text-muted">
+                        <span>Cập nhật: </span>
+                        <span th:text="${restaurant != null && restaurant.updatedAt != null ? #dates.format(restaurant.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}">Cập nhật</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="alert alert-danger">
+                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        Bạn có chắc chắn muốn xóa nhà hàng này?<br>
+                        <strong>Lưu ý:</strong> Hành động này không thể hoàn tác.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle"></i> Hủy
+                    </button>
+                    <form th:action="@{/admin/restaurants/{id}/delete(id=${restaurant != null ? restaurant.id : ''})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> Xác nhận xóa
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Nút tải lại trong trường hợp lỗi -->
+    <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+        <button onclick="window.location.reload()" class="btn btn-primary d-none" id="reloadButton">
+            <i class="bi bi-arrow-clockwise"></i> Tải lại trang
+        </button>
+    </div>
+
+    <!-- Bootstrap JS and jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded');
+
+            // Toggle Status Button Functionality
+            const toggleBtn = document.getElementById('toggleStatusBtn');
+            if (toggleBtn) {
+                console.log('Toggle button found');
+                toggleBtn.addEventListener('click', function() {
+                    console.log('Toggle button clicked');
+                    const restaurantId = this.getAttribute('data-id');
+                    const newStatus = this.getAttribute('data-status') === 'true';
+                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    $.ajax({
+                        url: `/admin/restaurants/${restaurantId}/status`,
+                        type: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': csrfToken
+                        },
+                        contentType: 'application/json',
+                        data: JSON.stringify({ active: newStatus }),
+                        success: function(response) {
+                            console.log('Status updated successfully:', response);
+                            // Update button text and icon
+                            toggleBtn.setAttribute('data-status', !newStatus);
+                            toggleBtn.querySelector('span').textContent = newStatus ? 'Tạm dừng' : 'Kích hoạt';
+                            toggleBtn.querySelector('i').className = 'bi ' + (newStatus ? 'bi-toggle-on' : 'bi-toggle-off');
+                            // Update status badge
+                            const statusBadge = document.querySelector('.badge-status-active, .badge-status-inactive');
+                            statusBadge.textContent = newStatus ? 'Hoạt động' : 'Tạm dừng';
+                            statusBadge.className = 'badge ' + (newStatus ? 'badge-status-active' : 'badge-status-inactive');
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error updating status:', error);
+                            alert('Có lỗi xảy ra khi cập nhật trạng thái.');
+                        }
+                    });
+                });
+            }
+
+            // Thumbnail click handler (if needed)
+            const thumbnails = document.querySelectorAll('.thumbnail-img');
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    document.getElementById('mainImage').src = this.getAttribute('data-image');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

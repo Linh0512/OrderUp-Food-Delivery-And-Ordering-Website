@@ -6,8 +6,9 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.example.orderup.models.entities.Res.Restaurant;
+import com.example.orderup.module.restaurant.entity.Restaurant;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -15,19 +16,20 @@ import java.util.Optional;
 public interface RestaurantRepository extends MongoRepository<Restaurant, String> {
 
     // Find all active restaurants
-    Page<Restaurant> findByIsActiveTrue(Pageable pageable);
+    Page<Restaurant> findByActiveTrue(Pageable pageable);
     
     // Find restaurant by host ID
     Optional<Restaurant> findByHostId(String hostId);
     
     // Find restaurants by city
-    Page<Restaurant> findByAddressCityAndIsActiveTrue(String city, Pageable pageable);
+    Page<Restaurant> findByAddressCityAndActiveTrue(String city, Pageable pageable);
     
     // Find restaurants by district
-    Page<Restaurant> findByAddressDistrictAndIsActiveTrue(String district, Pageable pageable);
+    Page<Restaurant> findByAddressDistrictAndActiveTrue(String district, Pageable pageable);
     
     // Find featured restaurants
-    Page<Restaurant> findByIsFeaturedTrueAndIsActiveTrue(Pageable pageable);
+    @Query("{'isFeatured': true, 'isActive': true}")
+    Page<Restaurant> findByFeaturedTrueAndActiveTrue(Pageable pageable);
     
     // Search restaurants by name
     @Query("{'basicInfo.name': {$regex: ?0, $options: 'i'}, 'isActive': true}")
@@ -59,4 +61,32 @@ public interface RestaurantRepository extends MongoRepository<Restaurant, String
     // Find restaurants by minimum rating
     @Query("{'ratings.averageRating': {$gte: ?0}, 'isActive': true}")
     Page<Restaurant> findByMinimumRating(double minRating, Pageable pageable);
+        
+    // Find restaurants by cuisine type with containing pattern
+    @Query("{'businessInfo.cuisineTypes': {$regex: ?0, $options: 'i'}, 'isActive': true}")
+    Page<Restaurant> findByBusinessInfoCuisineTypesContaining(String cuisineType, Pageable pageable);
+    
+    // Search restaurants by name (List result)
+    @Query("{'basicInfo.name': {$regex: ?0, $options: 'i'}}")
+    List<Restaurant> findByBasicInfoNameContainingIgnoreCase(String name);
+    
+    // Search restaurants by name with pagination
+    @Query("{'basicInfo.name': {$regex: ?0, $options: 'i'}}")
+    Page<Restaurant> findByBasicInfoNameContainingIgnoreCase(String name, Pageable pageable);
+    
+    // Find restaurants by delivery areas
+    @Query("{'delivery.deliveryAreas': {$regex: ?0, $options: 'i'}, 'isActive': true}")
+    Page<Restaurant> findByDeliveryDeliveryAreasContaining(String area, Pageable pageable);
+    
+    // Find restaurants by minimum rating with field path
+    @Query("{'ratings.averageRating': {$gte: ?0}, 'isActive': true}")
+    Page<Restaurant> findByRatingsAverageRatingGreaterThanEqual(double minRating, Pageable pageable);
+    
+    // Count all active restaurants
+    @Query(value = "{'active': true}", count = true)
+    long countByActiveTrue();
+    
+    // Count restaurants created after a specific date
+    @Query(value = "{'createdAt': {$gt: ?0}}", count = true)
+    long countByCreatedAtAfter(LocalDateTime date);
 }

@@ -9,9 +9,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.example.orderup.security.AdminSessionAuthenticationFilter;
-import com.example.orderup.security.JwtAuthorizationFilter;
-import com.example.orderup.services.UserService;
+import com.example.orderup.config.security.AdminSessionAuthenticationFilter;
+import com.example.orderup.config.security.JwtAuthorizationFilter;
+import com.example.orderup.module.user.service.UserService;
 
 
 @Configuration
@@ -29,13 +29,23 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.configure(http)) // Thêm CORS configuration
             // API endpoints sử dụng JWT
             .securityMatcher("/api/**")
             .authorizeHttpRequests(authz -> authz
+                // Cho phép các endpoint public trước
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/admin-auth/**").permitAll() // Cho phép endpoint này
+                .requestMatchers("/api/admin-auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
-                .anyRequest().authenticated()
+                .requestMatchers("/api/shop/**").permitAll()
+                .requestMatchers("/api/category/**").permitAll()
+                .requestMatchers("/api/dish/**").permitAll()
+                .requestMatchers("/api/review/**").permitAll()
+                // Chỉ các endpoint khác mới cần authentication
+                .requestMatchers("/api/user/**").authenticated()
+                .requestMatchers("/api/order/**").authenticated()
+                .requestMatchers("/api/admin/**").authenticated()
+                .anyRequest().permitAll() // Thay đổi từ authenticated() thành permitAll()
             )
             .addFilterBefore(jwtAuthorizationFilter, UsernamePasswordAuthenticationFilter.class)
             .sessionManagement(session -> 

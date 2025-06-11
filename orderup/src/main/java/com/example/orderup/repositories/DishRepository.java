@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import com.example.orderup.models.entities.Res.Dish;
+import com.example.orderup.module.restaurant.entity.Dish;
 
 import java.util.List;
 
