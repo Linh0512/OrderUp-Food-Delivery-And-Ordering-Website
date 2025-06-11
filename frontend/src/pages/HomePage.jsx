@@ -2,21 +2,25 @@ import { useEffect, useState } from "react";
 import Category from "../components/Category";
 import Pagination from "../components/Pagination";
 import ShopCard from "../components/ShopCard";
-import { getAllShops } from "../services/userServices/restaurantService";
+import {
+  getAllShops,
+  getShopsByCuisine,
+} from "../services/userServices/restaurantService";
 
 export default function HomePage() {
   const SHOP_LIMIT = 12;
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
+  const [category, setcategory] = useState("Tất cả");
 
   const categories = [
     { name: "Tất cả", color: "bg-green-500" },
     { name: "Cơm", color: "bg-orange-400" },
-    { name: "Bún / Phở / Hủ tiếu", color: "bg-red-400" },
-    { name: "Cháo / Soup / Canh", color: "bg-blue-300" },
-    { name: "Bánh mì / Bánh cuốn", color: "bg-pink-400" },
-    { name: "Burger / Pizza", color: "bg-blue-400" },
-    { name: "Salad / Healthy", color: "bg-green-400" },
+    { name: "Bún", color: "bg-red-400" },
+    { name: "Cháo", color: "bg-blue-300" },
+    { name: "Bánh mì", color: "bg-pink-400" },
+    { name: "Pizza", color: "bg-blue-400" },
+    { name: "Burger", color: "bg-green-400" },
   ];
 
   const priceRanges = [
@@ -36,11 +40,18 @@ export default function HomePage() {
   const [shops, setShops] = useState([]);
 
   useEffect(() => {
-    getAllShops(page-1, SHOP_LIMIT).then((res) => {
-      setShops(res.data);
-      setCount(res.count);
-    });
-  }, [page]);
+    if (category === "Tất cả") {
+      getAllShops(page - 1, SHOP_LIMIT).then((res) => {
+        setShops(res.data);
+        setCount(res.count);
+      });
+    } else {
+      getShopsByCuisine(category, page-1, SHOP_LIMIT).then((res) => {
+        setShops(res.data);
+        setCount(res.count);
+      });
+    }
+  }, [page,category]);
 
   return (
     <div className="w-[80vw] mx-auto flex">
@@ -63,7 +74,11 @@ export default function HomePage() {
         />
       </div>
       <div className="space-y-3 mt-10 ml-4">
-        <Category header={"Danh mục món ăn"} items={categories} />
+        <Category
+          header={"Danh mục món ăn"}
+          items={categories}
+          handleSelect={setcategory}
+        />
         <Category header={"Mức giá"} items={priceRanges} />
         <Category header={"Tiêu chí khác"} items={otherCriteria} />
       </div>

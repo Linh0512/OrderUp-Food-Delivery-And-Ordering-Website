@@ -52,7 +52,7 @@ export const getAllShops = async (page, size) => {
   try {
     const response = await api.get(`/api/shop?page=${page}&size=${size}`);
     if (response.data) {
-      const data=response.data
+      const data = response.data;
       return { data: data.data, count: data.count };
     } else return {};
   } catch (error) {
@@ -61,10 +61,19 @@ export const getAllShops = async (page, size) => {
   }
 };
 
-export const getShopsByCuisine=async (getShopsByCuisine,page,size)=>{
+export const getShopsByCuisine = async (cuisine, page, size) => {
   try {
-    
+    const response = await api.get(
+      `api/shop/cuisine/${cuisine}?page=${page}&size=${size}`
+    );
+    if (response.data) {
+      const data = response.data;
+      console.log(response)
+      return { data: data.data, count: data.count };
+    } else return {};
   } catch (error) {
-    
+    console.log(error);
+    return {};
   }
-}
+};
+

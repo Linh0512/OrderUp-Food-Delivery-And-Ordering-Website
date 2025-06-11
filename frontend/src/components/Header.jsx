@@ -28,7 +28,7 @@ export default function Header() {
           Trang chủ
         </Link>
         <Link
-          to={"/resDashboard"}
+          to={"/Dashboard"}
           className="text-2xl font-extralight hover:font-normal transition"
         >
           Cửa hàng
