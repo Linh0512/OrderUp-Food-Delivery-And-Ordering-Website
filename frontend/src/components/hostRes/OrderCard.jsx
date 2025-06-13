@@ -54,7 +54,7 @@ const OrderCard = ({ loading }) => {
       </div>
     );
   return (
-    <Link className="flex flex-col rounded-xl bg-surface/60 hover:bg-surface shadow-md p-2 gap-4 bg-white">
+    <Link to={'/Order/1234'} className="flex flex-col rounded-xl bg-surface/60 hover:bg-surface shadow-md p-2 gap-4 bg-white">
       <div className="flex gap-2 items-center">
         <div className="size-28 rounded-full overflow-hidden bg-gray-100">
           <img
@@ -74,7 +74,7 @@ const OrderCard = ({ loading }) => {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2 panel-2">
+      <div className="flex items-center justify-between gap-2 bg-black/10 p-4 rounded-2xl">
         <div
           className={`font-semibold px-2 py-1 rounded-full ${getStatusColor(
             "pending"

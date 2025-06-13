@@ -21,6 +21,7 @@ import {
   RequireRestaurantHost,
 } from "./components/common/AuthRoutes";
 import OrderPage from "./pages/hostRes/OrderPage";
+import OrderDetailPage from "./pages/hostRes/OrderDetailPage";
 
 export default function App() {
   return (
@@ -54,6 +55,7 @@ export default function App() {
         <Route path="/" element={<RestaurentLayout />}>
           <Route path="Dashboard" element={<Dashboard />} />
           <Route path="Order" element={<OrderPage />} />
+            <Route path="Order/:id" element={<OrderDetailPage />} />
         </Route>
       </Route>
     </Routes>

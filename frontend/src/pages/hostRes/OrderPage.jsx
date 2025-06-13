@@ -2,15 +2,21 @@ import {
   faCalendarAlt,
   faClock,
   faGlobe,
+  faMagnifyingGlass,
   faTruck,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import MyChart from "../../components/MyChart";
 import OrderCard from "../../components/hostRes/OrderCard";
+import Pagination from "../../components/Pagination";
+import CustomSelect from "../../components/CustomSelect";
 
 export default function OrderPage() {
   const [isLoading, setIsLoading] = useState(true);
+  const [priceSort, setPriceSort] = useState(0);
+  const [dateSort, setDateSort] = useState(0);
+  const [orderStatus, setOrderStatus] = useState("all");
   setTimeout(() => setIsLoading(false), 1000);
   return (
     <div className="w-full p-3 space-y-5">
@@ -49,7 +55,57 @@ export default function OrderPage() {
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-5 bg-gray-200 p-4 space-y-3 rounded-2xl">
+      <div className="bg-gray-200 p-3 px-5 rounded-xl">
+        <div className="w-full bg-white rounded-xl p-1.5 px-3 flex items-center">
+          <input
+            type="text"
+            className="w-full focus:outline-none"
+            placeholder="Tìm kiếm..."
+          />
+          <FontAwesomeIcon icon={faMagnifyingGlass} />
+        </div>
+      </div>
+      <div className="bg-gray-200 p-3 px-5 rounded-xl flex items-center text-sm">
+        <p className="text-xl font-semibold">49 Đơn hàng</p>
+        <div className="flex items-center ml-auto space-x-2">
+          <div className="bg-white flex items-center p-1 space-x-2 rounded">
+            <p>Trạng thái:</p>
+            <CustomSelect
+              options={[
+                { name: "Tất cả", value: "all" },
+                { name: "pending", value: "pending" },
+                { name: "cooking", value: "cooking" },
+                { name: "shipping", value: "shipping" },
+                { name: "deliveried", value: "deliveried" },
+              ]}
+              handleChange={setOrderStatus}
+            />
+          </div>
+          <div className="bg-white flex items-center p-1 space-x-2 rounded">
+            <p>Ngày tạo:</p>
+            <CustomSelect
+              options={[
+                { name: "Tất cả", value: 0 },
+                { name: "Mới nhất", value: -1 },
+                { name: "Cũ nhất", value: 1 },
+              ]}
+              handleChange={setDateSort}
+            />
+          </div>
+          <div className="bg-white flex items-center p-1 space-x-2 rounded">
+            <p>Giá tiền:</p>
+            <CustomSelect
+              options={[
+                { name: "Tất cả", value: 0 },
+                { name: "Tăng dần", value: 1 },
+                { name: "Giảm dần", value: -1 },
+              ]}
+              handleChange={setPriceSort}
+            />
+          </div>
+        </div>
+      </div>
+      <div className=" bg-gray-200 p-4 space-y-3 rounded-2xl grid grid-cols-3 gap-5">
         {isLoading
           ? Array.from({ length: 10 }).map((_, index) => (
               <OrderCard key={index} loading={true} />
@@ -58,6 +114,7 @@ export default function OrderPage() {
               <OrderCard key={index} />
             ))}
       </div>
+      <Pagination />
     </div>
   );
 }
