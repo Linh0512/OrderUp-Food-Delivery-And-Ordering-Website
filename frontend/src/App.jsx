@@ -12,9 +12,9 @@ import TrackingPage from "./pages/user/TrackingPage";
 import ProfilePage from "./pages/user/ProfilePage";
 import HistoryPage from "./pages/user/HistoryPage";
 import ChatPage from "./pages/user/ChatPage";
-import UnauthorizedPage from "./pages/UnauthorizedPage";
 import RestaurentLayout from "./layouts/RestaurentLayout";
 import Dashboard from "./pages/hostRes/Dashboard";
+import UnAuthorizedPage from "./pages/UnAuthorizePage";
 import {
   RequireAnonymous,
   RequireAuth,
@@ -47,7 +47,7 @@ export default function App() {
           <Route path="history" element={<HistoryPage />} />
           <Route path="chat" element={<ChatPage />} />
         </Route>
-        <Route path="unAuth" element={<UnauthorizedPage />} />
+        <Route path="unAuth" element={<UnAuthorizedPage />} />
       </Route>
 
 
