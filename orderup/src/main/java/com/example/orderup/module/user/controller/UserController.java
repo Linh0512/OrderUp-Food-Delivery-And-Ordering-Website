@@ -1,10 +1,18 @@
 package com.example.orderup.module.user.controller;
 
 import com.example.orderup.module.user.entirty.User;
+import com.example.orderup.module.user.entirty.Profile;
+import com.example.orderup.module.user.service.UserProfileService;
 import com.example.orderup.module.user.service.UserService;
+import com.example.orderup.module.user.service.UserOrderHistoryService;
+import com.example.orderup.module.user.dto.UserOrderHistoryThumbDTO;
+import com.example.orderup.module.user.dto.UserOrderHistoryDetailDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +31,12 @@ import java.util.HashMap;
 public class UserController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserProfileService userProfileService;
+
+    @Autowired
+    private UserOrderHistoryService orderHistoryService;
 
     // Sử dụng UserService để lấy tất cả người dùng với phân trang và sắp xếp
     @GetMapping
@@ -135,19 +149,18 @@ public class UserController {
     }
 
     @DeleteMapping("/id/{id}")
-    public ResponseEntity<List<User>> getUsersById(@PathVariable("id") String id) {
+    public ResponseEntity<String> deleteUsersById(@PathVariable("id") String id) {
         try {
-            User users = userService.getUserById(id);
-
-            if (users != null) {
+            User user = userService.getUserById(id);
+            if (user != null) {
                 userService.deleteUser(id);
-                return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+                return new ResponseEntity<>("User deleted successfully", HttpStatus.OK);
             } else {
-                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+                return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Error deleting user", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -172,6 +185,22 @@ public class UserController {
         try {
             Map<String, Object> stats = userService.getUserStats();
             return new ResponseEntity<>(stats, HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Lấy thông tin user theo ID
+    @GetMapping("/id/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable("id") String id) {
+        try {
+            User user = userService.getUserById(id);
+            if (user != null) {
+                return new ResponseEntity<>(user, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);

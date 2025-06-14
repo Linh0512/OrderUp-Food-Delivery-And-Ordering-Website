@@ -47,6 +47,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         
         // Danh sách các đường dẫn công khai không cần xác thực
         return path.startsWith("/api/auth/") ||
+            path.startsWith("/api/admin-auth/") ||
             path.startsWith("/api/shop") ||
             path.startsWith("/api/category") ||
             path.startsWith("/api/dish") ||

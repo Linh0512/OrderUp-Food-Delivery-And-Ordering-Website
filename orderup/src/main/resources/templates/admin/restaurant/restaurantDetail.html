@@ -14,6 +14,7 @@
             object-fit: cover;
             border-radius: 8px;
             margin-bottom: 10px;
+            transition: opacity 0.3s ease;
         }
         .thumbnail {
             width: 80px;
@@ -22,6 +23,14 @@
             border-radius: 4px;
             cursor: pointer;
             margin: 0 5px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+        .thumbnail:hover {
+            transform: scale(1.05);
+        }
+        .thumbnail.active-thumbnail {
+            border-color: #0d6efd;
         }
         .badge-status-active { 
             background-color: #198754; 
@@ -53,6 +62,7 @@
             height: 250px;
             border-radius: 8px;
             overflow: hidden;
+            background-color: #f8f9fa;
         }
         #map iframe {
             width: 100%;
@@ -61,10 +71,21 @@
         }
         .nav-tabs .nav-link {
             color: #495057;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .nav-tabs .nav-link:hover {
+            border-color: #e9ecef;
         }
         .nav-tabs .nav-link.active {
             color: #0d6efd;
             font-weight: 500;
+            border-bottom-color: #0d6efd;
+        }
+        .tab-content {
+            padding-top: 1.5rem;
         }
         .status-toggle {
             cursor: pointer;
@@ -163,12 +184,15 @@
                         <div class="mt-4">
                             <h5 class="text-primary mb-2">Vị trí</h5>
                             <div id="map" class="mb-2">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3834.228425430923!2d108.24196751094287!3d16.05363198455945!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x314217298158d929%3A0x6234302fecd8057b!2sPizza%20House!5e0!3m2!1sen!2s!4v1749495942207!5m2!1sen!2s" 
-                                    style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                <!-- Placeholder cho map -->
+                                <div class="bg-light p-3 text-center" id="map-placeholder">
+                                    <i class="bi bi-geo-alt text-muted" style="font-size: 2rem;"></i>
+                                    <p class="text-muted mb-0">Đang tải bản đồ...</p>
+                                </div>
                             </div>
                             <p class="small text-muted text-center">
                                 <i class="bi bi-geo-alt"></i> 
-                                <span th:text="${restaurant != null && restaurant.address != null ? restaurant.address.fullAddress + ', ' + restaurant.address.district + ', ' + restaurant.address.city : 'Địa chỉ nhà hàng'}">
+                                <span th:text="${restaurant?.address?.fullAddress + ', ' + restaurant?.address?.district + ', ' + restaurant?.address?.city}">
                                     Địa chỉ đầy đủ
                                 </span>
                             </p>
@@ -283,32 +307,32 @@
                                             <tr>
                                                 <th>Trạng thái:</th>
                                                 <td>
-                                                    <span th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}" 
+                                                    <span th:if="${restaurant?.delivery?.isDeliveryAvailable()}" 
                                                           class="badge badge-status-active">Có giao hàng</span>
-                                                    <span th:unless="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}" 
+                                                    <span th:unless="${restaurant?.delivery?.isDeliveryAvailable()}" 
                                                           class="badge badge-status-inactive">Không giao hàng</span>
                                                 </td>
                                             </tr>
-                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                            <tr th:if="${restaurant?.delivery?.isDeliveryAvailable()}">
                                                 <th>Phí giao hàng:</th>
-                                                <td th:text="${restaurant.delivery.deliveryFee + ' VNĐ'}">30,000 VNĐ</td>
+                                                <td th:text="${#numbers.formatDecimal(restaurant.delivery.deliveryFee, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">30,000 VNĐ</td>
                                             </tr>
-                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                            <tr th:if="${restaurant?.delivery?.isDeliveryAvailable()}">
                                                 <th>Miễn phí giao hàng từ:</th>
-                                                <td th:text="${restaurant.delivery.freeDeliveryThreshold + ' VNĐ'}">200,000 VNĐ</td>
+                                                <td th:text="${#numbers.formatDecimal(restaurant.delivery.freeDeliveryThreshold, 0, 'COMMA', 0, 'POINT') + ' VNĐ'}">200,000 VNĐ</td>
                                             </tr>
-                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                            <tr th:if="${restaurant?.delivery?.isDeliveryAvailable()}">
                                                 <th>Bán kính giao hàng:</th>
                                                 <td th:text="${restaurant.delivery.deliveryRadius + ' km'}">5 km</td>
                                             </tr>
-                                            <tr th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true}">
+                                            <tr th:if="${restaurant?.delivery?.isDeliveryAvailable()}">
                                                 <th>Thời gian giao hàng:</th>
                                                 <td th:text="${restaurant.delivery.estimatedDeliveryTime + ' phút'}">30-45 phút</td>
                                             </tr>
                                         </table>
                                     </div>
                                     
-                                    <div class="col-md-6" th:if="${restaurant != null && restaurant.delivery != null && restaurant.delivery.isDeliveryAvailable == true && restaurant.delivery.deliveryAreas != null}">
+                                    <div class="col-md-6" th:if="${restaurant?.delivery?.isDeliveryAvailable()}">
                                         <h5 class="text-primary">Khu vực giao hàng</h5>
                                         <div class="mt-2">
                                             <div th:if="${restaurant.delivery.deliveryAreas != null && !restaurant.delivery.deliveryAreas.isEmpty()}" class="mb-2">
@@ -340,7 +364,7 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr th:each="day, iterStat : ${{'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'}}">
+                                        <tr th:each="day, iterStat : ${#arrays.toArray({'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'})}">
                                             <td th:text="${day}">Ngày</td>
                                             <td>
                                                 <span th:if="${restaurant != null && restaurant.operatingHours != null && restaurant.operatingHours.size() > iterStat.index && restaurant.operatingHours[iterStat.index] != null && restaurant.operatingHours[iterStat.index].isOpen}" 
@@ -460,7 +484,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x-circle"></i> Hủy
                     </button>
-                    <form th:action="@{/admin/restaurants/{id}/delete(id=${restaurant != null ? restaurant.id : ''})}" method="post" style="display: inline;">
+                    <form th:action="@{/admin/restaurants/{id}/delete(id=${restaurant?.id})}" method="post" style="display: inline;">
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-trash"></i> Xác nhận xóa
                         </button>
@@ -478,57 +502,118 @@
     </div>
 
     <!-- Bootstrap JS and jQuery -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded');
+            try {
+                console.log('Initializing app...');
+                initTabs();
+                initThumbnails();
+                initGoogleMaps();
+            } catch (error) {
+                console.error('Error initializing app:', error);
+            }
+        });
+        
+        function initTabs() {
+            const tabElements = document.querySelectorAll('[data-bs-toggle="tab"]');
+            tabElements.forEach(function(tab) {
+                tab.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const target = this.getAttribute('data-bs-target');
+                    
+                    document.querySelectorAll('.tab-pane').forEach(pane => {
+                        pane.classList.remove('show', 'active');
+                    });
+                    
+                    const selectedPane = document.querySelector(target);
+                    if (selectedPane) {
+                        selectedPane.classList.add('show', 'active');
+                    }
+                    
+                    tabElements.forEach(t => t.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+        }
 
-            // Toggle Status Button Functionality
-            const toggleBtn = document.getElementById('toggleStatusBtn');
-            if (toggleBtn) {
-                console.log('Toggle button found');
-                toggleBtn.addEventListener('click', function() {
-                    console.log('Toggle button clicked');
-                    const restaurantId = this.getAttribute('data-id');
-                    const newStatus = this.getAttribute('data-status') === 'true';
-                    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                    $.ajax({
-                        url: `/admin/restaurants/${restaurantId}/status`,
-                        type: 'PUT',
-                        headers: {
-                            'X-CSRF-TOKEN': csrfToken
-                        },
-                        contentType: 'application/json',
-                        data: JSON.stringify({ active: newStatus }),
-                        success: function(response) {
-                            console.log('Status updated successfully:', response);
-                            // Update button text and icon
-                            toggleBtn.setAttribute('data-status', !newStatus);
-                            toggleBtn.querySelector('span').textContent = newStatus ? 'Tạm dừng' : 'Kích hoạt';
-                            toggleBtn.querySelector('i').className = 'bi ' + (newStatus ? 'bi-toggle-on' : 'bi-toggle-off');
-                            // Update status badge
-                            const statusBadge = document.querySelector('.badge-status-active, .badge-status-inactive');
-                            statusBadge.textContent = newStatus ? 'Hoạt động' : 'Tạm dừng';
-                            statusBadge.className = 'badge ' + (newStatus ? 'badge-status-active' : 'badge-status-inactive');
-                        },
-                        error: function(xhr, status, error) {
-                            console.error('Error updating status:', error);
-                            alert('Có lỗi xảy ra khi cập nhật trạng thái.');
+        function initThumbnails() {
+            const thumbnails = document.querySelectorAll('.thumbnail-img');
+            const mainImage = document.getElementById('mainImage');
+            
+            if (thumbnails.length > 0 && mainImage) {
+                thumbnails.forEach(thumbnail => {
+                    thumbnail.addEventListener('click', function(event) {
+                        event.preventDefault();
+                        const newSrc = this.getAttribute('data-image');
+                        if (newSrc) {
+                            mainImage.src = newSrc;
+                            thumbnails.forEach(t => t.classList.remove('active-thumbnail'));
+                            this.classList.add('active-thumbnail');
                         }
                     });
                 });
             }
+        }
 
-            // Thumbnail click handler (if needed)
-            const thumbnails = document.querySelectorAll('.thumbnail-img');
-            thumbnails.forEach(thumbnail => {
-                thumbnail.addEventListener('click', function() {
-                    document.getElementById('mainImage').src = this.getAttribute('data-image');
-                });
-            });
-        });
+        function initGoogleMaps() {
+            const mapContainer = document.getElementById('map');
+            const mapPlaceholder = document.getElementById('map-placeholder');
+            if (!mapContainer) return;
+
+            const restaurant = /*[[${restaurant}]]*/ null;
+            if (!restaurant?.address?.coordinates) {
+                console.warn('No restaurant coordinates found');
+                return;
+            }
+
+            const { lat, lng } = restaurant.address.coordinates;
+            if (!lat || !lng) {
+                console.warn('Invalid coordinates');
+                return;
+            }
+
+            try {
+                const mapUrl = `https://www.google.com/maps/embed/v1/place?key=MAPS_API_KEY=${lat},${lng}&zoom=15`;
+                const iframe = document.createElement('iframe');
+                iframe.style.width = '100%';
+                iframe.style.height = '250px';
+                iframe.style.border = '0';
+                iframe.setAttribute('allowfullscreen', '');
+                iframe.setAttribute('loading', 'lazy');
+                iframe.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+                iframe.src = mapUrl;
+
+                if (mapPlaceholder) {
+                    mapPlaceholder.style.display = 'none';
+                }
+                mapContainer.appendChild(iframe);
+
+                iframe.onerror = function() {
+                    console.error('Failed to load map iframe');
+                    if (mapContainer && mapPlaceholder) {
+                        mapPlaceholder.innerHTML = `
+                            <div class="text-center text-danger">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <p>Không thể tải bản đồ. Vui lòng thử lại sau.</p>
+                            </div>
+                        `;
+                        mapPlaceholder.style.display = 'block';
+                    }
+                };
+            } catch (error) {
+                console.error('Error loading map:', error);
+            }
+        }
     </script>
+
+    <!-- Thêm loading indicator -->
+    <div class="loading-indicator position-fixed top-50 start-50 translate-middle" style="z-index: 9999;">
+        <div class="spinner-border text-primary" role="status">
+            <span class="visually-hidden">Đang tải...</span>
+        </div>
+    </div>
 </body>
 </html>
