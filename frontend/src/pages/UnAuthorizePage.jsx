@@ -1,7 +1,7 @@
-import React from 'react'
+
 import { Link } from 'react-router-dom'
 
-export default function UnauthorizedPage() {
+export default function UnAuthorizedPage() {
   return (
      <div className="flex flex-col items-center justify-center h-[70vh] bg-gray-100 px-4">
       <h1 className="text-6xl font-bold text-red-500 mb-4">403</h1>
@@ -15,12 +15,6 @@ export default function UnauthorizedPage() {
           className="px-6 py-3 bg-lime-500 text-white rounded-lg hover:bg-lime-600 transition-colors"
         >
           Trang chủ
-        </Link>
-        <Link 
-          to="/login" 
-          className="px-6 py-3 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors"
-        >
-          Đăng nhập
         </Link>
       </div>
     </div>

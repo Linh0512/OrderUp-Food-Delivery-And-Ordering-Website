@@ -11,7 +11,6 @@ import { useAuth } from "./common/AuthContext";
 export default function Header() {
   const navigate = useNavigate();
   const { isLogin } = useAuth();
-  console.log(isLogin);
 
   return (
     <div className="flex space-x-3 w-full py-5 items-center px-20 caret-transparent">
@@ -29,7 +28,7 @@ export default function Header() {
           Trang chủ
         </Link>
         <Link
-          to={"/resDashboard"}
+          to={"/Dashboard"}
           className="text-2xl font-extralight hover:font-normal transition"
         >
           Cửa hàng

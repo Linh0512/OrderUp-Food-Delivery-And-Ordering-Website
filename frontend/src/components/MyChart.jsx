@@ -1,38 +1,73 @@
-import React from 'react';
+import { faCalendar } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-  LineChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
+  LabelList,
   Line,
+  LineChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer
-} from 'recharts';
+} from "recharts";
 
-const data = [
-  { name: 'Jan', uv: 4000, pv: 2400, amt: 2400 },
-  { name: 'Feb', uv: 3000, pv: 1398, amt: 2210 },
-  { name: 'Mar', uv: 2000, pv: 9800, amt: 2290 },
-  { name: 'Apr', uv: 2780, pv: 3908, amt: 2000 },
-  { name: 'May', uv: 1890, pv: 4800, amt: 2181 },
-  { name: 'Jun', uv: 2390, pv: 3800, amt: 2500 },
+const salesData = [
+  { month: "Jan", sales: 5000 },
+  { month: "Feb", sales: 3000 },
+  { month: "Mar", sales: 2000 },
+  { month: "Apr", sales: 2780 },
+  { month: "May", sales: 1890 },
+  { month: "Jun", sales: 2390 },
 ];
 
-function MyChart() {
-  return (
-    <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Line type="monotone" dataKey="pv" stroke="#8884d8" />
-        <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
-      </LineChart>
-    </ResponsiveContainer>
-  );
+function MyChart({ type }) {
+  if (type === "bar") {
+    return (
+      <div className="bg-white p-2 rounded-lg shadow-lg">
+        <h2 className="text-xl font-semibold mb-8 ">
+          <FontAwesomeIcon icon={faCalendar} className="mr-4" />
+          Doanh thu theo tháng
+        </h2>
+        <ResponsiveContainer width="100%" height={400}>
+          <BarChart data={salesData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <Tooltip />
+            <Bar dataKey="sales" fill="#2196f3" barSize={100}>
+              <LabelList dataKey="sales" position="top" />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+  if (type === "line") {
+    return (
+      <div className="bg-white p-2 rounded-lg shadow-lg w-full">
+        <h2 className="text-xl font-semibold mb-8 ">
+          <FontAwesomeIcon icon={faCalendar} className="mr-4" />
+          Đơn hàng theo tháng 
+        </h2>
+        <ResponsiveContainer width="100%" height={300}>
+          <LineChart data={salesData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="sales"
+              stroke="#2196f3"
+              strokeWidth={3}
+              dot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  }
+  return <div></div>;
 }
 
 export default MyChart;

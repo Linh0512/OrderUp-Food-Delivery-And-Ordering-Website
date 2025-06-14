@@ -41,7 +41,7 @@ export default function Pagination({limit,count,current,onPageChange}) {
 
   const displayPages = getPagesToDisplay();
   return (
-    <div className="flex flex-wrap items-center gap-2 justify-center mt-10">
+    <div className="flex flex-wrap items-center gap-2 justify-center my-10">
       <div className="flex items-center gap-2  text-sm justify-end">
         <button
           className=" rounded-full hover:bg-green-400 active:bg-secondary-variant/20 text-lg size-10 "

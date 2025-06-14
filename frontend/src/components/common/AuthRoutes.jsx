@@ -1,47 +1,37 @@
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import authService from '../../services/auth';
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "./AuthContext";
 
-// Route yêu cầu đăng nhập, chuyển hướng về login nếu chưa đăng nhập
 export function RequireAuth({ children }) {
   const location = useLocation();
-  const isAuthenticated = authService.isAuthenticated();
-  
-  if (!isAuthenticated) {
+  const { isLogin } = useAuth();
+
+  if (!isLogin) {
     // Lưu lại URL hiện tại để sau khi đăng nhập có thể quay lại
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  
-  return children ? children : <Outlet />;
-}
 
-// Route chỉ cho user thông thường truy cập
-export function RequireUser({ children }) {
-  const isAuthenticated = authService.isAuthenticated();
-  
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-  
-  return children;
+  return children ? children : <Outlet />;
 }
 
 // Route chỉ cho chủ nhà hàng truy cập
 export function RequireRestaurantHost({ children }) {
   const location = useLocation();
-  const isAuthenticated = authService.isAuthenticated();
-  const userRole = authService.getUserRole();
-  
-  if (!isAuthenticated) {
+  const { isLogin, role } = useAuth();
+
+  if (!isLogin) {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-  
-  if (userRole !== 'restaurantHost') {
-    return <Navigate to="/unauthorized" replace />;
+
+  if (role !== "restaurantHost") {
+    return <Navigate to="/unAuth" replace />;
   }
-  
+
   return children ? children : <Outlet />;
 }
 
 export function RequireAnonymous({ children }) {
-    return children ? children : <Outlet />;
+  const { isLogin } = useAuth();
+  if (isLogin) return <Navigate to="/" replace />;
+
+  return children ? children : <Outlet />;
 }
