@@ -67,7 +67,7 @@ export default function OrderPage() {
       </div>
       <div className="bg-gray-200 p-3 px-5 rounded-xl flex items-center text-sm">
         <p className="text-xl font-semibold">49 Đơn hàng</p>
-        <div className="flex items-center ml-auto space-x-2">
+        <div className="flex items-center ml-auto space-x-4">
           <div className="bg-white flex items-center p-1 space-x-2 rounded">
             <p>Trạng thái:</p>
             <CustomSelect

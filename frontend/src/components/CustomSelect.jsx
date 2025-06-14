@@ -1,6 +1,6 @@
 import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 export default function CustomSelect({ options,selected,handleChange }) {
   const [selectedOption, setSelectedOption] = useState(selected?options.findIndex((i)=>i.value===selected):0);

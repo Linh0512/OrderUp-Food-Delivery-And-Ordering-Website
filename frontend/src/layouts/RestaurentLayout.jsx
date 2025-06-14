@@ -1,6 +1,7 @@
 import React from "react";
-import SideBar from "../components/SideBar";
+
 import { Outlet } from "react-router-dom";
+import SideBar from "../components/hostRes/SideBar";
 
 export default function RestaurentLayout() {
   return (

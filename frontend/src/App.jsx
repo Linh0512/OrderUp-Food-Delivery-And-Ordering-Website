@@ -22,6 +22,9 @@ import {
 } from "./components/common/AuthRoutes";
 import OrderPage from "./pages/hostRes/OrderPage";
 import OrderDetailPage from "./pages/hostRes/OrderDetailPage";
+import ProductPage from "./pages/hostRes/ProductPage";
+import ProductDetailPage from "./pages/hostRes/ProductDetailPage";
+import CategoryPage from "./pages/hostRes/CategoryPage";
 
 export default function App() {
   return (
@@ -55,7 +58,10 @@ export default function App() {
         <Route path="/" element={<RestaurentLayout />}>
           <Route path="Dashboard" element={<Dashboard />} />
           <Route path="Order" element={<OrderPage />} />
-            <Route path="Order/:id" element={<OrderDetailPage />} />
+          <Route path="Order/:id" element={<OrderDetailPage />} />
+          <Route path="Product" element={<ProductPage />} />
+          <Route path="Product/:id" element={<ProductDetailPage />} />
+          <Route path="Category" element={<CategoryPage />} />
         </Route>
       </Route>
     </Routes>
