@@ -1,6 +1,5 @@
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import food1 from "../assets/food1.jpg";
 import { faClock, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -8,11 +7,11 @@ export default function ShopCard({ shopDetail }) {
   const navigate = useNavigate();
 
   function handleMove() {
-    navigate("shop");
+    navigate(`shop/${shopDetail.id}`);
   }
   return (
     <div className="flex flex-col rounded-2xl shadow-xl bg-white">
-      <img src={food1} alt="" className="rounded-t-2xl" />
+      <img src={shopDetail.image} alt={shopDetail.name} className="rounded-t-2xl" />
       <div className="p-2 space-y-1 flex flex-col justify-center">
         <h3 className="font-bold text-xl py-2 truncate">{shopDetail.name}</h3>
         <p className="text-sm">{shopDetail.address}</p>

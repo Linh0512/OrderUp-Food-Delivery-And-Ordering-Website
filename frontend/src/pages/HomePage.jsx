@@ -5,7 +5,7 @@ import ShopCard from "../components/ShopCard";
 import {
   getAllShops,
   getShopsByCuisine,
-} from "../services/userServices/restaurantService";
+} from "../services/userServices/Service";
 
 export default function HomePage() {
   const SHOP_LIMIT = 12;
@@ -25,10 +25,10 @@ export default function HomePage() {
 
   const priceRanges = [
     { name: "Tất cả", color: "bg-green-500" },
-    { name: "Dưới 20 nghìn", color: "bg-yellow-400" },
-    { name: "20 - 50 nghìn", color: "bg-green-300" },
-    { name: "50 - 100 nghìn", color: "bg-green-600" },
-    { name: "Trên 100 nghìn", color: "bg-green-700" },
+    { name: "20 - 50 nghìn", color: "bg-yellow-400" },
+    { name: "50 - 100 nghìn", color: "bg-green-300" },
+    { name: "100 - 200 nghìn", color: "bg-green-600" },
+    { name: "Trên 200 nghìn", color: "bg-green-700" },
   ];
 
   const otherCriteria = [
@@ -42,6 +42,7 @@ export default function HomePage() {
   useEffect(() => {
     if (category === "Tất cả") {
       getAllShops(page - 1, SHOP_LIMIT).then((res) => {
+        console.log(res.data)
         setShops(res.data);
         setCount(res.count);
       });

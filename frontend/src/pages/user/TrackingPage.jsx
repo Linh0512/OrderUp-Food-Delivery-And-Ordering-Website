@@ -6,24 +6,30 @@ import {
   faMotorcycle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import CartItem from "../../components/CartItem";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
+import OrderItem from "../../components/hostRes/OrderItem";
 
 export default function TrackingPage() {
   const [stage, setStage] = useState("pending");
   const navigate = useNavigate();
+  const location = useLocation();
+  const cart = location.state?.cart || [];
+  const address = location.state?.address || {};
+  console.log(cart);
 
   const isActive = (current) => {
     const orderStage = ["pending", "cooking", "delivering", "completed"];
     return orderStage.indexOf(stage) >= orderStage.indexOf(current);
   };
+
+  
   return (
     <div className="w-[70%] mx-auto">
       <div className="flex items-center">
         <button
           className="flex items-center justify-start"
-          onClick={() => navigate("/payment")}
+          onClick={() => navigate("/payment", { state: { cart } })}
         >
           <FontAwesomeIcon icon={faAngleLeft} className="text-xl mr-1" />
           trở lại
@@ -107,14 +113,20 @@ export default function TrackingPage() {
               <div className="size-4 bg-green-500 rounded-full"></div>
               <span className="font-semibold">Đến</span>
             </div>
-            <p className="font-semibold">Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam</p>
-            <p className="text-sm">Anh A - 0903xxxxxx</p>
+            <p className="font-semibold">
+              ({address.note}) {address.address}
+            </p>
+            <p className="text-sm">
+              {address.name} - {address.phone}
+            </p>
+            <p className="text-sm">{address.email}</p>
+            <p className="text-sm">{address.method}</p>
           </div>
         </div>
-        <div className="space-y-10">
-          <div className="space-y-7 bg-gray-100 p-5 rounded-2xl">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <CartItem key={index} />
+        <div className="space-y-10 w-full">
+          <div className="space-y-7 p-5 bg-gray-200 rounded-2xl">
+            {cart.map((item, index) => (
+              <OrderItem key={index} orderItem={item} />
             ))}
           </div>
           <hr />

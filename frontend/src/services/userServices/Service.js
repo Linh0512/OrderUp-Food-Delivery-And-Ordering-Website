@@ -77,3 +77,51 @@ export const getShopsByCuisine = async (cuisine, page, size) => {
   }
 };
 
+export const getShopById=async(id,token)=>{
+  try {
+    const response=await api.get(`/api/shop/${id}`,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    if(response.data)
+      return response.data
+    else return {}
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
+export const getShopDetail=async(id,token)=>{
+  try {
+    const response=await api.get(`/api/restaurant-detail/${id}`,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    if(response.data)
+      return response.data
+    else return {}
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
+export const getCart=async(id,token)=>{
+  try {
+    const response=await api.get(`/api/cart/${id}`,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    if(response.data)
+      return response.data
+    else return {}
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+

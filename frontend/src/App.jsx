@@ -32,7 +32,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePageLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="shop" element={<ShopPage />} />
+        <Route path="shop/:id" element={<ShopPage />} />
       </Route>
 
       <Route path="/" element={<NoBannerLayout />}>

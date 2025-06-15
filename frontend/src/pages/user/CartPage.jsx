@@ -2,16 +2,29 @@ import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CartItem from "../../components/CartItem";
 import VoucherPopUp from "../../components/voucherPopUp";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/common/AuthContext";
+import { getCart } from "../../services/userServices/Service";
 
 export default function CartPage() {
   const [showPopup, setShowPopup] = useState(false);
+  const [cart,setCart]=useState([])
+  const [subtotal,setSubtotal]=useState(0)
+  const {user}=useAuth()
   const navigate = useNavigate();
+
+  useEffect(()=>{
+    getCart("68417874a74d530ba550eb69",user.token).then((res)=>{
+      console.log(res)
+      setCart(res.items)
+      setSubtotal(res.subtotal)
+    })
+  },[user])
   return (
     <div className="w-[70vw] mx-auto ">
       <div className="flex items-center">
-        <button className="flex items-center justify-start" onClick={() => navigate("/shop")}>
+        <button className="flex items-center justify-start" onClick={() => navigate("/")}>
           <FontAwesomeIcon
             icon={faAngleLeft}
             className="text-xl mr-1"
@@ -25,10 +38,10 @@ export default function CartPage() {
       </div>
       <div className="flex mt-8 space-x-10">
         <div className="p-7 rounded-3xl w-[65%] bg-white shadow">
-          <h3 className="font-semibold m-4"> có 4 sản phẩm trong giỏ hàng </h3>
+          <h3 className="font-semibold m-4"> có {cart.length} sản phẩm trong giỏ hàng </h3>
           <div className="space-y-7 py-5 bg-gray-100 p-5 rounded-2xl">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <CartItem key={index} />
+            {cart.map((item, index) => (
+              <CartItem key={index} cartItem={item}/>
             ))}
           </div>
         </div>
@@ -47,7 +60,7 @@ export default function CartPage() {
             <p>chi tiết thanh toán</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
-              <p>171.000đ</p>
+              <p>{subtotal}</p>
             </div>
             <div className="flex justify-between">
               <p>Giảm giá</p>
@@ -65,7 +78,7 @@ export default function CartPage() {
           </div>
           <button
             className="w-full bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-3xl shadow font-bold p-3 text-white text-xl mt-7"
-            onClick={() => navigate("/payment")}
+            onClick={() => navigate("/payment",{state:{cart}})}
           >
             Thanh toán
           </button>

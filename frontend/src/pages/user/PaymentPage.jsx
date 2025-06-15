@@ -5,20 +5,46 @@ import zalopay from "../../assets/zalopay.png";
 import React, { useState } from "react";
 import CartItem from "../../components/CartItem";
 import VoucherPopUp from "../../components/voucherPopUp";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 export default function PaymentPage() {
-  const [showPopup,setShowPopup]=useState(false)
-  const [paymentMethod,setPaymentMethod]=useState('')
-  const navigate=useNavigate()
+  const [showPopup, setShowPopup] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [address, setAddress] = useState({
+    address: "Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam",
+    note: "",
+    name: "",
+    email: "",
+    phone: "",
+    method: "",
+  });
+  const navigate = useNavigate();
+  const location = useLocation();
+  const cart = location.state?.cart || [];
 
-  const handlePaymentMethodChange=(event)=>{
-    setPaymentMethod(event.target.value)
-  }
+  const handlePaymentMethodChange = (event) => {
+    setPaymentMethod(event.target.value);
+    setAddress({...address,method:event.target.value})
+  };
+
+  const handleSubmit = () => {
+    const { note, ...fieldsToCheck } = address;
+    const isFilled = Object.values(fieldsToCheck).every(
+      (value) => value && value.trim() !== ""
+    );
+    if (!isFilled) {
+      alert("Vui lòng nhập đầy đủ thông tin!");
+      return;
+    }
+    navigate("/tracking", { state: { cart,address } })
+  };
   return (
     <div className="w-[70vw] mx-auto">
       <div className="flex items-center">
-        <button className="flex items-center justify-start"onClick={()=>navigate('/cart')}>
+        <button
+          className="flex items-center justify-start"
+          onClick={() => navigate("/cart")}
+        >
           <FontAwesomeIcon icon={faAngleLeft} className="text-xl mr-1" />
           trở lại
         </button>
@@ -37,6 +63,7 @@ export default function PaymentPage() {
               name=""
               id=""
               placeholder="Ghi chú cho giao hàng, ví dụ: tầng phòng,..."
+              onChange={(e)=>setAddress({...address,note:e.target.value})}
               className="border p-3 w-full rounded-2xl"
             />
           </div>
@@ -48,6 +75,7 @@ export default function PaymentPage() {
                 type="text"
                 name=""
                 id=""
+                onChange={(e)=>setAddress({...address,name:e.target.value})}
                 placeholder="Nhập họ tên đầy đủ của bạn"
                 className="border p-3 w-full rounded-2xl"
               />
@@ -58,6 +86,7 @@ export default function PaymentPage() {
                 type="text"
                 name=""
                 id=""
+                onChange={(e)=>setAddress({...address,email:e.target.value})}
                 placeholder="Nhập email của bạn"
                 className="border p-3 w-full rounded-2xl"
               />
@@ -68,6 +97,7 @@ export default function PaymentPage() {
                 type="text"
                 name=""
                 id=""
+                onChange={(e)=>setAddress({...address,phone:e.target.value})}
                 placeholder="Nhập số điện thoại của bạn"
                 className="border p-3 w-full rounded-2xl"
               />
@@ -82,8 +112,8 @@ export default function PaymentPage() {
                 <input
                   type="radio"
                   className="w-5 h-5 accent-blue-600 rounded-full"
-                  value={'cash'}
-                  checked={paymentMethod==='cash'}
+                  value={"cash"}
+                  checked={paymentMethod === "cash"}
                   onChange={handlePaymentMethodChange}
                 />
                 <img src={money} alt="" className="w-8" />
@@ -93,8 +123,8 @@ export default function PaymentPage() {
                 <input
                   type="radio"
                   className="w-5 h-5 accent-blue-600 rounded-full"
-                  value={'zalopay'}
-                  checked={paymentMethod==='zalopay'}
+                  value={"zalopay"}
+                  checked={paymentMethod === "zalopay"}
                   onChange={handlePaymentMethodChange}
                 />
                 <img src={zalopay} alt="" className="w-8" />
@@ -105,7 +135,10 @@ export default function PaymentPage() {
         </div>
         <div className=" w-[30%]">
           <div className="space-y-7 p-4 shadow h-fit rounded-4xl bg-white">
-            <div className="flex items-center justify-between font-bold text-xl " onClick={()=>setShowPopup(true)}>
+            <div
+              className="flex items-center justify-between font-bold text-xl "
+              onClick={() => setShowPopup(true)}
+            >
               Voucher
               <FontAwesomeIcon icon={faAngleRight} />
             </div>
@@ -131,14 +164,15 @@ export default function PaymentPage() {
               <p>171.000đ</p>
             </div>
           </div>
-          <button className="w-full bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-3xl shadow font-bold p-3 text-white text-xl mt-7" onClick={()=>navigate('/tracking')}>
+          <button
+            className="w-full bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-3xl shadow font-bold p-3 text-white text-xl mt-7"
+            onClick={handleSubmit}
+          >
             Đặt hàng
           </button>
         </div>
       </div>
-      {
-        showPopup&&(<VoucherPopUp handleClose={setShowPopup}/>)
-      }
+      {showPopup && <VoucherPopUp handleClose={setShowPopup} />}
     </div>
   );
 }
