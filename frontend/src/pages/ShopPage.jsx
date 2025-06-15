@@ -18,6 +18,7 @@ export default function ShopPage() {
     { label: "Giảm dần", value: "-1" },
   ]
 
+  // Cần sửa lại chổ này để call api thông qua services/userServices/restaurantService.js
   const fectchProducts=async()=>{
     try {
       const response= await fetch('/sampleData/ProductDetail.json');

@@ -14,8 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.example.orderup.module.user.entirty.User;
-import com.example.orderup.repositories.UserRepository;
+import com.example.orderup.module.user.repository.UserRepository;
 import com.example.orderup.utils.EntityUpdater;
+import com.example.orderup.module.user.entirty.Profile;
 
 @Service
 public class UserService {
@@ -93,12 +94,36 @@ public class UserService {
     }
 
     public User updateUserData(User existingUser, User newUser, boolean updatePassword) {
-        
-        EntityUpdater.updateEntity(existingUser, newUser, true);
+        // Cập nhật thông tin cơ bản
+        if (newUser.getEmail() != null) existingUser.setEmail(newUser.getEmail());
+        if (newUser.getRole() != null) existingUser.setRole(newUser.getRole());
+        existingUser.setActive(newUser.isActive());
+        existingUser.setVerified(newUser.isVerified());
         
         // Cập nhật mật khẩu nếu cần
         if (updatePassword && newUser.getPassword() != null && !newUser.getPassword().isEmpty()) {
             existingUser.setPassword(newUser.getPassword());
+        }
+        
+        // Cập nhật profile
+        if (newUser.getProfile() != null) {
+            if (existingUser.getProfile() == null) {
+                existingUser.setProfile(new Profile());
+            }
+            Profile existingProfile = existingUser.getProfile();
+            Profile newProfile = newUser.getProfile();
+            
+            if (newProfile.getFirstName() != null) existingProfile.setFirstName(newProfile.getFirstName());
+            if (newProfile.getLastName() != null) existingProfile.setLastName(newProfile.getLastName());
+            if (newProfile.getPhone() != null) existingProfile.setPhone(newProfile.getPhone());
+            if (newProfile.getGender() != null) existingProfile.setGender(newProfile.getGender());
+            if (newProfile.getDateOfBirth() != null) existingProfile.setDateOfBirth(newProfile.getDateOfBirth());
+            if (newProfile.getAvatar() != null) existingProfile.setAvatar(newProfile.getAvatar());
+        }
+        
+        // Cập nhật địa chỉ
+        if (newUser.getAddresses() != null && !newUser.getAddresses().isEmpty()) {
+            existingUser.setAddresses(newUser.getAddresses());
         }
         
         // Cập nhật thời gian

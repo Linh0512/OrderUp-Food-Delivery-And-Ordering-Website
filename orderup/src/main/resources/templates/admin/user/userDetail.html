@@ -85,6 +85,10 @@
                                         <td th:text="${user.profile != null && user.profile.dateOfBirth != null ? #dates.format(user.profile.dateOfBirth, 'dd/MM/yyyy') : 'N/A'}"></td>
                                     </tr>
                                     <tr>
+                                        <th>Địa chỉ:</th>
+                                        <td th:text="${user.addresses != null && !user.addresses.isEmpty() ? user.addresses[0].fullAddress : 'N/A'}"></td>
+                                    </tr>
+                                    <tr>
                                         <th>Đã xác thực:</th>
                                         <td>
                                             <span th:if="${user.isVerified}" class="badge bg-success">Đã xác thực</span>
@@ -125,8 +129,8 @@
                                         <tr>
                                             <th>Tiêu đề</th>
                                             <th>Địa chỉ đầy đủ</th>
-                                            <th>Quận/Huyện</th>
-                                            <th>Thành phố</th>
+                                            <th>Vĩ độ</th>
+                                            <th>Kinh độ</th>
                                             <th>Mặc định</th>
                                         </tr>
                                     </thead>
@@ -134,8 +138,8 @@
                                         <tr th:each="address : ${user.addresses}">
                                             <td th:text="${address.title}"></td>
                                             <td th:text="${address.fullAddress}"></td>
-                                            <td th:text="${address.district}"></td>
-                                            <td th:text="${address.city}"></td>
+                                            <td th:text="${address.coordinates.lat}"></td>
+                                            <td th:text="${address.coordinates.lng}"></td>
                                             <td>
                                                 <span th:if="${address.default}" class="badge bg-primary">Mặc định</span>
                                             </td>

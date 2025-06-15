@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.mapping.Field;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashMap;
 import lombok.Data;
 
 @Data
@@ -74,6 +76,10 @@ public class Restaurant {
         private String logo;
         private String coverImage;
         private String priceRange;
+
+        public BasicInfo() {
+            this.images = new ArrayList<>();
+        }
     }
 
     @Data
@@ -82,12 +88,21 @@ public class Restaurant {
         private String district;
         private String city;
         private GeoCoordinates coordinates;
+
+        public Address() {
+            this.coordinates = new GeoCoordinates();
+        }
     }
 
     @Data
     public static class GeoCoordinates {
         private double lat;
         private double lng;
+
+        public GeoCoordinates() {
+            this.lat = 0.0;
+            this.lng = 0.0;
+        }
     }
 
     @Data
@@ -96,6 +111,10 @@ public class Restaurant {
         private String taxCode;
         private String businessType;
         private List<String> cuisineTypes;
+
+        public BusinessInfo() {
+            this.cuisineTypes = new ArrayList<>();
+        }
     }
 
     @Data
@@ -104,6 +123,19 @@ public class Restaurant {
         private boolean isOpen;
         private String openTime;
         private String closeTime;
+
+        public OperatingHour() {
+            this.isOpen = false;
+            this.openTime = "09:00";
+            this.closeTime = "22:00";
+        }
+
+        public boolean isOpen() {
+            return isOpen;
+        }
+        public void setOpen(boolean isOpen) {
+            this.isOpen = isOpen;
+        }
     }
 
     @Data
@@ -114,6 +146,22 @@ public class Restaurant {
         private double freeDeliveryThreshold;
         private int estimatedDeliveryTime;
         private List<String> deliveryAreas;
+
+        public DeliveryInfo() {
+            this.isDeliveryAvailable = false;
+            this.deliveryRadius = 5;
+            this.deliveryFee = 0.0;
+            this.freeDeliveryThreshold = 0.0;
+            this.estimatedDeliveryTime = 30;
+            this.deliveryAreas = new ArrayList<>();
+        }
+
+        public boolean isDeliveryAvailable() {
+            return isDeliveryAvailable;
+        }
+        public void setDeliveryAvailable(boolean isDeliveryAvailable) {
+            this.isDeliveryAvailable = isDeliveryAvailable;
+        }
     }
 
     @Data
@@ -121,6 +169,12 @@ public class Restaurant {
         private double averageRating;
         private int totalReviews;
         private Map<String, Integer> ratingBreakdown;
+
+        public RatingInfo() {
+            this.averageRating = 0.0;
+            this.totalReviews = 0;
+            this.ratingBreakdown = new HashMap<>();
+        }
     }
 
     @Data
@@ -128,5 +182,34 @@ public class Restaurant {
         private String bankName;
         private String accountNumber;
         private String accountHolder;
+
+        public BankInfo() {
+            this.bankName = "";
+            this.accountNumber = "";
+            this.accountHolder = "";
+        }
+    }
+
+    // Constructor cho class chính
+    public Restaurant() {
+        this.basicInfo = new BasicInfo();
+        this.address = new Address();
+        this.businessInfo = new BusinessInfo();
+        this.operatingHours = new ArrayList<>();
+        this.delivery = new DeliveryInfo();
+        this.ratings = new RatingInfo();
+        this.tags = new ArrayList<>();
+        this.bankInfo = new BankInfo();
+        this.active = true;
+        this.verified = false;
+        this.featured = false;
+        this.verificationStatus = "pending";
+        
+        // Khởi tạo operating hours cho 7 ngày
+        for (int i = 0; i < 7; i++) {
+            OperatingHour hour = new OperatingHour();
+            hour.setDayOfWeek(i);
+            this.operatingHours.add(hour);
+        }
     }
 }

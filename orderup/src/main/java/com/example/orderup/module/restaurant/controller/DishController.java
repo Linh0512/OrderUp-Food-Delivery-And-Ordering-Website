@@ -1,158 +1,93 @@
 package com.example.orderup.module.restaurant.controller;
 
-import com.example.orderup.module.restaurant.entity.Dish;
-import com.example.orderup.repositories.DishRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import com.example.orderup.module.restaurant.service.DishService;
+import com.example.orderup.module.restaurant.service.RestaurantDetailService;
+import com.example.orderup.module.restaurant.dto.DishListResponseDTO;
+import com.example.orderup.module.restaurant.dto.DishDetailDTO;
+import com.example.orderup.module.restaurant.entity.Dish;
+import com.example.orderup.module.restaurant.mapper.DishMapper;
+import org.bson.types.ObjectId;
 
 @RestController
 @RequestMapping("/api/dishes")
 public class DishController {
 
     @Autowired
-    private DishRepository dishRepository;
+    private DishService dishService;
+
+    @Autowired
+    private RestaurantDetailService restaurantDetailService;
+
+    @Autowired
+    private DishMapper dishMapper;
 
     @GetMapping("/restaurant/{restaurantId}")
-    public ResponseEntity<?> getDishesByRestaurant(
-            @PathVariable String restaurantId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishes = dishRepository.findByRestaurantIdAndIsActiveTrue(restaurantId, pageable);
-        return ResponseEntity.ok(dishes);
-    }
-
-    @GetMapping("/restaurant/{restaurantId}/category/{categoryId}")
-    public ResponseEntity<?> getDishesByCategory(
-            @PathVariable String restaurantId,
-            @PathVariable String categoryId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishes = dishRepository.findByRestaurantIdAndCategoryIdAndIsActiveTrue(restaurantId, categoryId, pageable);
-        return ResponseEntity.ok(dishes);
-    }
-
-    @GetMapping("/restaurant/{restaurantId}/featured")
-    public ResponseEntity<?> getFeaturedDishes(
-            @PathVariable String restaurantId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishes = dishRepository.findByRestaurantIdAndIsFeaturedTrueAndIsActiveTrue(restaurantId, pageable);
-        return ResponseEntity.ok(dishes);
-    }
-
-    @GetMapping("/restaurant/{restaurantId}/search")
-    public ResponseEntity<?> searchDishes(
-            @PathVariable String restaurantId,
-            @RequestParam String name,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishes = dishRepository.findByRestaurantIdAndNameContainingIgnoreCase(restaurantId, name, pageable);
-        return ResponseEntity.ok(dishes);
-    }
-
-    @GetMapping("/restaurant/{restaurantId}/tag/{tag}")
-    public ResponseEntity<?> getDishesByTag(
-            @PathVariable String restaurantId,
-            @PathVariable String tag,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishes = dishRepository.findByRestaurantIdAndTag(restaurantId, tag, pageable);
-        return ResponseEntity.ok(dishes);
-    }
-
-    @GetMapping("/restaurant/{restaurantId}/discounted")
-    public ResponseEntity<?> getDiscountedDishes(
-            @PathVariable String restaurantId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Dish> dishes = dishRepository.findByRestaurantIdAndDiscounted(restaurantId, pageable);
-        return ResponseEntity.ok(dishes);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getDishById(@PathVariable String id) {
-        Optional<Dish> dish = dishRepository.findById(id);
-        if (dish.isPresent()) {
-            return ResponseEntity.ok(dish.get());
-        } else {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<DishListResponseDTO> getDishesByRestaurantId(@PathVariable String restaurantId) {
+        try {
+            DishListResponseDTO response = dishService.getDishesByRestaurantId(restaurantId);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PostMapping
-    public ResponseEntity<?> createDish(@RequestBody Dish dish) {
-        dish.setCreatedAt(LocalDateTime.now());
-        dish.setUpdatedAt(LocalDateTime.now());
-        Dish savedDish = dishRepository.save(dish);
-        return new ResponseEntity<>(savedDish, HttpStatus.CREATED);
+    @GetMapping("/{dishId}")
+    public ResponseEntity<DishDetailDTO> getDishById(@PathVariable String dishId) {
+        try {
+            DishDetailDTO dish = dishService.getDishById(dishId);
+            return new ResponseEntity<>(dish, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateDish(@PathVariable String id, @RequestBody Dish dishDetails) {
-        return dishRepository.findById(id)
-                .map(dish -> {
-                    // Update fields
-                    if (dishDetails.getBasicInfo() != null) {
-                        dish.setBasicInfo(dishDetails.getBasicInfo());
-                    }
-                    if (dishDetails.getPricing() != null) {
-                        dish.setPricing(dishDetails.getPricing());
-                    }
-                    if (dishDetails.getNutritionInfo() != null) {
-                        dish.setNutritionInfo(dishDetails.getNutritionInfo());
-                    }
-                    if (dishDetails.getOptions() != null) {
-                        dish.setOptions(dishDetails.getOptions());
-                    }
-                    if (dishDetails.getAvailability() != null) {
-                        dish.setAvailability(dishDetails.getAvailability());
-                    }
-                    
-                    dish.setActive(dishDetails.isActive());
-                    dish.setFeatured(dishDetails.isFeatured());
-                    dish.setPreparationTime(dishDetails.getPreparationTime());
-                    dish.setUpdatedAt(LocalDateTime.now());
-                    
-                    return ResponseEntity.ok(dishRepository.save(dish));
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PostMapping("/add/{restaurantId}")
+    public ResponseEntity<DishDetailDTO> addDish(
+            @PathVariable String restaurantId,
+            @RequestBody DishDetailDTO dishDTO) {
+        try {
+            // Kiểm tra restaurant tồn tại
+            if (!restaurantDetailService.isRestaurantExists(restaurantId)) {
+                return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            }
+
+            dishDTO.setRestaurantId(restaurantId);
+            DishDetailDTO savedDish = dishService.addDish(dishDTO);
+            return new ResponseEntity<>(savedDish, HttpStatus.CREATED);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDish(@PathVariable String id) {
-        return dishRepository.findById(id)
-                .map(dish -> {
-                    dishRepository.delete(dish);
-                    return ResponseEntity.ok().build();
-                })
-                .orElseGet(() -> ResponseEntity.notFound().build());
+    @PutMapping("/update/{dishId}")
+    public ResponseEntity<DishDetailDTO> updateDish(
+            @PathVariable String dishId,
+            @RequestBody DishDetailDTO dishDTO) {
+        try {
+            dishDTO.setId(dishId);
+            DishDetailDTO updatedDish = dishService.updateDish(dishDTO);
+            return new ResponseEntity<>(updatedDish, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            // Trả về lỗi 400 Bad Request cho các lỗi về dữ liệu đầu vào
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping("/restaurant/{restaurantId}/stats")
-    public ResponseEntity<?> getDishStats(@PathVariable String restaurantId) {
-        long totalDishes = dishRepository.countByRestaurantId(restaurantId);
-        
-        Map<String, Object> stats = new HashMap<>();
-        stats.put("totalDishes", totalDishes);
-        
-        return ResponseEntity.ok(stats);
+    @DeleteMapping("/delete/{dishId}")
+    public ResponseEntity<Void> deleteDish(@PathVariable String dishId) {
+        try {
+            dishService.deleteDish(dishId);
+            return new ResponseEntity<>(HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

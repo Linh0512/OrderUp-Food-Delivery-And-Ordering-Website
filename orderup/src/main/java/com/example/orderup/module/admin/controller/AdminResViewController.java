@@ -106,20 +106,55 @@ public class AdminResViewController {
             System.out.println("DEBUG: Viewing restaurant detail for ID: " + id);
             Restaurant restaurant = restaurantService.getRestaurantById(id);
             
-            // Debug thông tin nhà hàng
-            System.out.println("DEBUG: Restaurant is null? " + (restaurant == null));
-            if (restaurant != null) {
-                System.out.println("DEBUG: Restaurant ID: " + restaurant.getId());
-                System.out.println("DEBUG: Restaurant active: " + restaurant.isActive()); // Kiểm tra tên getter
-                System.out.println("DEBUG: Restaurant has basicInfo? " + (restaurant.getBasicInfo() != null));
-            }
-            
             if (restaurant == null) {
                 model.addAttribute("error", "Không tìm thấy nhà hàng với ID: " + id);
                 return "error";
             }
+
+            // Khởi tạo các đối tượng nested nếu null
+            if (restaurant.getBasicInfo() == null) {
+                restaurant.setBasicInfo(new Restaurant.BasicInfo());
+            }
+            if (restaurant.getAddress() == null) {
+                restaurant.setAddress(new Restaurant.Address());
+                restaurant.getAddress().setCoordinates(new Restaurant.GeoCoordinates());
+            } else if (restaurant.getAddress().getCoordinates() == null) {
+                restaurant.getAddress().setCoordinates(new Restaurant.GeoCoordinates());
+            }
+            if (restaurant.getBusinessInfo() == null) {
+                restaurant.setBusinessInfo(new Restaurant.BusinessInfo());
+            }
+            if (restaurant.getOperatingHours() == null) {
+                restaurant.setOperatingHours(new ArrayList<>());
+                // Khởi tạo 7 ngày trong tuần
+                for (int i = 0; i < 7; i++) {
+                    Restaurant.OperatingHour hour = new Restaurant.OperatingHour();
+                    hour.setDayOfWeek(i);
+                    hour.setOpen(false);
+                    restaurant.getOperatingHours().add(hour);
+                }
+            }
+            if (restaurant.getDelivery() == null) {
+                restaurant.setDelivery(new Restaurant.DeliveryInfo());
+            }
+            if (restaurant.getRatings() == null) {
+                restaurant.setRatings(new Restaurant.RatingInfo());
+            }
+            if (restaurant.getTags() == null) {
+                restaurant.setTags(new ArrayList<>());
+            }
+            if (restaurant.getBankInfo() == null) {
+                restaurant.setBankInfo(new Restaurant.BankInfo());
+            }
+
+            // Debug thông tin
+            System.out.println("DEBUG: Restaurant processed successfully");
+            System.out.println("DEBUG: BasicInfo: " + restaurant.getBasicInfo());
+            System.out.println("DEBUG: Address: " + restaurant.getAddress());
+            System.out.println("DEBUG: Operating Hours: " + restaurant.getOperatingHours());
             
             model.addAttribute("restaurant", restaurant);
+            model.addAttribute("daysOfWeek", Arrays.asList("Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"));
             return "admin/restaurant/restaurantDetail";
         } catch (Exception e) {
             e.printStackTrace();
