@@ -7,11 +7,15 @@ import React, { useState } from "react";
 import CustomSelect from "../../components/CustomSelect";
 import ProductCard from "../../components/hostRes/ProductCard";
 import Pagination from "../../components/Pagination";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductPage() {
   const [priceSort, setPriceSort] = useState(0);
   const [dateSort, setDateSort] = useState(0);
   const [category, setCategory] = useState("all");
+  const nav = useNavigate();
+  const [isLoading, setIsLoading] = useState(true);
+  setTimeout(() => setIsLoading(false), 1000);
   return (
     <div className="w-full p-3 space-y-5">
       <div className="flex items-center space-x-2 font-semibold text-2xl mb-4">
@@ -20,7 +24,10 @@ export default function ProductPage() {
       </div>
       <div className="bg-gray-200 flex justify-between p-2 px-4 rounded-xl text-xl font-semibold items-center">
         <p>10 Món ăn</p>
-        <button className="text-white bg-green-500 text-lg p-2 rounded-lg">
+        <button
+          className="text-white bg-green-500 text-lg p-2 rounded-lg"
+          onClick={() => nav("/Product/add")}
+        >
           Thêm +
         </button>
       </div>
@@ -75,9 +82,13 @@ export default function ProductPage() {
         </div>
       </div>
       <div className=" bg-gray-200 p-4 space-y-3 rounded-2xl grid grid-cols-3 gap-5">
-        {Array.from({length:10}).map((_,index)=>(
-            <ProductCard key={index}/>
-        ))}
+        {isLoading
+          ? Array.from({ length: 10 }).map((_, index) => (
+              <ProductCard key={index} Loading={true} />
+            ))
+          : Array.from({ length: 10 }).map((_, index) => (
+              <ProductCard key={index} />
+            ))}
       </div>
       <Pagination />
     </div>

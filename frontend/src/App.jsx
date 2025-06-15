@@ -25,6 +25,7 @@ import OrderDetailPage from "./pages/hostRes/OrderDetailPage";
 import ProductPage from "./pages/hostRes/ProductPage";
 import ProductDetailPage from "./pages/hostRes/ProductDetailPage";
 import CategoryPage from "./pages/hostRes/CategoryPage";
+import AddProduct from "./pages/hostRes/AddProduct";
 
 export default function App() {
   return (
@@ -60,6 +61,7 @@ export default function App() {
           <Route path="Order" element={<OrderPage />} />
           <Route path="Order/:id" element={<OrderDetailPage />} />
           <Route path="Product" element={<ProductPage />} />
+          <Route path="Product/add" element={<AddProduct />} />
           <Route path="Product/:id" element={<ProductDetailPage />} />
           <Route path="Category" element={<CategoryPage />} />
         </Route>

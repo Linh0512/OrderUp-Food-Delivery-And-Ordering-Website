@@ -9,13 +9,15 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import avatar from "../../assets/avatar.png";
 import OrderItem from "../../components/hostRes/OrderItem";
+import { useNavigate } from "react-router-dom";
 
 export default function OrderDetailPage() {
+  const nav=useNavigate()
   return (
     <div className="w-[60vw] mx-auto bg-gray-200 p-2 my-5 rounded-2xl space-y-6">
       <div className="bg-white rounded-xl shadow p-4">
         <div className="flex items-center gap-4 ">
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" onClick={()=>nav('/Order')}>
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
           <div>

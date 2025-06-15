@@ -13,7 +13,7 @@ export default function CategoryPage() {
       </div>
       <div className="bg-gray-200 flex justify-between p-2 px-4 rounded-xl text-xl font-semibold items-center">
         <p>10 Category</p>
-        <button className="text-white bg-green-500 text-lg p-2 rounded-lg">
+        <button className="text-white bg-green-500 text-lg p-2 rounded-lg" onClick={()=>setIsAdd(!isAdd)}>
           Thêm +
         </button>
       </div>
@@ -28,13 +28,14 @@ export default function CategoryPage() {
         </div>
       </div>
       <div className="flex space-x-5 ">
-        <div className="p-2 w-[100%] bg-gray-200 space-y-5 rounded-2xl">
+        <div className="p-2 w-[50%] bg-gray-200 space-y-5 rounded-2xl ease-in-out">
           <p className="font-semibold text-xl p-2">Danh Sách Category</p>
           {Array.from({ length: 5 }).map((_, index) => (
             <CategoryItem key={index} />
           ))}
         </div>
-        <div className="bg-gray-100 shadow p-4 rounded-2xl border-l-4 border-green-500 h-fit w-full space-y-3">
+        {isAdd?(
+          <div className="bg-gray-100 w-[50%] shadow p-4 rounded-2xl border-l-4 border-green-500 h-fit space-y-3">
           <p className="font-semibold text-xl mb-4 ">Thêm Categoty</p>
           <p>Tên Category</p>
           <input
@@ -47,6 +48,7 @@ export default function CategoryPage() {
             <button className="p-2 bg-gray-500 text-white rounded-xl">Hủy</button>
           </div>
         </div>
+        ):""}
       </div>
     </div>
   );

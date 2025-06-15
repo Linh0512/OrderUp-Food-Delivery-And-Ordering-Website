@@ -11,15 +11,17 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import product from "../../assets/product.jpg";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function ProductDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSale, setIsSale] = useState(true);
+  const nav=useNavigate()
   return (
     <div className="w-[80%] mx-auto">
       <div className="bg-white rounded-xl shadow p-4 flex justify-between">
         <div className="flex items-center gap-4 ">
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors">
+          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" onClick={()=>nav('/Product')}>
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
           <div>
