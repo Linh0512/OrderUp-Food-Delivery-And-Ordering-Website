@@ -3,6 +3,7 @@ package com.example.orderup.module.restaurant.dto;
 import lombok.Builder;
 import lombok.Data;
 import java.util.List;
+import org.bson.types.ObjectId;
 
 @Data
 @Builder
@@ -15,5 +16,5 @@ public class DishThumbDTO {
     private boolean isDiscounted;
     private List<String> images;
     private boolean isActive;
-    private String restaurantId;
+    private ObjectId restaurantId;
 }

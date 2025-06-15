@@ -11,6 +11,7 @@ import com.example.orderup.module.restaurant.entity.Dish;
 
 import java.util.List;
 import java.util.Collections;
+import org.bson.types.ObjectId;
 
 @Service
 public class RestaurantDetailService {
@@ -29,7 +30,7 @@ public class RestaurantDetailService {
         }
     
         // Lấy danh sách món ăn
-        List<Dish> dishes = restaurantDetailRepository.findDishesByRestaurantId(restaurantId);
+        List<Dish> dishes = restaurantDetailRepository.findDishesByRestaurantId(new ObjectId(restaurantId));
         
         // Nếu không có món ăn, trả về danh sách rỗng
         if (dishes == null) {
@@ -37,5 +38,14 @@ public class RestaurantDetailService {
         }
     
         return restaurantDetailMapper.toRestaurantDetailResponseDTO(restaurant, dishes);
+    }
+
+    public boolean isRestaurantExists(String restaurantId) {
+        Restaurant restaurant = restaurantDetailRepository.findRestaurantById(restaurantId);
+        return restaurant != null;
+    }
+
+    public Restaurant save(Restaurant restaurant) {
+        return restaurantDetailRepository.save(restaurant);
     }
 }

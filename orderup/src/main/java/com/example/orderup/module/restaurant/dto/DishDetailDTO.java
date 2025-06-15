@@ -1,5 +1,8 @@
 package com.example.orderup.module.restaurant.dto;
 
+import org.bson.types.ObjectId;
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Builder;
 import lombok.Data;
 
@@ -13,6 +16,7 @@ public class DishDetailDTO {
     private String description;
     private int basePrice;
     private int discountPrice;
+    @JsonProperty("isDiscounted")
     private boolean isDiscounted;
     private List<String> images;
     private List<String> tags;

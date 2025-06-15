@@ -23,8 +23,17 @@ public class RestaurantDetailRepository {
         return mongoTemplate.findOne(query, Restaurant.class, "restaurants");
     }
 
-    public List<Dish> findDishesByRestaurantId(String restaurantId) {
-        Query query = new Query(Criteria.where("restaurantId").is(new ObjectId(restaurantId)));
+    public List<Dish> findDishesByRestaurantId(ObjectId restaurantId) {
+        Query query = new Query(Criteria.where("restaurantId").is(restaurantId));
         return mongoTemplate.find(query, Dish.class, "dishes");
+    }
+
+    public Restaurant save(Restaurant restaurant) {
+        return mongoTemplate.save(restaurant, "restaurants");
+    }
+
+    public boolean existsById(String restaurantId) {
+        Query query = new Query(Criteria.where("_id").is(restaurantId));
+        return mongoTemplate.exists(query, Restaurant.class, "restaurants");
     }
 }

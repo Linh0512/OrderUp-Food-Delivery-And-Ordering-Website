@@ -8,12 +8,14 @@ import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.dto.DishThumbDTO;
 import com.example.orderup.module.restaurant.dto.DishDetailDTO;
 import com.example.orderup.module.restaurant.entity.Dish.Choice;
+import org.bson.types.ObjectId;
 
 
 @Component
 public class DishMapper {
     
     public DishThumbDTO toDishThumbDTO(Dish dish, Restaurant restaurant) {
+        ObjectId restaurantId = new ObjectId(restaurant.getId());
         return DishThumbDTO.builder()
                 .id(dish.getId())
                 .name(dish.getBasicInfo().getName())
@@ -23,11 +25,12 @@ public class DishMapper {
                 .isDiscounted(dish.getPricing().isDiscounted())
                 .images(dish.getBasicInfo().getImages())
                 .isActive(dish.isActive())  
-                .restaurantId(restaurant.getId())
+                .restaurantId(restaurantId)
                 .build();
     }
 
     public DishDetailDTO toDishDetailDTO(Dish dish, Restaurant restaurant) {
+        ObjectId restaurantId = new ObjectId(restaurant.getId());
         return DishDetailDTO.builder()
                 .id(dish.getId())
                 .name(dish.getBasicInfo().getName())
@@ -38,7 +41,7 @@ public class DishMapper {
                 .images(dish.getBasicInfo().getImages())
                 .tags(dish.getBasicInfo().getTags())
                 .preparationTime(dish.getPreparationTime())
-                .restaurantId(restaurant.getId())
+                .restaurantId(restaurantId.toString())
                 .optionName(dish.getOptions().get(0).getName())
                 .optionType(dish.getOptions().get(0).getType())
                 .optionIsRequired(dish.getOptions().get(0).isRequired())

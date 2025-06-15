@@ -6,13 +6,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
+import org.bson.types.ObjectId;
 
 @Data
 @Document(collection = "dishes")
 public class Dish {
     @Id
     private String id;
-    private String restaurantId;
+    private ObjectId restaurantId;
     private String categoryId;
     private BasicInfo basicInfo;
     private Pricing pricing;
