@@ -10,12 +10,24 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import product from "../../assets/product.jpg";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../components/common/AuthContext";
+import { getDishbyId } from "../../services/hosResServices/Product";
 
 export default function ProductDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSale, setIsSale] = useState(true);
+  const [dish,setDish]=useState()
+  const {user}=useAuth()
+  const {id}=useParams()
+  
+  useEffect(()=>{
+    getDishbyId(id,user.token).then((res)=>{
+      console.log(res)
+      setDish(res)
+    })
+  },[user,id])
   const nav=useNavigate()
   return (
     <div className="w-[80%] mx-auto">

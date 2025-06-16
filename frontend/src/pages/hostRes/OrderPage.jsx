@@ -6,18 +6,29 @@ import {
   faTruck,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import MyChart from "../../components/MyChart";
 import OrderCard from "../../components/hostRes/OrderCard";
 import Pagination from "../../components/Pagination";
 import CustomSelect from "../../components/CustomSelect";
+import { useAuth } from "../../components/common/AuthContext";
+import { getOrderData } from "../../services/hosResServices/service";
 
 export default function OrderPage() {
+  const { user } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [priceSort, setPriceSort] = useState(0);
   const [dateSort, setDateSort] = useState(0);
   const [orderStatus, setOrderStatus] = useState("all");
-  setTimeout(() => setIsLoading(false), 1000);
+  const [orders, setOrders] = useState();
+
+  useEffect(() => {
+    getOrderData("684844b61a05cf815c50eb74", user.token).then((res) => {
+      console.log(res);
+      setOrders(res);
+    });
+    setTimeout(() => setIsLoading(false), 1000);
+  },[user]);
   return (
     <div className="w-full p-3 space-y-5">
       <div className="flex items-center space-x-2 font-semibold text-2xl mb-4">

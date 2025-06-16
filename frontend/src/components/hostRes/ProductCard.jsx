@@ -3,7 +3,7 @@ import product from "../../assets/product.jpg";
 import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 
-export default function ProductCard({Loading}) {
+export default function ProductCard({item,Loading}) {
   if(Loading)
     return(
       <div className="w-120 animate-pulse bg-gray-300 h-30">
@@ -11,7 +11,7 @@ export default function ProductCard({Loading}) {
       </div>
   )
   return (
-    <Link to={'/Product/123'}>
+    <Link to={`/Product/${item.id}`}>
       <div className="flex w-full shadow rounded caret-transparent bg-white p-3">
         <img
           src={product}
@@ -20,14 +20,14 @@ export default function ProductCard({Loading}) {
         />
         <div className="flex justify-between w-full ml-5 py-3">
           <div className="space-y-1">
-            <p className="font-bold">Cơm chiên dương châu</p>
+            <p className="font-bold">{item.name}</p>
             <p className="text-sm text-gray-500"> cơm </p>
           </div>
           <div className="space-y-8">
             <p className="text-sm text-yellow-500 text-end">
               5 <FontAwesomeIcon icon={faStar} />{" "}
             </p>
-            <p className="font-semibold">100.000đ</p>
+            <p className="font-semibold">{item.basePrice}đ</p>
           </div>
         </div>
       </div>

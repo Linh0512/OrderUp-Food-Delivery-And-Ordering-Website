@@ -31,3 +31,29 @@ export const uploadImage = async (selectedFile, token) => {
     return {};
   }
 };
+
+export const getAllDish=async(id,token)=>{
+  try {
+    const response = await api.get(`/api/dishes/restaurant/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error)
+    return {};
+  }
+}
+
+export const getDishbyId=async(id)=>{
+  try {
+    const response = await api.get(`/api/dishes/${id}`);
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error)
+    return {};
+  }
+}

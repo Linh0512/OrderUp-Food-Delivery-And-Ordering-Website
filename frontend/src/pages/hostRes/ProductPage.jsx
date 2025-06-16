@@ -3,19 +3,33 @@ import {
   faMagnifyingGlass,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CustomSelect from "../../components/CustomSelect";
 import ProductCard from "../../components/hostRes/ProductCard";
 import Pagination from "../../components/Pagination";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../components/common/AuthContext";
+import { getAllDish } from "../../services/hosResServices/Product";
 
 export default function ProductPage() {
+  const LIMIT=12
   const [priceSort, setPriceSort] = useState(0);
   const [dateSort, setDateSort] = useState(0);
   const [category, setCategory] = useState("all");
   const nav = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  setTimeout(() => setIsLoading(false), 1000);
+  const [dish, setDish] = useState();
+  const [count, setCount] = useState(0);
+  const [page, setPage] = useState(1);
+  const { user } = useAuth();
+  useEffect(() => {
+    getAllDish("684844b61a05cf815c50eb74", user.token).then((res) => {
+      console.log(res);
+      setDish(res.data);
+      setCount(res.count)
+    });
+    setTimeout(() => setIsLoading(false), 1000);
+  }, [user]);
   return (
     <div className="w-full p-3 space-y-5">
       <div className="flex items-center space-x-2 font-semibold text-2xl mb-4">
@@ -86,8 +100,8 @@ export default function ProductPage() {
           ? Array.from({ length: 10 }).map((_, index) => (
               <ProductCard key={index} Loading={true} />
             ))
-          : Array.from({ length: 10 }).map((_, index) => (
-              <ProductCard key={index} />
+          : dish.map((item, index) => (
+              <ProductCard key={index} item={item}/>
             ))}
       </div>
       <Pagination />

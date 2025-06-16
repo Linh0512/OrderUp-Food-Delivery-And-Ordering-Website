@@ -1,8 +1,18 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Pagination from "../../components/Pagination";
 import HistotyItem from "../../components/HistotyItem";
+import { useAuth } from "../../components/common/AuthContext";
+import { getHistotyData } from "../../services/userServices/Service";
 
 export default function HistoryPage() {
+  const [history,setHistory]=useState()
+  const {user}=useAuth()
+  useEffect(()=>{
+    getHistotyData(user.userId,user.token).then((res)=>{
+      console.log(res)
+      setHistory(res)
+    })
+  },[])
   return (
     <div className="w-[60vw] mx-auto">
       <p className="dancing-script-700 text-7xl ">History</p>

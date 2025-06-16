@@ -10,9 +10,9 @@ import {
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isLogin, setIsLogin] = useState(IsLogin);
-  const [user, setUser] = useState(getUserData);
-  const [role, setRole] = useState(getUserRole);
+  const [isLogin, setIsLogin] = useState(IsLogin());
+  const [user, setUser] = useState(getUserData());
+  const [role, setRole] = useState(getUserRole());
 
   const Login = async (email, password) => {
     const res = await login(email, password);

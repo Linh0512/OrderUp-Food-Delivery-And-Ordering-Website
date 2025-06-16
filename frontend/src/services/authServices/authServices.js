@@ -15,10 +15,6 @@
             import.meta.env.VITE_LOCAL_STORAGE_KEY,
             JSON.stringify(userData)
         );
-        if (api.defaults && response.data.token)
-            api.defaults.headers.common[
-            "Authorization"
-            ] = `Bearer ${response.data.token}`;
 
         return {
             userId: response.data.userId,

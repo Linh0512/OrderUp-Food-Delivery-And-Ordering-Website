@@ -7,7 +7,17 @@ export default function CustomSelect({ options,selected,handleChange }) {
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
 
+    useEffect(() => {
+    if (selected) {
+      const index = options.findIndex(option => option.value === selected);
+      setSelectedOption(index >= 0 ? index : 0);
+    } else {
+      setSelectedOption(0);
+    }
+  }, [selected, options]);
+
   useEffect(() => {
+    
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
         setIsOpen(false);
