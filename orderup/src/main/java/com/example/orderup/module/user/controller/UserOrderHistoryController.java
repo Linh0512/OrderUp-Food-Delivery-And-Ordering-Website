@@ -87,7 +87,15 @@ public class UserOrderHistoryController {
             
             Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
 
-            LocalDateTime date = orderDate != null ? LocalDateTime.parse(orderDate) : null;
+            LocalDateTime date = null;
+            if (orderDate != null) {
+                try {
+                    date = LocalDateTime.parse(orderDate + "T00:00:00");
+                } catch (Exception e) {
+                    logger.error("Invalid date format: " + orderDate, e);
+                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+                }
+            }
             
             Page<UserOrderHistoryThumbDTO> ordersPage = orderHistoryService.filterRestaurantOrderByDate(restaurantId, date, pageable);
 
