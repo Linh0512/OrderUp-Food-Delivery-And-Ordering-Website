@@ -52,8 +52,7 @@ public class RestaurantDetailMapper {
 
     public RestaurantDetailResponseDTO toRestaurantDetailResponseDTO(Restaurant restaurant, List<Dish> dishes) {
         return RestaurantDetailResponseDTO.builder()
-            .count(1)
-            .data(List.of(toRestaurantDetailDTO(restaurant, dishes)))
+            .data(toRestaurantDetailDTO(restaurant, dishes))
             .build();
     }
 
