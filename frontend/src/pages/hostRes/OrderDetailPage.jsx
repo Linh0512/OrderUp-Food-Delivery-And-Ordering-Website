@@ -59,10 +59,10 @@ export default function OrderDetailPage() {
       </div>
       <div className="bg-white rounded-xl shadow-md p-6">
         <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          Món ăn đã đặt (10 món)
+          Món ăn đã đặt (2 món)
         </h2>
         <div className="space-y-4">
-          {Array.from({ length: 5 }).map((_, index) => (
+          {Array.from({ length: 2 }).map((_, index) => (
             <OrderItem key={index} />
           ))}
         </div>

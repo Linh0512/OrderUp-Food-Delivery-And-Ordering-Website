@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 
 export default function CustomSelect({ options,selected,handleChange }) {
-  const [selectedOption, setSelectedOption] = useState(selected?options.findIndex((i)=>i.value===selected):0);
+  const [selectedOption, setSelectedOption] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
 
@@ -11,9 +11,7 @@ export default function CustomSelect({ options,selected,handleChange }) {
     if (selected) {
       const index = options.findIndex(option => option.value === selected);
       setSelectedOption(index >= 0 ? index : 0);
-    } else {
-      setSelectedOption(0);
-    }
+    } 
   }, [selected, options]);
 
   useEffect(() => {
