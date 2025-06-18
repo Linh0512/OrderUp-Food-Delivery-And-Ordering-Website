@@ -26,6 +26,7 @@ import ProductPage from "./pages/hostRes/ProductPage";
 import ProductDetailPage from "./pages/hostRes/ProductDetailPage";
 import CategoryPage from "./pages/hostRes/CategoryPage";
 import AddProduct from "./pages/hostRes/AddProduct";
+import HistoryDetailPage from "./pages/user/HistoryDetailPage";
 
 export default function App() {
   return (
@@ -49,6 +50,7 @@ export default function App() {
           <Route path="tracking" element={<TrackingPage />} />
           <Route path="profile" element={<ProfilePage />} />
           <Route path="history" element={<HistoryPage />} />
+          <Route path="history/:id" element={<HistoryDetailPage />} />
           <Route path="chat" element={<ChatPage />} />
         </Route>
         <Route path="unAuth" element={<UnAuthorizedPage />} />

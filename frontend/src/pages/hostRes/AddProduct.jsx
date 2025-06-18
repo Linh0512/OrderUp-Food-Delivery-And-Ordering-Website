@@ -8,6 +8,7 @@ import { useAuth } from "../../components/common/AuthContext";
 export default function AddProduct() {
   const nav = useNavigate();
   const [fileSelected, setFileSelected] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
   const {user}=useAuth()
 
   const handleFileSelect = (event) => {
@@ -29,13 +30,17 @@ export default function AddProduct() {
         return;
       }
       setFileSelected(file);
+      const reader= new FileReader()
+      reader.onload=(e)=>{
+        setPreviewImage(e.target.result)
+      }
+      reader.readAsDataURL(file)
     }
   };
 
   const handleAdd = async () => {
     try {
       const image = await uploadImage(fileSelected,user.token);
-      console.log(image.data.url)
       const dish = {
         name: "Phở bò tái nạm",
         description:
@@ -83,9 +88,9 @@ export default function AddProduct() {
           </button>
         </div>
       </div>
-      <div className="flex space-x-5 w-full bg-gray-100 p-3">
+      <div className="flex space-x-5 w-full bg-gray-200 p-3 mt-5 rounded">
         <div className="w-[40%] caret-transparent flex flex-col items-center justify-center">
-          {fileSelected && <p className="text-green text-xl">thành công</p>}
+          {fileSelected && <img src={previewImage} className="w-full mb-3"/>}
           <label className="bg-blue-500 p-3 text-white font-semibold rounded-xl">
             Chọn ảnh
             <input

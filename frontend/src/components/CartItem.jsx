@@ -6,7 +6,7 @@ export default function CartItem({cartItem}) {
     const [showPopup,setShowPopup]=useState(false)
   return (
     <div className='flex w-full shadow caret-transparent bg-white p-3'>
-        <img src={cartItem.dishImage} alt={cartItem.dishName} className='w-[15%] h-auto object-contain shadow'/>
+        <img src={product||cartItem.dishImage} alt={cartItem.dishName} className='w-[15%] h-auto object-contain shadow'/>
         <div className='flex justify-between w-full  ml-5'>
             <div className='space-y-4'>
                 <p className='font-bold'>{cartItem.dishName}</p>

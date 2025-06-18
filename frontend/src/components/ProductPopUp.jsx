@@ -22,7 +22,7 @@ export default function ProductPopUp({ cartItem,handleClose }) {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 ">
       <div className="bg-white shadow-lg w-100 rounded-4xl" ref={productRef}>
-        <img src={cartItem.dishImage} alt={cartItem.dishName} className="rounded-t-4xl shadow" />
+        <img src={product||cartItem.dishImage} alt={cartItem.dishName} className="rounded-t-4xl shadow" />
         <div className="p-6">
           <div className="font-semibold flex justify-between mb-4">
             <p>{cartItem.dishName}</p>

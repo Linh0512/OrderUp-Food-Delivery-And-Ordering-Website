@@ -9,6 +9,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import OrderItem from "../../components/hostRes/OrderItem";
+import money from '../../assets/money.png'
+import zalo from '../../assets/zalopay.png'
 
 export default function TrackingPage() {
   const [stage, setStage] = useState("pending");
@@ -39,7 +41,7 @@ export default function TrackingPage() {
         </h2>
       </div>
       <div className="w-full p-10 shadow-2xl flex mt-8 bg-white rounded-2xl ">
-        <div className="w-[50%] ">
+        <div className="w-[70%] ">
           <p className="font-bold text-xl mb-4">Đặt hàng thành công</p>
           <p>Đơn hàng sẽ được giao vào lúc 11:30</p>
           <div className="flex items-center space-x-3 mt-10 text-3xl w-full">
@@ -100,7 +102,7 @@ export default function TrackingPage() {
               <FontAwesomeIcon icon={faHome} />
             </div>
           </div>
-          <div className="mt-10 space-y-1">
+          <div className="mt-10 space-y-1 mr-10">
             <div className="flex items-center space-x-2">
               <div className="size-4 bg-red-600 rounded-full"></div>
               <span className="font-semibold">Từ</span>
@@ -108,8 +110,8 @@ export default function TrackingPage() {
             <p className="font-semibold">Cơm Gà Số 23</p>
             <p className="text-sm">64 số 23, P.A, Quận 7, TP.HCM</p>
           </div>
-          <div className="mt-5 space-y-1">
-            <div className="flex items-center space-x-2">
+          <div className="mt-5 space-y-2 mr-10">
+            <div className="flex items-center space-x-2 ">
               <div className="size-4 bg-green-500 rounded-full"></div>
               <span className="font-semibold">Đến</span>
             </div>
@@ -120,7 +122,10 @@ export default function TrackingPage() {
               {address.name} - {address.phone}
             </p>
             <p className="text-sm">{address.email}</p>
-            <p className="text-sm">{address.method}</p>
+            <div className="text-sm flex items-center">
+              Thanh toán: 
+              <img src={address.method==='cash'?money:zalo} className="size-10 ml-2"/>
+            </div>
           </div>
         </div>
         <div className="space-y-10 w-full">
@@ -130,7 +135,7 @@ export default function TrackingPage() {
             ))}
           </div>
           <hr />
-          <div className="space-y-5">
+          <div className="space-y-5 ml-auto">
             <p className="font-bold">Tổng 4 món</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>

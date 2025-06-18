@@ -1,24 +1,26 @@
 import {
   faCalendarDay,
   faCircleUser,
-  faEnvelope,
   faPhone,
+  faSpinner,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import ChangePasswordPopUp from "../../components/ChangePasswordPopUp";
 import { useAuth } from "../../components/common/AuthContext";
 import CustomSelect from "../../components/CustomSelect";
+import { uploadImage } from "../../services/hosResServices/Product";
 import {
   getUserProfile,
   updatedUser,
 } from "../../services/userServices/Service";
-import { uploadImage } from "../../services/hosResServices/Product";
 
 export default function ProfilePage() {
   const [showPopUp, setShowPopup] = useState(false);
   const [userDetail, setUserDetail] = useState({});
   const [fileSelected, setFileSelected] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const [isUpLoading, setIsUpLoading] = useState(false);
   const { user } = useAuth();
 
   const handleFileSelect = (event) => {
@@ -40,6 +42,11 @@ export default function ProfilePage() {
         return;
       }
       setFileSelected(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -52,10 +59,22 @@ export default function ProfilePage() {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-    await uploadImage(fileSelected, user.token).then((res) =>
-      setUserDetail({ ...userDetail, avatar: res.data.url })
-    );
-    updatedUser(user.userId, userDetail, user.token);
+    let tmp = userDetail;
+    if (fileSelected) {
+      setIsUpLoading(true);
+      await uploadImage(fileSelected, user.token).then((res) => {
+        tmp = {
+          ...userDetail,
+          avatar: res.data.url,
+        };
+        setUserDetail(tmp);
+      });
+    }
+    await updatedUser(user.userId, tmp, user.token);
+    setFileSelected(null);
+    setPreviewImage(null);
+    setIsUpLoading(false);
+    alert("Cập nhật thông tin thành công");
   };
 
   useEffect(() => {
@@ -79,6 +98,9 @@ export default function ProfilePage() {
                   placeholder="Fullname"
                   className="w-[90%] focus:outline-none"
                   defaultValue={userDetail.name}
+                  onChange={(e) =>
+                    setUserDetail({ ...userDetail, lastName: e.target.value })
+                  }
                 />
               </div>
             </div>
@@ -108,6 +130,9 @@ export default function ProfilePage() {
                 type="date"
                 className="w-[90%] focus:outline-none"
                 defaultValue={userDetail.dateOfBirth}
+                onChange={(e) =>
+                  setUserDetail({ ...userDetail, dateOfBirth: e.target.value })
+                }
               />
             </div>
           </div>
@@ -120,27 +145,19 @@ export default function ProfilePage() {
                 placeholder="Username"
                 className="w-[90%] focus:outline-none"
                 defaultValue={userDetail.phone}
-              />
-            </div>
-          </div>
-          <div className="text-xl text-gray-400 space-y-2">
-            <p className="font-semibold">EMAIL</p>
-            <div className="border-b space-x-2">
-              <FontAwesomeIcon icon={faEnvelope} />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-[90%] focus:outline-none"
+                onChange={(e) =>
+                  setUserDetail({ ...userDetail, phone: e.target.value })
+                }
               />
             </div>
           </div>
         </div>
         <div className="flex flex-col items-center space-y-4 w-[40%]">
-          <div className="w-[40%] rounded-full overflow-hidden bg-gray-100">
+          <div className="w-[40%] overflow-hidden bg-gray-100">
             <img
-              src={userDetail.avatar}
+              src={previewImage || userDetail.avatar}
               alt="Avatar"
-              className="w-full h-full object-cover"
+              className="size-40 object-cover rounded-full text-center "
             />
           </div>
           <div className="flex space-x-4">
@@ -160,8 +177,22 @@ export default function ProfilePage() {
         </div>
       </div>
       <div className="flex w-fit gap-5 mt-10">
-        <button className=" bg-red-500 px-4 py-2 rounded text-sm hover:bg-red-600 transition text-white" onClick={handleUpdated}>
-          Lưu Thông Tin
+        <button
+          className={`  px-4 py-2 rounded text-sm transition text-white ${
+            isUpLoading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-red-500 hover:bg-red-600"
+          }`}
+          onClick={handleUpdated}
+        >
+          {isUpLoading ? (
+            <>
+              <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />{" "}
+              Đang Lưu...{" "}
+            </>
+          ) : (
+            "Lưu Thông Tin"
+          )}
         </button>
         <button
           className=" bg-red-500 px-4 py-2 rounded text-sm hover:bg-red-600 transition text-white"
