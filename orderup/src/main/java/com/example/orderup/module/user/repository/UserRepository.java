@@ -17,6 +17,9 @@ public interface UserRepository  extends MongoRepository<User, String> {
     @Query("{ '$or': [ { 'profile.firstName': { $regex: ?0, $options: 'i' } }, { 'profile.lastName': { $regex: ?0, $options: 'i' } } ] }")
     List<User> getByUserName(String userName);
 
+    @Query("{ 'role': ?0 }")
+    List<User> findByRole(String role);
+
     long countByCreatedAtGreaterThan(Date date);
 
     long countByLastLoginBetween(Date startDate, Date endDate);

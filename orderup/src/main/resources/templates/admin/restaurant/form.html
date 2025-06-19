@@ -1,222 +1,159 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title th:text="${isNew ? 'Thêm nhà hàng mới' : 'Chỉnh sửa nhà hàng'}">Quản lý Nhà hàng</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <meta charset="UTF-8">
+    <title th:text="${isNew} ? 'Thêm nhà hàng mới' : 'Chỉnh sửa nhà hàng'"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <style>
         .form-section {
-            background-color: #f8f9fa;
+            background: #fff;
             padding: 20px;
             border-radius: 8px;
             margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         .form-section-title {
-            margin-bottom: 15px;
-            color: #0d6efd;
+            margin-bottom: 20px;
+            color: #333;
+            font-size: 1.2rem;
+        }
+        .preview-image {
+            max-width: 200px;
+            max-height: 200px;
+            margin: 10px 0;
         }
     </style>
 </head>
-<body>
-    <div class="container mt-5 mb-5">
+<body class="bg-light">
+    <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 th:text="${isNew ? 'Thêm nhà hàng mới' : 'Chỉnh sửa nhà hàng'}">Quản lý nhà hàng</h1>
-            <a href="/admin/restaurants" class="btn btn-secondary">Quay lại danh sách</a>
+            <h2 th:text="${isNew} ? 'Thêm nhà hàng mới' : 'Chỉnh sửa nhà hàng'"></h2>
+            <a href="/admin/restaurants" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Quay lại
+            </a>
         </div>
-        
-        <form th:action="${isNew ? '/admin/restaurants/create' : '/admin/restaurants/' + restaurant.id + '/edit'}" 
-              method="post" 
-              th:object="${restaurant}" 
-              class="needs-validation" 
-              id="restaurantForm"
-              novalidate>
+
+        <form th:action="${isNew} ? @{/admin/restaurants/create} : @{/admin/restaurants/{id}/edit(id=${restaurant.id})}" 
+              th:object="${restaurant}" method="post" class="needs-validation" novalidate>
             
-            <!-- ID Hidden -->
-            <input type="hidden" th:field="*{id}" th:if="${!isNew}"/>
-            <input type="hidden" th:field="*{hostId}" th:if="${!isNew}"/>
-            
-            <!-- Section: Thông tin cơ bản -->
+            <!-- Host Info Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="bi bi-person"></i> Thông tin chủ nhà hàng
+                </h3>
+                <div class="mb-3">
+                    <label for="hostId" class="form-label">Chọn chủ nhà hàng</label>
+                    <div th:if="${potentialHosts != null and not #lists.isEmpty(potentialHosts)}">
+                        <select class="form-select" id="hostId" th:field="*{hostId}" required onchange="updateHostInfo(this)">
+                            <option value="">-- Chọn chủ nhà hàng --</option>
+                            <option th:each="host : ${potentialHosts}" 
+                                    th:value="${host.id}"
+                                    th:data-firstname="${host.profile != null ? host.profile.firstName : ''}"
+                                    th:data-lastname="${host.profile != null ? host.profile.lastName : ''}"
+                                    th:data-email="${host.email}"
+                                    th:data-phone="${host.profile != null ? host.profile.phone : ''}"
+                                    th:data-gender="${host.profile != null ? host.profile.gender : ''}"
+                                    th:data-dob="${host.profile != null ? #dates.format(host.profile.dateOfBirth, 'dd/MM/yyyy') : ''}"
+                                    th:text="${host.profile != null ? 
+                                        (host.profile.lastName + ' ' + host.profile.firstName + ' - ' + host.profile.phone + ' (' + host.email + ')') : 
+                                        ('Chưa có thông tin - ' + host.email)}">
+                            </option>
+                        </select>
+                        <div class="mt-2">
+                            <small class="text-muted">Tìm thấy <span th:text="${#lists.size(potentialHosts)}">0</span> chủ nhà hàng</small>
+                        </div>
+                    </div>
+                    <div th:if="${potentialHosts == null or #lists.isEmpty(potentialHosts)}" class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Không tìm thấy chủ nhà hàng nào. Vui lòng thêm người dùng với vai trò "restaurantHost" trước.
+                    </div>
+                </div>
+                <div id="hostInfoDetails" class="mt-3" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Họ tên:</strong> <span id="hostFullName"></span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Email:</strong> <span id="hostEmail"></span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Số điện thoại:</strong> <span id="hostPhone"></span></p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <p><strong>Giới tính:</strong> <span id="hostGender"></span></p>
+                        </div>
+                        <div class="col-md-4">
+                            <p><strong>Ngày sinh:</strong> <span id="hostDob"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Basic Info Section -->
             <div class="form-section">
                 <h3 class="form-section-title">
                     <i class="bi bi-info-circle"></i> Thông tin cơ bản
                 </h3>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="name" class="form-label">Tên nhà hàng <span class="text-danger">*</span></label>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="name" class="form-label">Tên nhà hàng</label>
                         <input type="text" class="form-control" id="name" th:field="*{basicInfo.name}" required>
-                        <div class="invalid-feedback">Vui lòng nhập tên nhà hàng</div>
                     </div>
-                    
-                    <div class="col-md-6">
-                        <label for="phone" class="form-label">Số điện thoại <span class="text-danger">*</span></label>
+                    <div class="col-md-6 mb-3">
+                        <label for="phone" class="form-label">Số điện thoại</label>
                         <input type="tel" class="form-control" id="phone" th:field="*{basicInfo.phone}" required>
-                        <div class="invalid-feedback">Vui lòng nhập số điện thoại hợp lệ</div>
                     </div>
                 </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="email" th:field="*{basicInfo.email}" required>
-                        <div class="invalid-feedback">Vui lòng nhập email hợp lệ</div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="website" class="form-label">Website</label>
-                        <input type="url" class="form-control" id="website" th:field="*{basicInfo.website}">
-                        <div class="invalid-feedback">Vui lòng nhập URL hợp lệ (bao gồm http:// hoặc https://)</div>
-                    </div>
-                </div>
-                
                 <div class="mb-3">
                     <label for="description" class="form-label">Mô tả</label>
-                    <textarea class="form-control" id="description" rows="3" th:field="*{basicInfo.description}"></textarea>
+                    <textarea class="form-control" id="description" th:field="*{basicInfo.description}" rows="3"></textarea>
                 </div>
-                
-                <div class="mb-3">
-                    <label for="images" class="form-label">Ảnh (phân cách bằng dấu phẩy)</label>
-                    <input type="text" class="form-control" id="images" 
-                           th:value="${restaurant.basicInfo != null && restaurant.basicInfo.images != null ? #strings.arrayJoin(restaurant.basicInfo.images, ',') : ''}">
-                    <div class="form-text">Nhập URL hình ảnh, phân cách nhiều ảnh bằng dấu phẩy</div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" th:field="*{basicInfo.email}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="website" class="form-label">Website</label>
+                        <input type="url" class="form-control" id="website" th:field="*{basicInfo.website}">
+                    </div>
                 </div>
-                
                 <div class="mb-3">
-                    <label for="categories" class="form-label">Danh mục (phân cách bằng dấu phẩy)</label>
-                    <input type="text" class="form-control" id="categories" 
-                           th:value="${restaurant.tags != null ? #strings.arrayJoin(restaurant.tags, ',') : ''}">
-                    <div class="form-text">Ví dụ: Nhà hàng, Quán ăn, Đồ Á, Đồ Âu</div>
+                    <label for="priceRange" class="form-label">Khoảng giá (VD: 90,000 - 180,000)</label>
+                    <input type="text" class="form-control" id="priceRange" th:field="*{basicInfo.priceRange}" placeholder="Nhập khoảng giá">
                 </div>
             </div>
-            
-            <!-- Section: Địa chỉ -->
+
+            <!-- Address Section -->
             <div class="form-section">
                 <h3 class="form-section-title">
                     <i class="bi bi-geo-alt"></i> Địa chỉ
                 </h3>
-                
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <label for="fullAddress" class="form-label">Địa chỉ đầy đủ <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="fullAddress" th:field="*{address.fullAddress}" required>
-                        <div class="invalid-feedback">Vui lòng nhập địa chỉ</div>
-                    </div>
-                </div>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="district" class="form-label">Quận/Huyện <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="district" th:field="*{address.district}" required>
-                        <div class="invalid-feedback">Vui lòng nhập quận/huyện</div>
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="city" class="form-label">Thành phố <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="city" th:field="*{address.city}" required>
-                        <div class="invalid-feedback">Vui lòng nhập thành phố</div>
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="lat" class="form-label">Vĩ độ</label>
-                        <input type="number" step="any" class="form-control" id="lat" th:field="*{address.coordinates.lat}">
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="lng" class="form-label">Kinh độ</label>
-                        <input type="number" step="any" class="form-control" id="lng" th:field="*{address.coordinates.lng}">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Section: Thông tin kinh doanh -->
-            <div class="form-section">
-                <h3 class="form-section-title">
-                    <i class="bi bi-briefcase"></i> Thông tin kinh doanh
-                </h3>
-                
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="businessLicense" class="form-label">Giấy phép kinh doanh</label>
-                        <input type="text" class="form-control" id="businessLicense" th:field="*{businessInfo.businessLicense}">
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="taxCode" class="form-label">Mã số thuế</label>
-                        <input type="text" class="form-control" id="taxCode" th:field="*{businessInfo.taxCode}">
-                    </div>
-                </div>
-
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <label for="businessType" class="form-label">Loại hình kinh doanh</label>
-                        <input type="text" class="form-control" id="businessType" th:field="*{businessInfo.businessType}">
-                    </div>
-                    
-                    <div class="col-md-6">
-                        <label for="cuisineTypes" class="form-label">Loại ẩm thực (phân cách bằng dấu phẩy)</label>
-                        <input type="text" class="form-control" id="cuisineTypes" 
-                               th:value="${restaurant.businessInfo != null && restaurant.businessInfo.cuisineTypes != null ? #strings.arrayJoin(restaurant.businessInfo.cuisineTypes, ',') : ''}">
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Section: Thông tin giao hàng -->
-            <div class="form-section">
-                <h3 class="form-section-title">
-                    <i class="bi bi-truck"></i> Thông tin giao hàng
-                </h3>
-                
                 <div class="mb-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="isDeliveryAvailable" th:field="*{delivery.isDeliveryAvailable}">
-                        <label class="form-check-label" for="isDeliveryAvailable">Hỗ trợ giao hàng</label>
-                    </div>
+                    <label for="fullAddress" class="form-label">Địa chỉ đầy đủ</label>
+                    <input type="text" class="form-control" id="fullAddress" th:field="*{address.fullAddress}" required>
                 </div>
-
-                <div id="deliveryFields">
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="deliveryRadius" class="form-label">Bán kính giao hàng (km)</label>
-                            <input type="number" class="form-control" id="deliveryRadius" th:field="*{delivery.deliveryRadius}">
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="deliveryFee" class="form-label">Phí giao hàng (VNĐ)</label>
-                            <input type="number" class="form-control" id="deliveryFee" th:field="*{delivery.deliveryFee}">
-                        </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="district" class="form-label">Quận/Huyện</label>
+                        <input type="text" class="form-control" id="district" th:field="*{address.district}" required>
                     </div>
-
-                    <div class="row mb-3">
-                        <div class="col-md-6">
-                            <label for="freeDeliveryThreshold" class="form-label">Miễn phí giao hàng từ (VNĐ)</label>
-                            <input type="number" class="form-control" id="freeDeliveryThreshold" th:field="*{delivery.freeDeliveryThreshold}">
-                        </div>
-                        
-                        <div class="col-md-6">
-                            <label for="estimatedDeliveryTime" class="form-label">Thời gian giao hàng dự kiến (phút)</label>
-                            <input type="number" class="form-control" id="estimatedDeliveryTime" th:field="*{delivery.estimatedDeliveryTime}">
-                        </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="city" class="form-label">Thành phố</label>
+                        <input type="text" class="form-control" id="city" th:field="*{address.city}" required>
                     </div>
-
-                    <div class="mb-3">
-                        <label for="deliveryAreas" class="form-label">Khu vực giao hàng (phân cách bằng dấu phẩy)</label>
-                        <input type="text" class="form-control" id="deliveryAreas" 
-                               th:value="${restaurant.delivery != null && restaurant.delivery.deliveryAreas != null ? #strings.arrayJoin(restaurant.delivery.deliveryAreas, ',') : ''}">
-                    </div>
-                    <div class="form-text">Ví dụ: Quận 1, Quận 2, Quận 3</div>
                 </div>
             </div>
-            
-            <!-- Section: Thời gian hoạt động -->
+
+            <!-- Operating Hours Section -->
             <div class="form-section">
                 <h3 class="form-section-title">
                     <i class="bi bi-clock"></i> Thời gian hoạt động
                 </h3>
-                
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-bordered">
                         <thead>
                             <tr>
                                 <th>Ngày</th>
@@ -226,20 +163,18 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr th:each="day, iterStat : ${{'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy', 'Chủ Nhật'}}">
-                                <td th:text="${day}">Ngày</td>
+                            <tr th:each="hour, stat : *{operatingHours}">
+                                <td th:text="${#strings.arrayJoin({'Thứ Hai','Thứ Ba','Thứ Tư','Thứ Năm','Thứ Sáu','Thứ Bảy','Chủ Nhật'}, ',').split(',')[stat.index]}">Ngày</td>
                                 <td>
-                                    <input type="time" class="form-control" th:field="*{operatingHours[__${iterStat.index}__].openTime}">
+                                    <input type="time" class="form-control" th:field="*{operatingHours[__${stat.index}__].openTime}">
                                 </td>
                                 <td>
-                                    <input type="time" class="form-control" th:field="*{operatingHours[__${iterStat.index}__].closeTime}">
+                                    <input type="time" class="form-control" th:field="*{operatingHours[__${stat.index}__].closeTime}">
                                 </td>
                                 <td>
                                     <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" th:field="*{operatingHours[__${iterStat.index}__].isOpen}">
-                                        <label class="form-check-label">Mở cửa</label>
+                                        <input class="form-check-input" type="checkbox" th:field="*{operatingHours[__${stat.index}__].open}">
                                     </div>
-                                    <input type="hidden" th:field="*{operatingHours[__${iterStat.index}__].dayOfWeek}" th:value="${iterStat.index}">
                                 </td>
                             </tr>
                         </tbody>
@@ -247,126 +182,117 @@
                 </div>
             </div>
 
-            <!-- Section: Thông tin ngân hàng -->
+            <!-- Delivery Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="bi bi-truck"></i> Thông tin giao hàng
+                </h3>
+                <div class="mb-3">
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="deliveryAvailable" th:field="*{delivery.deliveryAvailable}">
+                        <label class="form-check-label" for="deliveryAvailable">Hỗ trợ giao hàng</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="deliveryRadius" class="form-label">Bán kính giao hàng (km)</label>
+                        <input type="number" class="form-control" id="deliveryRadius" th:field="*{delivery.deliveryRadius}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="deliveryFee" class="form-label">Phí giao hàng</label>
+                        <input type="number" class="form-control" id="deliveryFee" th:field="*{delivery.deliveryFee}">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="freeDeliveryThreshold" class="form-label">Ngưỡng miễn phí giao hàng</label>
+                        <input type="number" class="form-control" id="freeDeliveryThreshold" th:field="*{delivery.freeDeliveryThreshold}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="estimatedDeliveryTime" class="form-label">Thời gian giao hàng dự kiến (phút)</label>
+                        <input type="number" class="form-control" id="estimatedDeliveryTime" th:field="*{delivery.estimatedDeliveryTime}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Business Info Section -->
+            <div class="form-section">
+                <h3 class="form-section-title">
+                    <i class="bi bi-briefcase"></i> Thông tin kinh doanh
+                </h3>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="businessLicense" class="form-label">Giấy phép kinh doanh</label>
+                        <input type="text" class="form-control" id="businessLicense" th:field="*{businessInfo.businessLicense}">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="taxCode" class="form-label">Mã số thuế</label>
+                        <input type="text" class="form-control" id="taxCode" th:field="*{businessInfo.taxCode}">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bank Info Section -->
             <div class="form-section">
                 <h3 class="form-section-title">
                     <i class="bi bi-bank"></i> Thông tin ngân hàng
                 </h3>
-                
-                <div class="row mb-3">
-                    <div class="col-md-4">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
                         <label for="bankName" class="form-label">Tên ngân hàng</label>
                         <input type="text" class="form-control" id="bankName" th:field="*{bankInfo.bankName}">
                     </div>
-                    
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <label for="accountNumber" class="form-label">Số tài khoản</label>
                         <input type="text" class="form-control" id="accountNumber" th:field="*{bankInfo.accountNumber}">
                     </div>
-                    
-                    <div class="col-md-4">
+                    <div class="col-md-4 mb-3">
                         <label for="accountHolder" class="form-label">Chủ tài khoản</label>
                         <input type="text" class="form-control" id="accountHolder" th:field="*{bankInfo.accountHolder}">
                     </div>
                 </div>
             </div>
-            
-            <!-- Section: Trạng thái -->
-            <div class="form-section">
-                <h3 class="form-section-title">
-                    <i class="bi bi-toggle2-on"></i> Trạng thái
-                </h3>
-                
-                <div class="mb-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="active" th:field="*{active}">
-                        <label class="form-check-label" for="active">Đang hoạt động</label>
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="featured" th:field="*{featured}">
-                        <label class="form-check-label" for="featured">Nhà hàng nổi bật</label>
-                    </div>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="verificationStatus" class="form-label">Trạng thái xác minh</label>
-                    <select class="form-select" id="verificationStatus" th:field="*{verificationStatus}">
-                        <option value="pending">Đang chờ duyệt</option>
-                        <option value="approved">Đã duyệt</option>
-                        <option value="rejected">Từ chối</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="d-grid gap-2 d-md-flex justify-content-md-end mt-4">
-                <a href="/admin/restaurants" class="btn btn-secondary me-md-2">
-                    <i class="bi bi-x-circle"></i> Hủy
-                </a>
+
+            <div class="d-grid gap-2 d-md-flex justify-content-md-end mb-5">
                 <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Lưu thông tin
+                    <i class="bi bi-save"></i> Lưu thay đổi
                 </button>
             </div>
         </form>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Form validation
-            const form = document.getElementById('restaurantForm');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    if (!form.checkValidity()) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                    }
-                    
-                    // Process arrays
-                    processArrayField('images', 'basicInfo.images');
-                    processArrayField('categories', 'tags');
-                    processArrayField('cuisineTypes', 'businessInfo.cuisineTypes');
-                    processArrayField('deliveryAreas', 'delivery.deliveryAreas');
-                    
-                    form.classList.add('was-validated');
-                });
-            }
-
-            // Toggle delivery fields
-            const deliveryToggle = document.getElementById('isDeliveryAvailable');
-            const deliveryFields = document.getElementById('deliveryFields');
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script th:inline="javascript">
+        function updateHostInfo(selectElement) {
+            const hostInfoDiv = document.getElementById('hostInfoDetails');
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
             
-            if (deliveryToggle && deliveryFields) {
-                function toggleDeliveryFields() {
-                    deliveryFields.style.display = deliveryToggle.checked ? 'block' : 'none';
-                }
-                
-                deliveryToggle.addEventListener('change', toggleDeliveryFields);
-                toggleDeliveryFields(); // Initial state
+            if (selectElement.value === '') {
+                hostInfoDiv.style.display = 'none';
+                return;
             }
 
-            // Process array fields helper function
-            function processArrayField(inputId, fieldName) {
-                const input = document.getElementById(inputId);
-                if (input && input.value) {
-                    const values = input.value.split(',').map(v => v.trim()).filter(v => v);
-                    
-                    // Remove existing hidden inputs
-                    const existingInputs = form.querySelectorAll(`input[name^="${fieldName}["]`);
-                    existingInputs.forEach(input => input.remove());
-                    
-                    // Add new hidden inputs
-                    values.forEach((value, index) => {
-                        const hiddenInput = document.createElement('input');
-                        hiddenInput.type = 'hidden';
-                        hiddenInput.name = `${fieldName}[${index}]`;
-                        hiddenInput.value = value;
-                        form.appendChild(hiddenInput);
-                    });
-                }
+            // Cập nhật thông tin từ data attributes
+            document.getElementById('hostFullName').textContent = 
+                selectedOption.getAttribute('data-lastname') + ' ' + 
+                selectedOption.getAttribute('data-firstname');
+            document.getElementById('hostEmail').textContent = 
+                selectedOption.getAttribute('data-email');
+            document.getElementById('hostPhone').textContent = 
+                selectedOption.getAttribute('data-phone') || 'Chưa có';
+            document.getElementById('hostGender').textContent = 
+                selectedOption.getAttribute('data-gender') || 'Chưa có';
+            document.getElementById('hostDob').textContent = 
+                selectedOption.getAttribute('data-dob') || 'Chưa có';
+
+            hostInfoDiv.style.display = 'block';
+        }
+
+        // Gọi hàm khi trang được tải để hiển thị thông tin nếu đã có chủ nhà hàng được chọn
+        document.addEventListener('DOMContentLoaded', function() {
+            const hostSelect = document.getElementById('hostId');
+            if (hostSelect) {
+                updateHostInfo(hostSelect);
             }
         });
     </script>

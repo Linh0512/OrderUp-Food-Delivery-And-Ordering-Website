@@ -3,6 +3,7 @@ package com.example.orderup.module.admin.controller;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.service.RestaurantService;
 import com.example.orderup.module.user.entirty.User;
+import com.example.orderup.module.user.repository.UserRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/admin/restaurants")
@@ -29,30 +31,16 @@ public class AdminResViewController {
     @Autowired
     private RestaurantService restaurantService;
     
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("")
     public String viewRestaurants(Model model, 
             @RequestParam(defaultValue = "0") int page, 
             @RequestParam(defaultValue = "10") int size) {
         try {
-            System.out.println("AdminResViewController.viewRestaurants() called");
-            System.out.println("Current authentication: " + SecurityContextHolder.getContext().getAuthentication());
-
-            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-            if (auth != null && auth.getPrincipal() instanceof User) {
-                User user = (User) auth.getPrincipal();
-                System.out.println("Authenticated user: " + user.getEmail() + " with role: " + user.getRole());
-            } else {
-                System.out.println("Authentication principal is not a User object: " + auth.getPrincipal());
-            }
-
             Pageable pageable = PageRequest.of(page, size);
             Page<Restaurant> restaurantsPage = restaurantService.getAllRestaurantsPage(pageable);
-            
-            // Debug thông tin
-            System.out.println("Total restaurants found: " + restaurantsPage.getTotalElements());
-            for (Restaurant restaurant : restaurantsPage.getContent()) {
-                System.out.println("Restaurant: " + (restaurant.getBasicInfo() != null ? restaurant.getBasicInfo().getName() : "N/A"));
-            }
             
             model.addAttribute("restaurants", restaurantsPage.getContent());
             model.addAttribute("currentPage", restaurantsPage.getNumber());
@@ -60,13 +48,11 @@ public class AdminResViewController {
             model.addAttribute("totalPages", restaurantsPage.getTotalPages());
             model.addAttribute("pageSize", size);
             
-            // Thêm thống kê
             Map<String, Object> stats = restaurantService.getRestaurantStats();
             model.addAttribute("stats", stats);
             
             return "admin/restaurant/restaurants";
         } catch (Exception e) {
-            System.err.println("Error in AdminResViewController.viewRestaurants(): " + e.getMessage());
             e.printStackTrace();
             return "error";
         }
@@ -89,7 +75,6 @@ public class AdminResViewController {
             model.addAttribute("pageSize", size);
             model.addAttribute("searchQuery", name);
             
-            // Thêm thống kê
             Map<String, Object> stats = restaurantService.getRestaurantStats();
             model.addAttribute("stats", stats);
             
@@ -103,7 +88,6 @@ public class AdminResViewController {
     @GetMapping("/{id}/view")
     public String viewRestaurantDetail(@PathVariable("id") String id, Model model) {
         try {
-            System.out.println("DEBUG: Viewing restaurant detail for ID: " + id);
             Restaurant restaurant = restaurantService.getRestaurantById(id);
             
             if (restaurant == null) {
@@ -111,58 +95,28 @@ public class AdminResViewController {
                 return "error";
             }
 
-            // Khởi tạo các đối tượng nested nếu null
-            if (restaurant.getBasicInfo() == null) {
-                restaurant.setBasicInfo(new Restaurant.BasicInfo());
-            }
-            if (restaurant.getAddress() == null) {
-                restaurant.setAddress(new Restaurant.Address());
-                restaurant.getAddress().setCoordinates(new Restaurant.GeoCoordinates());
-            } else if (restaurant.getAddress().getCoordinates() == null) {
-                restaurant.getAddress().setCoordinates(new Restaurant.GeoCoordinates());
-            }
-            if (restaurant.getBusinessInfo() == null) {
-                restaurant.setBusinessInfo(new Restaurant.BusinessInfo());
-            }
-            if (restaurant.getOperatingHours() == null) {
-                restaurant.setOperatingHours(new ArrayList<>());
-                // Khởi tạo 7 ngày trong tuần
-                for (int i = 0; i < 7; i++) {
-                    Restaurant.OperatingHour hour = new Restaurant.OperatingHour();
-                    hour.setDayOfWeek(i);
-                    hour.setOpen(false);
-                    restaurant.getOperatingHours().add(hour);
+            if (restaurant.getHostId() != null) {
+                Optional<User> hostUser = userRepository.findById(restaurant.getHostId());
+                if (hostUser.isPresent() && hostUser.get().getProfile() != null) {
+                    Restaurant.HostInfo hostInfo = new Restaurant.HostInfo();
+                    hostInfo.setFirstName(hostUser.get().getProfile().getFirstName());
+                    hostInfo.setLastName(hostUser.get().getProfile().getLastName());
+                    hostInfo.setPhone(hostUser.get().getProfile().getPhone());
+                    hostInfo.setEmail(hostUser.get().getEmail());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setGender(hostUser.get().getProfile().getGender());
+                    hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
+                    restaurant.setHostInfo(hostInfo);
                 }
             }
-            if (restaurant.getDelivery() == null) {
-                restaurant.setDelivery(new Restaurant.DeliveryInfo());
-            }
-            if (restaurant.getRatings() == null) {
-                restaurant.setRatings(new Restaurant.RatingInfo());
-            }
-            if (restaurant.getTags() == null) {
-                restaurant.setTags(new ArrayList<>());
-            }
-            if (restaurant.getBankInfo() == null) {
-                restaurant.setBankInfo(new Restaurant.BankInfo());
-            }
 
-            // Debug thông tin
-            System.out.println("DEBUG: Restaurant processed successfully");
-            System.out.println("DEBUG: BasicInfo: " + restaurant.getBasicInfo());
-            System.out.println("DEBUG: Address: " + restaurant.getAddress());
-            System.out.println("DEBUG: Operating Hours: " + restaurant.getOperatingHours());
-            
+            initializeRestaurantForForm(restaurant);
+
             model.addAttribute("restaurant", restaurant);
-            model.addAttribute("daysOfWeek", Arrays.asList("Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy", "Chủ Nhật"));
             return "admin/restaurant/restaurantDetail";
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("ERROR in viewRestaurantDetail: " + e.getMessage());
-            StringWriter sw = new StringWriter();
-            e.printStackTrace(new PrintWriter(sw));
             model.addAttribute("error", "Đã xảy ra lỗi: " + e.getMessage());
-            model.addAttribute("trace", sw.toString());
             return "error";
         }
     }
@@ -170,12 +124,11 @@ public class AdminResViewController {
     @GetMapping("/create")
     public String showCreateRestaurantForm(Model model) {
         Restaurant restaurant = new Restaurant();
-        restaurant.setBasicInfo(new Restaurant.BasicInfo());
-        restaurant.setAddress(new Restaurant.Address());
-        restaurant.setOperatingHours(new ArrayList<>());
-        restaurant.setTags(new ArrayList<>());
-        restaurant.setActive(true);
+        initializeRestaurantForForm(restaurant);
         
+        List<User> potentialHosts = userRepository.findByRole("restaurantHost");
+        
+        model.addAttribute("potentialHosts", potentialHosts);
         model.addAttribute("restaurant", restaurant);
         model.addAttribute("isNew", true);
         return "admin/restaurant/form";
@@ -184,31 +137,30 @@ public class AdminResViewController {
     @PostMapping("/create")
     public String createRestaurant(@ModelAttribute Restaurant restaurant, RedirectAttributes redirectAttributes) {
         try {
-            // Đảm bảo ID là null để MongoDB tự động tạo ID mới
             restaurant.setId(null);
             
             LocalDateTime now = LocalDateTime.now();
             restaurant.setCreatedAt(now);
             restaurant.setUpdatedAt(now);
             
-            // Đảm bảo các collection khác không bị null
-            if (restaurant.getBasicInfo() == null) {
-                restaurant.setBasicInfo(new Restaurant.BasicInfo());
+            if (restaurant.getHostId() != null) {
+                Optional<User> hostUser = userRepository.findById(restaurant.getHostId());
+                if (hostUser.isPresent() && hostUser.get().getProfile() != null) {
+                    Restaurant.HostInfo hostInfo = new Restaurant.HostInfo();
+                    hostInfo.setFirstName(hostUser.get().getProfile().getFirstName());
+                    hostInfo.setLastName(hostUser.get().getProfile().getLastName());
+                    hostInfo.setPhone(hostUser.get().getProfile().getPhone());
+                    hostInfo.setEmail(hostUser.get().getEmail());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setGender(hostUser.get().getProfile().getGender());
+                    hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
+                    restaurant.setHostInfo(hostInfo);
+                }
             }
-            if (restaurant.getAddress() == null) {
-                restaurant.setAddress(new Restaurant.Address());
-            }
-            if (restaurant.getOperatingHours() == null) {
-                restaurant.setOperatingHours(new ArrayList<>());
-            }
-            if (restaurant.getTags() == null) {
-                restaurant.setTags(new ArrayList<>());
-            }
+            
+            initializeRestaurantForForm(restaurant);
 
             Restaurant savedRestaurant = restaurantService.saveRestaurant(restaurant);
-            
-            // In ra ID để kiểm tra
-            System.out.println("DEBUG: Created restaurant with ID: " + savedRestaurant.getId());
             
             redirectAttributes.addFlashAttribute("success", "Tạo nhà hàng thành công");
             return "redirect:/admin/restaurants/" + savedRestaurant.getId() + "/view";
@@ -225,31 +177,34 @@ public class AdminResViewController {
         try {
             Restaurant restaurant = restaurantService.getRestaurantById(id);
             if (restaurant == null) {
-                model.addAttribute("error", "Restaurant not found");
+                model.addAttribute("error", "Không tìm thấy nhà hàng");
                 return "error";
             }
             
-            // Ensure all required objects are initialized
-            if (restaurant.getBasicInfo() == null) {
-                restaurant.setBasicInfo(new Restaurant.BasicInfo());
-            }
-            if (restaurant.getAddress() == null) {
-                restaurant.setAddress(new Restaurant.Address());
-            }
-            if (restaurant.getOperatingHours() == null) {
-                restaurant.setOperatingHours(new ArrayList<>());
-            }
-            if (restaurant.getTags() == null) {
-                restaurant.setTags(new ArrayList<>());
+            if (restaurant.getHostId() != null) {
+                Optional<User> hostUser = userRepository.findById(restaurant.getHostId());
+                if (hostUser.isPresent() && hostUser.get().getProfile() != null) {
+                    Restaurant.HostInfo hostInfo = new Restaurant.HostInfo();
+                    hostInfo.setFirstName(hostUser.get().getProfile().getFirstName());
+                    hostInfo.setLastName(hostUser.get().getProfile().getLastName());
+                    hostInfo.setPhone(hostUser.get().getProfile().getPhone());
+                    hostInfo.setEmail(hostUser.get().getEmail());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setGender(hostUser.get().getProfile().getGender());
+                    hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
+                    restaurant.setHostInfo(hostInfo);
+                }
             }
             
+            List<User> potentialHosts = userRepository.findByRole("restaurantHost");
+            
+            model.addAttribute("potentialHosts", potentialHosts);
             model.addAttribute("restaurant", restaurant);
             model.addAttribute("isNew", false);
-            model.addAttribute("daysOfWeek", Arrays.asList("Chủ Nhật", "Thứ Hai", "Thứ Ba", "Thứ Tư", "Thứ Năm", "Thứ Sáu", "Thứ Bảy"));
             return "admin/restaurant/form";
         } catch (Exception e) {
             e.printStackTrace();
-            model.addAttribute("error", "An error occurred while fetching restaurant details");
+            model.addAttribute("error", "Đã xảy ra lỗi: " + e.getMessage());
             return "error";
         }
     }
@@ -260,46 +215,150 @@ public class AdminResViewController {
         try {
             Restaurant existingRestaurant = restaurantService.getRestaurantById(id);
             if (existingRestaurant == null) {
-                redirectAttributes.addFlashAttribute("error", "Restaurant not found");
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhà hàng");
                 return "redirect:/admin/restaurants";
             }
-            
-            // Keep original created date and ID
-            restaurant.setId(existingRestaurant.getId());
-            restaurant.setCreatedAt(existingRestaurant.getCreatedAt());
-            restaurant.setUpdatedAt(LocalDateTime.now());
-            
-            restaurantService.saveRestaurant(restaurant);
 
-            redirectAttributes.addFlashAttribute("success", "Restaurant updated successfully");
-            return "redirect:/admin/restaurants";
+            restaurant.setId(id);
+            restaurant.setUpdatedAt(LocalDateTime.now());
+            restaurant.setCreatedAt(existingRestaurant.getCreatedAt());
+            
+            if (restaurant.getHostId() != null) {
+                Optional<User> hostUser = userRepository.findById(restaurant.getHostId());
+                if (hostUser.isPresent() && hostUser.get().getProfile() != null) {
+                    Restaurant.HostInfo hostInfo = new Restaurant.HostInfo();
+                    hostInfo.setFirstName(hostUser.get().getProfile().getFirstName());
+                    hostInfo.setLastName(hostUser.get().getProfile().getLastName());
+                    hostInfo.setPhone(hostUser.get().getProfile().getPhone());
+                    hostInfo.setEmail(hostUser.get().getEmail());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setGender(hostUser.get().getProfile().getGender());
+                    hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
+                    restaurant.setHostInfo(hostInfo);
+                }
+            }
+
+            restaurantService.saveRestaurant(restaurant);
+            redirectAttributes.addFlashAttribute("success", "Cập nhật nhà hàng thành công");
+            return "redirect:/admin/restaurants/" + id + "/view";
         } catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "An error occurred while updating restaurant: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi cập nhật nhà hàng: " + e.getMessage());
             return "redirect:/admin/restaurants/" + id + "/edit";
         }
     }
-    
+
     @PostMapping("/{id}/delete")
     public String deleteRestaurant(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
-            Restaurant restaurant = restaurantService.getRestaurantById(id);
-            if(restaurant == null) {
-                redirectAttributes.addFlashAttribute("error", "Restaurant not found");
-                return "redirect:/admin/restaurants";
-            }
-            
-            boolean deleted = restaurantService.deleteRestaurant(id);
-            if (deleted) {
-                redirectAttributes.addFlashAttribute("success", "Restaurant deleted successfully");
-            } else {
-                redirectAttributes.addFlashAttribute("error", "Failed to delete restaurant");
-            }
+            restaurantService.deleteRestaurant(id);
+            redirectAttributes.addFlashAttribute("success", "Xóa nhà hàng thành công");
             return "redirect:/admin/restaurants";
         } catch (Exception e) {
             e.printStackTrace();
-            redirectAttributes.addFlashAttribute("error", "An error occurred while deleting restaurant: " + e.getMessage());
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi xóa nhà hàng: " + e.getMessage());
             return "redirect:/admin/restaurants";
+        }
+    }
+
+    @PostMapping("/{id}/approve")
+    public String approveRestaurant(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
+        try {
+            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            if (restaurant != null) {
+                restaurant.setVerificationStatus("APPROVED");
+                restaurant.setVerified(true);
+                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurantService.saveRestaurant(restaurant);
+                redirectAttributes.addFlashAttribute("success", "Đã duyệt nhà hàng thành công");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhà hàng");
+            }
+            return "redirect:/admin/restaurants/" + id + "/view";
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi duyệt nhà hàng: " + e.getMessage());
+            return "redirect:/admin/restaurants/" + id + "/view";
+        }
+    }
+
+    @PostMapping("/{id}/reject")
+    public String rejectRestaurant(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
+        try {
+            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            if (restaurant != null) {
+                restaurant.setVerificationStatus("REJECTED");
+                restaurant.setVerified(false);
+                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurantService.saveRestaurant(restaurant);
+                redirectAttributes.addFlashAttribute("success", "Đã từ chối nhà hàng thành công");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhà hàng");
+            }
+            return "redirect:/admin/restaurants/" + id + "/view";
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi từ chối nhà hàng: " + e.getMessage());
+            return "redirect:/admin/restaurants/" + id + "/view";
+        }
+    }
+
+    @PostMapping("/{id}/pending")
+    public String setPendingRestaurant(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
+        try {
+            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            if (restaurant != null) {
+                restaurant.setVerificationStatus("PENDING");
+                restaurant.setVerified(false);
+                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurantService.saveRestaurant(restaurant);
+                redirectAttributes.addFlashAttribute("success", "Đã đặt trạng thái chờ duyệt cho nhà hàng thành công");
+            } else {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhà hàng");
+            }
+            return "redirect:/admin/restaurants/" + id + "/view";
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi đặt trạng thái chờ duyệt: " + e.getMessage());
+            return "redirect:/admin/restaurants/" + id + "/view";
+        }
+    }
+
+    private void initializeRestaurantForForm(Restaurant restaurant) {
+        if (restaurant.getBasicInfo() == null) {
+            restaurant.setBasicInfo(new Restaurant.BasicInfo());
+        }
+        if (restaurant.getAddress() == null) {
+            restaurant.setAddress(new Restaurant.Address());
+            restaurant.getAddress().setCoordinates(new Restaurant.GeoCoordinates());
+        }
+        if (restaurant.getDelivery() == null) {
+            restaurant.setDelivery(new Restaurant.DeliveryInfo());
+        }
+        if (restaurant.getBusinessInfo() == null) {
+            restaurant.setBusinessInfo(new Restaurant.BusinessInfo());
+        }
+        if (restaurant.getBankInfo() == null) {
+            restaurant.setBankInfo(new Restaurant.BankInfo());
+        }
+        if (restaurant.getOperatingHours() == null || restaurant.getOperatingHours().isEmpty()) {
+            List<Restaurant.OperatingHour> hours = new ArrayList<>();
+            for (int i = 0; i < 7; i++) {
+                Restaurant.OperatingHour hour = new Restaurant.OperatingHour(i);
+                hour.setOpen(true);
+                hour.setOpenTime("08:00");
+                hour.setCloseTime("22:00");
+                hours.add(hour);
+            }
+            restaurant.setOperatingHours(hours);
+        }
+        
+        // Đặt các giá trị mặc định cho nhà hàng mới
+        if (restaurant.getId() == null) {
+            restaurant.setActive(false);
+            restaurant.setVerified(false);
+            restaurant.setFeatured(false);
+            restaurant.setVerificationStatus("PENDING");
         }
     }
 }
