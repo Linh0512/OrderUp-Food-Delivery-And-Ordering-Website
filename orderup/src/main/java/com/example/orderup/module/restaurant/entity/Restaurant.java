@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Date;
 import lombok.Data;
 
 @Data
@@ -18,6 +19,7 @@ public class Restaurant {
     private String id;
     
     private String hostId;
+    private HostInfo hostInfo;
     private BasicInfo basicInfo;
     private Address address;
     private BusinessInfo businessInfo;
@@ -120,27 +122,35 @@ public class Restaurant {
     @Data
     public static class OperatingHour {
         private int dayOfWeek;
-        private boolean isOpen;
+
+        @Field("isOpen")
+        private boolean open;
+        
         private String openTime;
         private String closeTime;
 
         public OperatingHour() {
-            this.isOpen = false;
-            this.openTime = "09:00";
-            this.closeTime = "22:00";
+            this.open = true;
+        }
+
+        public OperatingHour(int dayOfWeek) {
+            this.dayOfWeek = dayOfWeek;
+            this.open = true;
         }
 
         public boolean isOpen() {
-            return isOpen;
+            return open;
         }
-        public void setOpen(boolean isOpen) {
-            this.isOpen = isOpen;
+
+        public void setOpen(boolean open) {
+            this.open = open;
         }
     }
 
     @Data
     public static class DeliveryInfo {
-        private boolean isDeliveryAvailable;
+        // FIX: Đổi tên để khớp với HTML form
+        private boolean deliveryAvailable;
         private int deliveryRadius;
         private double deliveryFee;
         private double freeDeliveryThreshold;
@@ -148,7 +158,7 @@ public class Restaurant {
         private List<String> deliveryAreas;
 
         public DeliveryInfo() {
-            this.isDeliveryAvailable = false;
+            this.deliveryAvailable = false;
             this.deliveryRadius = 5;
             this.deliveryFee = 0.0;
             this.freeDeliveryThreshold = 0.0;
@@ -156,11 +166,18 @@ public class Restaurant {
             this.deliveryAreas = new ArrayList<>();
         }
 
+        // FIX: Giữ lại cả hai method để tương thích
         public boolean isDeliveryAvailable() {
-            return isDeliveryAvailable;
+            return deliveryAvailable;
         }
-        public void setDeliveryAvailable(boolean isDeliveryAvailable) {
-            this.isDeliveryAvailable = isDeliveryAvailable;
+        
+        public void setDeliveryAvailable(boolean deliveryAvailable) {
+            this.deliveryAvailable = deliveryAvailable;
+        }
+        
+        // Backward compatibility
+        public boolean getDeliveryAvailable() {
+            return deliveryAvailable;
         }
     }
 
@@ -190,6 +207,21 @@ public class Restaurant {
         }
     }
 
+    @Data
+    public static class HostInfo {
+        private String firstName;
+        private String lastName;
+        private String phone;
+        private String email;
+        private Date dateOfBirth;
+        private String gender;
+        private String avatar;
+
+        public String getFullName() {
+            return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "").trim();
+        }
+    }
+
     // Constructor cho class chính
     public Restaurant() {
         this.basicInfo = new BasicInfo();
@@ -200,16 +232,37 @@ public class Restaurant {
         this.ratings = new RatingInfo();
         this.tags = new ArrayList<>();
         this.bankInfo = new BankInfo();
+        this.hostInfo = new HostInfo();
         this.active = true;
         this.verified = false;
         this.featured = false;
         this.verificationStatus = "pending";
         
-        // Khởi tạo operating hours cho 7 ngày
+        // FIX: Khởi tạo operating hours cho 7 ngày với đúng thứ tự
+        // 0 = Thứ Hai, 1 = Thứ Ba, ..., 6 = Chủ Nhật
         for (int i = 0; i < 7; i++) {
-            OperatingHour hour = new OperatingHour();
-            hour.setDayOfWeek(i);
+            OperatingHour hour = new OperatingHour(i);
             this.operatingHours.add(hour);
+        }
+    }
+    
+    // FIX: Method để đảm bảo operatingHours luôn có đủ 7 phần tử
+    public void ensureOperatingHours() {
+        if (this.operatingHours == null) {
+            this.operatingHours = new ArrayList<>();
+        }
+        
+        // Đảm bảo có đủ 7 ngày
+        while (this.operatingHours.size() < 7) {
+            OperatingHour hour = new OperatingHour(this.operatingHours.size());
+            this.operatingHours.add(hour);
+        }
+        
+        // Đảm bảo dayOfWeek được set đúng
+        for (int i = 0; i < this.operatingHours.size() && i < 7; i++) {
+            if (this.operatingHours.get(i) != null) {
+                this.operatingHours.get(i).setDayOfWeek(i);
+            }
         }
     }
 }

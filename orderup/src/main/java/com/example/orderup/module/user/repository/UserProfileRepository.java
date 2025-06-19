@@ -26,4 +26,8 @@ public class UserProfileRepository {
         User updatedUser = mongoTemplate.findAndModify(query, update, User.class, "users");
         return updatedUser != null ? updatedUser.getProfile() : null;
     }
+
+    public User updateUser(User user) {
+        return mongoTemplate.save(user, "users");
+    }
 }

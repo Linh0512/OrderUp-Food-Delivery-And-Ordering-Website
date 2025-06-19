@@ -11,11 +11,14 @@ import org.bson.types.ObjectId;
 import com.example.orderup.module.user.dto.UserOrderHistoryDetailDTO;
 import com.example.orderup.module.user.dto.UserOrderHistoryThumbDTO;
 import com.example.orderup.module.user.entirty.Order;
+import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.mapper.UserOrderHistoryMapper;
 import com.example.orderup.module.user.repository.UserOrderHistoryRepository;
+import com.example.orderup.module.user.repository.UserRepository;
 
 import java.util.Comparator;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 
 @Service
@@ -24,6 +27,9 @@ public class UserOrderHistoryService {
     
     @Autowired
     private UserOrderHistoryRepository orderRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
     
     @Autowired
     private UserOrderHistoryMapper orderMapper;
@@ -105,7 +111,27 @@ public class UserOrderHistoryService {
             logger.debug("No order found for orderId: {}", orderId);
             return null;
         }
+        
+        // Lấy thông tin user profile
+        User user = userRepository.findById(order.getCustomerId().toString()).orElse(null);
+        UserOrderHistoryDetailDTO dto = orderMapper.toUserOrderHistoryDetailDTO(order);
+        
+        if (user != null && user.getProfile() != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            UserOrderHistoryDetailDTO.UserProfile userProfile = UserOrderHistoryDetailDTO.UserProfile.builder()
+                .firstName(user.getProfile().getFirstName())
+                .lastName(user.getProfile().getLastName())
+                .fullName(user.getProfile().getName())
+                .phone(user.getProfile().getPhone())
+                .avatar(user.getProfile().getAvatar())
+                .dateOfBirth(user.getProfile().getDateOfBirth() != null ? 
+                    user.getProfile().getDateOfBirth().toString() : null)
+                .gender(user.getProfile().getGender())
+                .build();
+            dto.setUserProfile(userProfile);
+        }
+        
         logger.debug("Found order detail for orderId: {}", orderId);
-        return orderMapper.toUserOrderHistoryDetailDTO(order);
+        return dto;
     }
 }

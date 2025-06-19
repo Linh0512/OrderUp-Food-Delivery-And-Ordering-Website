@@ -13,6 +13,7 @@ public class UserOrderHistoryDetailDTO {
     private String orderTotalAmount;
     private String userId;
     private String userAddress;
+    private UserProfile userProfile;
     private String restaurantId;
     private String restaurantName;
     private String restaurantImage;
@@ -20,7 +21,21 @@ public class UserOrderHistoryDetailDTO {
     private String restaurantPhone;
     private String restaurantEmail;
     private String restaurantWebsite;
+    private double restaurantRating;
+    private int restaurantReviewCount;
     private List<OrderItem> orderItems;
+
+    @Data
+    @Builder
+    public static class UserProfile {
+        private String firstName;
+        private String lastName;
+        private String fullName;
+        private String phone;
+        private String avatar;
+        private String dateOfBirth;
+        private String gender;
+    }
 
     @Data
     @Builder
