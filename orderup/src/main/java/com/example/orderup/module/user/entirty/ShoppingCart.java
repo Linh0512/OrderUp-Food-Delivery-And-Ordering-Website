@@ -1,11 +1,11 @@
 package com.example.orderup.module.user.entirty;
 
+import java.util.List;
+import org.bson.types.ObjectId;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.bson.types.ObjectId;
+
 import lombok.Data;
-import java.util.List;
-import java.time.LocalDateTime;
 
 @Data
 @Document(collection = "shopping_carts")
@@ -15,9 +15,7 @@ public class ShoppingCart {
     private ObjectId userId;
     private ObjectId restaurantId;
     private List<CartItem> items;
-    private double subtotal;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private OrderSummary summary;
 
     @Data
     public static class CartItem {
@@ -36,5 +34,15 @@ public class ShoppingCart {
         private String optionName;
         private String choiceName;
         private double additionalPrice;
+    }
+
+    @Data
+    public static class OrderSummary {
+        private double subtotal;
+        private double deliveryFee;
+        private double serviceFee;
+        private double tax;
+        private double discount;
+        private double total;
     }
 } 

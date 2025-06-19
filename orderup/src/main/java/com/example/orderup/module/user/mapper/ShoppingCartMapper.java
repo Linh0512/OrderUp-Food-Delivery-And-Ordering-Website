@@ -3,6 +3,7 @@ package com.example.orderup.module.user.mapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import java.util.stream.Collectors;
+import java.util.Collections;
 
 import com.example.orderup.module.user.entirty.ShoppingCart;
 import com.example.orderup.module.user.dto.ShoppingCartDTO;
@@ -19,40 +20,80 @@ public class ShoppingCartMapper {
         if (cart == null) return null;
 
         Restaurant restaurant = restaurantService.getRestaurantById(cart.getRestaurantId().toString());
-        String restaurantName = restaurant != null ? restaurant.getBasicInfo().getName() : "N/A";
-
+        
         return ShoppingCartDTO.builder()
                 .id(cart.getId())
                 .userId(cart.getUserId().toString())
                 .restaurantId(cart.getRestaurantId().toString())
-                .restaurantName(restaurantName)
-                .items(cart.getItems().stream()
+                .restaurant(restaurant != null ? toRestaurantInfo(restaurant) : null)
+                .items(cart.getItems() != null ? 
+                    cart.getItems().stream()
                         .map(this::toCartItemDTO)
-                        .collect(Collectors.toList()))
-                .subtotal(cart.getSubtotal())
+                        .collect(Collectors.toList()) : 
+                    Collections.emptyList())
+                .summary(toOrderSummaryDTO(cart.getSummary()))
                 .build();
     }
 
-    private ShoppingCartDTO.CartItemDTO toCartItemDTO(ShoppingCart.CartItem item) {
-        return ShoppingCartDTO.CartItemDTO.builder()
+    private ShoppingCartDTO.CartItem toCartItemDTO(ShoppingCart.CartItem item) {
+        if (item == null) return null;
+
+        return ShoppingCartDTO.CartItem.builder()
                 .dishId(item.getDishId().toString())
                 .dishName(item.getDishName())
                 .dishImage(item.getDishImage())
                 .quantity(item.getQuantity())
-                .unitPrice(String.format("%,.0f", item.getUnitPrice()))
-                .selectedOptions(item.getSelectedOptions().stream()
+                .unitPrice(item.getUnitPrice())
+                .selectedOptions(item.getSelectedOptions() != null ? 
+                    item.getSelectedOptions().stream()
                         .map(this::toSelectedOptionDTO)
-                        .collect(Collectors.toList()))
-                .subtotal(String.format("%,.0f", item.getSubtotal()))
+                        .collect(Collectors.toList()) :
+                    Collections.emptyList())
+                .subtotal(item.getSubtotal())
                 .specialInstructions(item.getSpecialInstructions())
                 .build();
     }
 
-    private ShoppingCartDTO.SelectedOptionDTO toSelectedOptionDTO(ShoppingCart.SelectedOption option) {
-        return ShoppingCartDTO.SelectedOptionDTO.builder()
+    private ShoppingCartDTO.SelectedOption toSelectedOptionDTO(ShoppingCart.SelectedOption option) {
+        if (option == null) return null;
+
+        return ShoppingCartDTO.SelectedOption.builder()
                 .optionName(option.getOptionName())
                 .choiceName(option.getChoiceName())
-                .additionalPrice(String.format("%,.0f", option.getAdditionalPrice()))
+                .additionalPrice(option.getAdditionalPrice())
+                .build();
+    }
+
+    private ShoppingCartDTO.RestaurantInfo toRestaurantInfo(Restaurant restaurant) {
+        if (restaurant == null || restaurant.getBasicInfo() == null) return null;
+
+        return ShoppingCartDTO.RestaurantInfo.builder()
+                .name(restaurant.getBasicInfo().getName())
+                .image(restaurant.getBasicInfo().getImages() != null && !restaurant.getBasicInfo().getImages().isEmpty() ?
+                    restaurant.getBasicInfo().getImages().get(0) : null)
+                .address(restaurant.getAddress() != null ? restaurant.getAddress().getFullAddress() : null)
+                .build();
+    }
+
+    private ShoppingCartDTO.OrderSummary toOrderSummaryDTO(ShoppingCart.OrderSummary summary) {
+        if (summary == null) {
+            return ShoppingCartDTO.OrderSummary.builder()
+                .subtotal(0)
+                .deliveryFee(0)
+                .serviceFee(0)
+                .tax(0)
+                .discount(0)
+                .total(0)
+                .build();
+        }
+
+        return ShoppingCartDTO.OrderSummary.builder()
+                .subtotal(summary.getSubtotal())
+                .deliveryFee(summary.getDeliveryFee())
+                .serviceFee(summary.getServiceFee())
+                .tax(summary.getTax())
+                .discount(summary.getDiscount())
+                .total(summary.getTotal())
                 .build();
     }
 } 

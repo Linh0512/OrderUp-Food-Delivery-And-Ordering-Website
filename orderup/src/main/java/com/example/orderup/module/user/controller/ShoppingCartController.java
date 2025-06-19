@@ -1,89 +1,128 @@
 package com.example.orderup.module.user.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.http.HttpStatus;
 
-import com.example.orderup.module.user.entirty.ShoppingCart;
+import com.example.orderup.module.user.dto.ShoppingCartDTO;
+import com.example.orderup.module.user.dto.ShoppingCartDTO.*;
 import com.example.orderup.module.user.service.ShoppingCartService;
-
-import java.util.Map;
-import java.util.HashMap;
+import com.example.orderup.module.user.entirty.Order;
+import lombok.Data;
 
 @RestController
 @RequestMapping("/api/cart")
 public class ShoppingCartController {
-
+    
     @Autowired
     private ShoppingCartService cartService;
 
-    @GetMapping("/{userId}")
-    public ResponseEntity<ShoppingCart> getCart(@PathVariable String userId) {
+    // Lấy tất cả giỏ hàng của user
+    @GetMapping
+    public ResponseEntity<?> getUserCarts(@RequestHeader("Authorization") String token) {
         try {
-            ShoppingCart cart = cartService.getCart(userId);
-            if (cart != null) {
-                return new ResponseEntity<>(cart, HttpStatus.OK);
+            List<ShoppingCartDTO> carts = cartService.getUserCarts(token);
+            return ResponseEntity.ok(carts);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse("Lỗi dữ liệu", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi hệ thống", "Đã có lỗi xảy ra, vui lòng thử lại sau"));
+        }
+    }
+
+    // Thêm món vào giỏ hàng
+    @PostMapping("/add")
+    public ResponseEntity<?> addToCart(
+            @RequestHeader("Authorization") String token,
+            @RequestBody AddToCartRequest request) {
+        try {
+            ShoppingCartDTO cart = cartService.addToCart(token, request);
+            return ResponseEntity.ok(cart);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse("Lỗi dữ liệu", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi hệ thống", "Đã có lỗi xảy ra, vui lòng thử lại sau"));
+        }
+    }
+
+    // Cập nhật món trong giỏ hàng
+    @PutMapping("/{cartId}/item/{itemIndex}")
+    public ResponseEntity<?> updateCartItem(
+            @RequestHeader("Authorization") String token,
+            @PathVariable String cartId,
+            @PathVariable int itemIndex,
+            @RequestBody UpdateCartItemRequest request) {
+        try {
+            ShoppingCartDTO cart = cartService.updateCartItem(token, cartId, itemIndex, request);
+            return ResponseEntity.ok(cart);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse("Lỗi dữ liệu", e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi hệ thống", "Đã có lỗi xảy ra, vui lòng thử lại sau"));
+        }
+    }
+
+    // Xóa món khỏi giỏ hàng
+    @DeleteMapping("/{cartId}/item/{itemIndex}")
+    public ResponseEntity<?> removeCartItem(
+            @RequestHeader("Authorization") String token,
+            @PathVariable String cartId,
+            @PathVariable int itemIndex) {
+        try {
+            ShoppingCartDTO cart = cartService.removeCartItem(token, cartId, itemIndex);
+            if (cart == null) {
+                return ResponseEntity.ok()
+                    .body(new SuccessResponse("Đã xóa giỏ hàng thành công"));
             }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            return ResponseEntity.ok(cart);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse("Lỗi dữ liệu", e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi hệ thống", "Đã có lỗi xảy ra, vui lòng thử lại sau"));
         }
     }
 
-    @PostMapping("/{userId}/restaurants/{restaurantId}/items")
-    public ResponseEntity<ShoppingCart> addToCart(
-            @PathVariable String userId,
-            @PathVariable String restaurantId,
-            @RequestBody ShoppingCart.CartItem item) {
+    // Thanh toán giỏ hàng
+    @PostMapping("/{cartId}/checkout")
+    public ResponseEntity<?> checkoutCart(
+            @RequestHeader("Authorization") String token,
+            @PathVariable String cartId) {
         try {
-            ShoppingCart cart = cartService.addToCart(userId, restaurantId, item);
-            return new ResponseEntity<>(cart, HttpStatus.OK);
+            Order order = cartService.checkoutCart(token, cartId);
+            return ResponseEntity.ok(order);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse("Lỗi dữ liệu", e.getMessage()));
         } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi hệ thống", "Đã có lỗi xảy ra, vui lòng thử lại sau"));
         }
     }
 
-    @PutMapping("/{userId}/items/{itemId}")
-    public ResponseEntity<ShoppingCart> updateCartItem(
-            @PathVariable String userId,
-            @PathVariable String itemId,
-            @RequestBody Map<String, Integer> request) {
-        try {
-            Integer quantity = request.get("quantity");
-            if (quantity == null) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-            }
-            
-            ShoppingCart cart = cartService.updateCartItem(userId, itemId, quantity);
-            if (cart != null) {
-                return new ResponseEntity<>(cart, HttpStatus.OK);
-            }
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @Data
+    private static class ErrorResponse {
+        private final String error;
+        private final String message;
     }
 
-    @DeleteMapping("/{userId}/items/{itemId}")
-    public ResponseEntity<Void> removeFromCart(
-            @PathVariable String userId,
-            @PathVariable String itemId) {
-        try {
-            cartService.removeFromCart(userId, itemId);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<Void> clearCart(@PathVariable String userId) {
-        try {
-            cartService.clearCart(userId);
-            return new ResponseEntity<>(HttpStatus.OK);
-        } catch (Exception e) {
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+    @Data
+    private static class SuccessResponse {
+        private final String message;
     }
 } 
