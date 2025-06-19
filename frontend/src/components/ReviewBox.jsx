@@ -3,8 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import ReviewPopUp from "./ReviewPopUp";
 
-export default function ReviewBox({review}) {
-  console.log(review)
+export default function ReviewBox({review,id}) {
   const totalReviews = review.total
   const rating = review.star;
   const ratingBars = [
@@ -57,6 +56,7 @@ export default function ReviewBox({review}) {
           rating={rating}
           totalReviews={totalReviews}
           handleClose={setShowPopup}
+          idRes={id}
         />
       )}
     </div>

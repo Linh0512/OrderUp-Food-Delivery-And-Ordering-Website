@@ -54,7 +54,7 @@ export default function ShopPage() {
         <div className="w-[65%]">
           <BigShopCard shop={shopDetail} />
         </div>
-        <div className="w-[30%]">{review && <ReviewBox review={review} />}</div>
+        <div className="w-[30%]">{review && <ReviewBox review={review} id={id}/>}</div>
       </div>
       <div className="mt-10 flex">
         <div className="space-y-4 w-1/5">

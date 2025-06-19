@@ -5,7 +5,7 @@ import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default function ProductPopUp({ cartItem,handleClose }) {
   const productRef = useRef(null);
-  const [quantity,setQuantity]=useState(cartItem.quantity)
+  const [quantity,setQuantity]=useState(cartItem?.quantity||0)
 
   useEffect(() => {
     const handleClickOutside = (event) => {

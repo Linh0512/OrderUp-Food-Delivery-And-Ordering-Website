@@ -1,59 +1,45 @@
-import { faStar, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faStar } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { getReview } from "../services/userServices/Service";
+import { formatDateVN } from "../utils/Format";
 
-export default function ReviewPopUp({ ratingBars, rating, totalReviews,handleClose }) {
-    const selectRef=useRef(null);
+export default function ReviewPopUp({
+  ratingBars,
+  rating,
+  totalReviews,
+  handleClose,
+  idRes,
+}) {
+  const selectRef = useRef(null);
+  const [review,setReview]=useState([])
 
-      useEffect(() => {
-        const handleClickOutside = (event) => {
-          if (selectRef.current && !selectRef.current.contains(event.target)) {
-            handleClose(false);
-          }
-        };
-    
-        document.addEventListener("mousedown", handleClickOutside);
-        return () => {
-          document.removeEventListener("mousedown", handleClickOutside);
-        };
-      }, [handleClose]);
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (selectRef.current && !selectRef.current.contains(event.target)) {
+        handleClose(false);
+      }
+    };
 
-  const reviews = [
-    {
-      name: "Nguyễn Văn A",
-      star: 5,
-      time: "2 ngày trước",
-      comment: "Sản phẩm rất tốt, đúng như mô tả. Giao hàng nhanh chóng!",
-    },
-    {
-      name: "Trần Thị B",
-      star: 4,
-      time: "5 ngày trước",
-      comment: "Chất lượng ổn so với giá tiền, sẽ ủng hộ lần sau.",
-    },
-    {
-      name: "Lê Văn C",
-      star: 3,
-      time: "1 tuần trước",
-      comment: "Sản phẩm tạm ổn, nhưng đóng gói chưa kỹ lắm.",
-    },
-    {
-      name: "Phạm Thị D",
-      star: 2,
-      time: "10 ngày trước",
-      comment: "Giao hàng chậm, sản phẩm hơi khác với hình.",
-    },
-    {
-      name: "Đặng Văn E",
-      star: 1,
-      time: "2 tuần trước",
-      comment: "Không hài lòng. Sản phẩm lỗi, shop phản hồi chậm.",
-    },
-  ];
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [handleClose]);
+
+  useEffect(()=>{
+    getReview(idRes).then((res)=>{
+      console.log(res.data)
+      setReview(res.data)
+    })
+  },[idRes])
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-white w-[40vw] mx-auto border-2 shadow rounded-2xl overflow-scroll h-[90%] overflow-x-hidden" ref={selectRef}>
+      <div
+        className="bg-white w-[40vw] mx-auto border-2 shadow rounded-2xl overflow-scroll h-[80%] overflow-y-hidden overflow-x-hidden"
+        ref={selectRef}
+      >
         <h2 className="w-full shadow py-5 font-bold text-2xl">
           Đánh giá từ người dùng
         </h2>
@@ -81,16 +67,16 @@ export default function ReviewPopUp({ ratingBars, rating, totalReviews,handleClo
             ))}
           </div>
         </div>
-        <div className="bg-[rgba(192,192,192,1)] ">
+        <div className="bg-[rgba(192,192,192,1)] h-full">
           <div className="p-5 space-y-5">
-            {reviews.map((review, index) => (
+            {review&&review.map((review, index) => (
               <div
                 key={index}
                 className="text-start bg-white p-5 border rounded-2xl space-y-2"
               >
-                <div className="space-x-3">
-                  <FontAwesomeIcon icon={faUser} />
-                  <span>{review.name}</span>
+                <div className="space-x-3 flex items-center">
+                  <img src={review.userAvatar} alt={review.userName} className="rounded-full size-10 object-cover shadow"/>
+                  <span>{review.userName}</span>
                 </div>
                 <div>
                   {Array.from({ length: 5 }).map((_, index) => (
@@ -98,12 +84,12 @@ export default function ReviewPopUp({ ratingBars, rating, totalReviews,handleClo
                       icon={faStar}
                       key={index}
                       className={`${
-                        review.star > index ? "text-yellow-400" : ""
+                        review.rating > index ? "text-yellow-400" : ""
                       }`}
                     />
                   ))}
                   <span className="ml-3 text-black/50 text-sm">
-                    {review.time}
+                    {formatDateVN(review.createdAt)}
                   </span>
                 </div>
                 <p>{review.comment}</p>
