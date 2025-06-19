@@ -106,7 +106,7 @@ export const updatedUser = async (id, user, token) => {
 
 export const getHistotyData = async (id, token) => {
   try {
-    const response = await api.get(`/api/users/orders/${id}`, {
+    const response = await api.get(`/api/orders/userId/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -119,9 +119,39 @@ export const getHistotyData = async (id, token) => {
   }
 };
 
+export const getHistotyDetail=async(id,token)=>{
+  try {
+    const response = await api.get(`/api/orders/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
 export const getReview=async(id)=>{
   try {
     const response = await api.get(`/api/reviews/restaurant/${id}`);
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
+export const getVoucher=async(id,token)=>{
+  try {
+    const response = await api.get(`/api/user/vouchers/restaurant/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
     if (response.data) return response.data;
     else return {};
   } catch (error) {

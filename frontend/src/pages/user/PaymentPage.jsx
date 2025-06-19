@@ -1,14 +1,11 @@
-import { faAngleLeft, faAngleRight } from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
-import React, { useState } from "react";
-import CartItem from "../../components/CartItem";
-import VoucherPopUp from "../../components/voucherPopUp";
-import { useLocation, useNavigate } from "react-router-dom";
 
 export default function PaymentPage() {
-  const [showPopup, setShowPopup] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [address, setAddress] = useState({
     address: "Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam",
@@ -21,6 +18,8 @@ export default function PaymentPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const cart = location.state?.cart || [];
+  const subtotal=location.state?.subtotal
+  const discount=location.state?.discount||0
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
@@ -134,34 +133,24 @@ export default function PaymentPage() {
           </div>
         </div>
         <div className=" w-[30%]">
-          <div className="space-y-7 p-4 shadow h-fit rounded-4xl bg-white">
-            <div
-              className="flex items-center justify-between font-bold text-xl "
-              onClick={() => setShowPopup(true)}
-            >
-              Voucher
-              <FontAwesomeIcon icon={faAngleRight} />
-            </div>
-            <p className="text-red-700 font-semibold">Chọn voucher</p>
-          </div>
-          <div className="space-y-7 p-4 shadow h-fit rounded-4xl mt-5 font-semibold bg-white">
+          <div className="space-y-7 p-4 shadow h-fit rounded-4xl font-semibold bg-white">
             <p>chi tiết thanh toán</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
-              <p>171.000đ</p>
+              <p>{subtotal}</p>
             </div>
             <div className="flex justify-between">
               <p>Giảm giá</p>
-              <p>171.000đ</p>
+              <p className="text-red-500">-{discount}</p>
             </div>
             <div className="flex justify-between">
               <p>Phí giao hàng</p>
-              <p>171.000đ</p>
+              <p>30000</p>
             </div>
             <hr className="w-[80%] mx-auto" />
-            <div className="flex justify-between">
+            <div className="flex justify-between text-xl">
               <p>Tổng cộng</p>
-              <p>171.000đ</p>
+              <p className="text-green-500 ">{subtotal+30000-discount}</p>
             </div>
           </div>
           <button
@@ -172,7 +161,6 @@ export default function PaymentPage() {
           </button>
         </div>
       </div>
-      {showPopup && <VoucherPopUp handleClose={setShowPopup} />}
     </div>
   );
 }
