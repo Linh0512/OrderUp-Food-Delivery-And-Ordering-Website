@@ -17,6 +17,7 @@ public class Order {
     private ObjectId restaurantId;
     private OrderDetails orderDetails;
     private DeliveryInfo deliveryInfo;
+    private List<OrderItem> orderItems;
     private Payment payment;
     private Promocode promocode;
     private OrderStatus status;

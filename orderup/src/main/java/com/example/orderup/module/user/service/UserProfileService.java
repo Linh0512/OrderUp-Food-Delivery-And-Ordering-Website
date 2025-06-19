@@ -46,7 +46,7 @@ public class UserProfileService {
                 .avatar(user.getProfile().getAvatar())
                 .gender(user.getProfile().getGender())
                 .dateOfBirth(user.getProfile().getDateOfBirth() != null ? 
-                    user.getProfile().getDateOfBirth().toString() : null)
+                    dateFormat.format(user.getProfile().getDateOfBirth()) : null)
                 .build();
         }
 

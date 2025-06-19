@@ -7,7 +7,10 @@ import org.springframework.data.mongodb.repository.Query;
 import org.bson.types.ObjectId;
 import com.example.orderup.module.user.entirty.Order;
 import java.time.LocalDateTime;
+import org.springframework.stereotype.Repository;
+import java.util.List;
 
+@Repository
 public interface UserOrderHistoryRepository extends MongoRepository<Order, String> {
     // Query cơ bản không có filter date
     Page<Order> findByCustomerId(ObjectId customerId, Pageable pageable);
@@ -29,4 +32,10 @@ public interface UserOrderHistoryRepository extends MongoRepository<Order, Strin
         LocalDateTime endDate, 
         Pageable pageable
     );
+
+    @Query("{ 'userId': ?0, 'restaurantId': ?1 }")
+    List<Order> findByUserIdAndRestaurantId(String userId, String restaurantId);
+
+    @Query("{ 'restaurantId': ?0 }")
+    List<Order> findByRestaurantId(ObjectId restaurantId);
 }

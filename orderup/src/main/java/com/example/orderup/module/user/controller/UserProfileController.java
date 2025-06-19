@@ -38,8 +38,11 @@ public class UserProfileController {
     @PutMapping("/id/{id}")
     public ResponseEntity<UserProfileDTO> updateUserProfileById(
             @PathVariable("id") String id, 
-            @RequestBody UpdateProfileRequest request) {
+            @RequestBody UserProfileDTO.UserProfileInfo profileInfo) {
         try {
+            UserProfileDTO.UpdateProfileRequest request = new UserProfileDTO.UpdateProfileRequest();
+            request.setProfile(profileInfo);
+            
             UserProfileDTO updatedProfile = userProfileService.updateUserProfile(id, request);
             if (updatedProfile != null) {
                 return new ResponseEntity<>(updatedProfile, HttpStatus.OK);
@@ -63,7 +66,7 @@ public class UserProfileController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     // Thêm địa chỉ mới
     @PostMapping("/id/{id}/address")
     public ResponseEntity<UserProfileDTO> addUserAddress(
