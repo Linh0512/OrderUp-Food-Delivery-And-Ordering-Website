@@ -118,3 +118,14 @@ export const getHistotyData = async (id, token) => {
     return {};
   }
 };
+
+export const getReview=async(id)=>{
+  try {
+    const response = await api.get(`/api/reviews/restaurant/${id}`);
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}

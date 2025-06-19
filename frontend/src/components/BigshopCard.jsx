@@ -2,7 +2,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import food1 from "../assets/food1.jpg";
 import { faClock, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 
-export default function BigShopCard({shop}) {
+export default function BigShopCard({ shop }) {
   return (
     <div className="flex rounded-2xl shadow-2xl bg-white caret-transparent">
       <img src={food1} alt="" className="rounded-l-2xl w-[50%]" />
@@ -15,11 +15,24 @@ export default function BigShopCard({shop}) {
             <p> {shop.star} ★ </p>
           </div>
         </div>
-        <div className="flex justify-between items-center ">
-          {shop.timeRange==="Mở cửa"?(<p className="text-green-400">Mở cửa</p>):(<p className="text-red-400">Mở cửa</p>)}
-          <div className="space-x-2 flex items-center">
-            <FontAwesomeIcon icon={faClock} />
-            <p>7:00 - 22:00</p>
+        <div className="flex w-full justify-between items-center ">
+          <div className="flex w-full justify-between items-center ">
+            <p
+              className={`${
+                shop.isActive ? "text-[rgba(109,213,29,1)]" : "text-red-600"
+              } flex items-center`}
+            >
+              <span
+                className={`size-3 rounded-full mr-2 ${
+                  shop.isActive ? "bg-[rgba(109,213,29,1)]" : "bg-red-600"
+                }`}
+              ></span>
+              {shop.isActive ? "Mở cửa" : "Đóng cửa"}
+            </p>
+            <div className="space-x-2 flex items-center">
+              <FontAwesomeIcon icon={faClock} />
+              <p>{shop.timeRange}</p>
+            </div>
           </div>
         </div>
         <p className="text-xl ">
