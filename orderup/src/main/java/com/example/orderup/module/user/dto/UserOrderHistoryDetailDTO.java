@@ -21,6 +21,8 @@ public class UserOrderHistoryDetailDTO {
     private String restaurantPhone;
     private String restaurantEmail;
     private String restaurantWebsite;
+    private double restaurantRating;
+    private int restaurantReviewCount;
     private List<OrderItem> orderItems;
 
     @Data

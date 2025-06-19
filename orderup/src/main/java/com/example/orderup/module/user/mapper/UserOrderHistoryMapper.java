@@ -53,6 +53,8 @@ public class UserOrderHistoryMapper {
                 .restaurantPhone(restaurant != null ? restaurant.getBasicInfo().getPhone() : "N/A")
                 .restaurantEmail(restaurant != null ? restaurant.getBasicInfo().getEmail() : "N/A")
                 .restaurantWebsite(restaurant != null ? restaurant.getBasicInfo().getWebsite() : "N/A")
+                .restaurantRating(restaurant != null ? restaurant.getRatings().getAverageRating() : 0)
+                .restaurantReviewCount(restaurant != null ? restaurant.getRatings().getTotalReviews() : 0)
                 .orderItems(order.getOrderDetails().getItems().stream()
                     .map(item -> UserOrderHistoryDetailDTO.OrderItem.builder()
                         .dishName(item.getDishName())
