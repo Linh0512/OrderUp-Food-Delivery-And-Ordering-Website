@@ -82,21 +82,30 @@ public class DishService {
         dish.setPricing(pricing);
 
         // Set options nếu có
-        if (dishDTO.getOptionName() != null && dishDTO.getChoiceName() != null && dishDTO.getChoicePrice() != null) {
-            Dish.Option option = new Dish.Option();
-            option.setName(dishDTO.getOptionName());
-            option.setType(dishDTO.getOptionType());
-            option.setRequired(dishDTO.isOptionIsRequired());
-            
-            List<Dish.Choice> choices = new ArrayList<>();
-            for (int i = 0; i < dishDTO.getChoiceName().size(); i++) {
-                Dish.Choice choice = new Dish.Choice();
-                choice.setName(dishDTO.getChoiceName().get(i));
-                choice.setPrice(dishDTO.getChoicePrice().get(i));
-                choices.add(choice);
-            }
-            option.setChoices(choices);
-            dish.setOptions(List.of(option));
+        if (dishDTO.getOptions() != null && !dishDTO.getOptions().isEmpty()) {
+            List<Dish.Option> options = dishDTO.getOptions().stream()
+                .map(optionDTO -> {
+                    Dish.Option option = new Dish.Option();
+                    option.setName(optionDTO.getName());
+                    option.setType(optionDTO.getType());
+                    option.setRequired(optionDTO.isRequired());
+                    
+                    if (optionDTO.getChoices() != null) {
+                        List<Dish.Choice> choices = optionDTO.getChoices().stream()
+                            .map(choiceDTO -> {
+                                Dish.Choice choice = new Dish.Choice();
+                                choice.setName(choiceDTO.getName());
+                                choice.setPrice(choiceDTO.getPrice());
+                                choice.setDefault(choiceDTO.isDefault());
+                                return choice;
+                            })
+                            .collect(Collectors.toList());
+                        option.setChoices(choices);
+                    }
+                    return option;
+                })
+                .collect(Collectors.toList());
+            dish.setOptions(options);
         }
         
         // Set restaurant ID and other fields
@@ -155,23 +164,31 @@ public class DishService {
             pricing.setDiscounted(dishDTO.isDiscounted());
             existingDish.setPricing(pricing);
             
-            // Update options nếu có đầy đủ thông tin
-            if (dishDTO.getOptionName() != null && dishDTO.getChoiceName() != null && dishDTO.getChoicePrice() != null 
-                && !dishDTO.getChoiceName().isEmpty() && !dishDTO.getChoicePrice().isEmpty()) {
-                Dish.Option option = new Dish.Option();
-                option.setName(dishDTO.getOptionName());
-                option.setType(dishDTO.getOptionType());
-                option.setRequired(dishDTO.isOptionIsRequired());
-                
-                List<Dish.Choice> choices = new ArrayList<>();
-                for (int i = 0; i < dishDTO.getChoiceName().size(); i++) {
-                    Dish.Choice choice = new Dish.Choice();
-                    choice.setName(dishDTO.getChoiceName().get(i));
-                    choice.setPrice(dishDTO.getChoicePrice().get(i));
-                    choices.add(choice);
-                }
-                option.setChoices(choices);
-                existingDish.setOptions(List.of(option));
+            // Update options nếu có
+            if (dishDTO.getOptions() != null && !dishDTO.getOptions().isEmpty()) {
+                List<Dish.Option> options = dishDTO.getOptions().stream()
+                    .map(optionDTO -> {
+                        Dish.Option option = new Dish.Option();
+                        option.setName(optionDTO.getName());
+                        option.setType(optionDTO.getType());
+                        option.setRequired(optionDTO.isRequired());
+                        
+                        if (optionDTO.getChoices() != null) {
+                            List<Dish.Choice> choices = optionDTO.getChoices().stream()
+                                .map(choiceDTO -> {
+                                    Dish.Choice choice = new Dish.Choice();
+                                    choice.setName(choiceDTO.getName());
+                                    choice.setPrice(choiceDTO.getPrice());
+                                    choice.setDefault(choiceDTO.isDefault());
+                                    return choice;
+                                })
+                                .collect(Collectors.toList());
+                            option.setChoices(choices);
+                        }
+                        return option;
+                    })
+                    .collect(Collectors.toList());
+                existingDish.setOptions(options);
             }
             
             // Update other fields
