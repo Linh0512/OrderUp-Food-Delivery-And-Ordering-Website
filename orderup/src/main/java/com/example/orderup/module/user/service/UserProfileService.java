@@ -7,13 +7,17 @@ import com.example.orderup.module.user.repository.UserProfileRepository;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.repositories.RestaurantRepository;
 import com.example.orderup.module.user.dto.UserProfileDTO;
+import com.example.orderup.module.user.dto.UserProfileDTO.*;
 import com.example.orderup.module.user.entirty.Profile;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.entirty.Addresses;
+import com.example.orderup.module.user.entirty.Coordinates;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Date;
 
 @Service
 public class UserProfileService {
@@ -22,6 +26,8 @@ public class UserProfileService {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
     public UserProfileDTO getUserProfile(String userId) {
         User user = userProfileRepository.findByUserId(userId);
@@ -94,16 +100,27 @@ public class UserProfileService {
             .build();
     }
 
-    public UserProfileDTO updateUserProfile(String userId, Profile newProfile) {
+    public UserProfileDTO updateUserProfile(String userId, UpdateProfileRequest request) {
         User user = userProfileRepository.findByUserId(userId);
-        if (user == null) {
+        if (user == null || request.getProfile() == null) {
             return null;
         }
 
-        // Ensure fullName is properly set
-        if (newProfile != null) {
-            newProfile.setFirstName(newProfile.getFirstName());
-            newProfile.setLastName(newProfile.getLastName());
+        Profile newProfile = new Profile();
+        UserProfileInfo profileInfo = request.getProfile();
+        
+        newProfile.setFirstName(profileInfo.getFirstName());
+        newProfile.setLastName(profileInfo.getLastName());
+        newProfile.setPhone(profileInfo.getPhone());
+        newProfile.setAvatar(profileInfo.getAvatar());
+        newProfile.setGender(profileInfo.getGender());
+        
+        try {
+            if (profileInfo.getDateOfBirth() != null) {
+                newProfile.setDateOfBirth(dateFormat.parse(profileInfo.getDateOfBirth()));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         Profile updatedProfile = userProfileRepository.updateUserProfileById(userId, newProfile);
@@ -111,7 +128,111 @@ public class UserProfileService {
             return null;
         }
 
-        // Return updated profile
+        return getUserProfile(userId);
+    }
+
+    public List<UserProfileDTO.AddressInfo> getUserAddresses(String userId) {
+        User user = userProfileRepository.findByUserId(userId);
+        if (user == null || user.getAddresses() == null) {
+            return new ArrayList<>();
+        }
+
+        return user.getAddresses().stream()
+            .map(this::convertToAddressInfo)
+            .collect(Collectors.toList());
+    }
+
+    
+    public UserProfileDTO addUserAddress(String userId, AddAddressRequest request) {
+        User user = userProfileRepository.findByUserId(userId);
+        if (user == null) {
+            return null;
+        }
+
+        // Tạo địa chỉ mới
+        Addresses newAddress = new Addresses();
+        newAddress.setTitle(request.getTitle());
+        newAddress.setFullAddress(request.getFullAddress());
+        newAddress.setDefault(request.isDefault());
+
+        if (request.getCoordinates() != null) {
+            Coordinates coordinates = new Coordinates();
+            coordinates.setLat(request.getCoordinates().getLat());
+            coordinates.setLng(request.getCoordinates().getLng());
+            newAddress.setCoordinates(coordinates);
+        }
+
+        // Thêm vào danh sách địa chỉ
+        List<Addresses> addresses = user.getAddresses();
+        if (addresses == null) {
+            addresses = new ArrayList<>();
+        }
+
+        // Nếu địa chỉ mới là mặc định, cập nhật các địa chỉ khác
+        if (newAddress.isDefault()) {
+            addresses.forEach(addr -> addr.setDefault(false));
+        }
+        addresses.add(newAddress);
+        user.setAddresses(addresses);
+
+        // Lưu user
+        userProfileRepository.updateUser(user);
+
+        return getUserProfile(userId);
+    }
+
+    public UserProfileDTO updateUserAddress(String userId, int addressIndex, AddAddressRequest request) {
+        User user = userProfileRepository.findByUserId(userId);
+        if (user == null || user.getAddresses() == null || addressIndex >= user.getAddresses().size()) {
+            return null;
+        }
+
+        List<Addresses> addresses = user.getAddresses();
+        
+        // Cập nhật địa chỉ
+        Addresses addressToUpdate = addresses.get(addressIndex);
+        addressToUpdate.setTitle(request.getTitle());
+        addressToUpdate.setFullAddress(request.getFullAddress());
+        
+        // Xử lý trường hợp đổi địa chỉ mặc định
+        if (request.isDefault() && !addressToUpdate.isDefault()) {
+            addresses.forEach(addr -> addr.setDefault(false));
+        }
+        addressToUpdate.setDefault(request.isDefault());
+
+        if (request.getCoordinates() != null) {
+            Coordinates coordinates = new Coordinates();
+            coordinates.setLat(request.getCoordinates().getLat());
+            coordinates.setLng(request.getCoordinates().getLng());
+            addressToUpdate.setCoordinates(coordinates);
+        }
+
+        // Lưu user
+        userProfileRepository.updateUser(user);
+
+        return getUserProfile(userId);
+    }
+
+    public UserProfileDTO deleteUserAddress(String userId, int addressIndex) {
+        User user = userProfileRepository.findByUserId(userId);
+        if (user == null || user.getAddresses() == null || addressIndex >= user.getAddresses().size()) {
+            return null;
+        }
+
+        List<Addresses> addresses = user.getAddresses();
+        
+        // Kiểm tra nếu xóa địa chỉ mặc định
+        boolean wasDefault = addresses.get(addressIndex).isDefault();
+        addresses.remove(addressIndex);
+
+        // Nếu xóa địa chỉ mặc định và còn địa chỉ khác, set địa chỉ đầu tiên làm mặc định
+        if (wasDefault && !addresses.isEmpty()) {
+            addresses.get(0).setDefault(true);
+        }
+
+        user.setAddresses(addresses);
+        userProfileRepository.updateUser(user);
+
         return getUserProfile(userId);
     }
 

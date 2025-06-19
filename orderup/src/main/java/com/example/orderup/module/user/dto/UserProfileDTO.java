@@ -61,4 +61,17 @@ public class UserProfileDTO {
         private boolean isFeatured;
         private String verificationStatus;
     }
+
+    @Data
+    public static class UpdateProfileRequest {
+        private UserProfileInfo profile;
+    }
+
+    @Data
+    public static class AddAddressRequest {
+        private String title;
+        private String fullAddress;
+        private boolean isDefault;
+        private GeoCoordinates coordinates;
+    }
 }
