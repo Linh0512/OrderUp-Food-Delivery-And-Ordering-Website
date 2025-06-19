@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.orderup.module.user.service.UserProfileService;
+import com.example.orderup.module.user.dto.UserProfileDTO;
 import com.example.orderup.module.user.entirty.Profile;
 
 @RestController
@@ -16,9 +17,9 @@ public class UserProfileController {
 
     // Lấy thông tin profile của user theo ID
     @GetMapping("/id/{id}")
-    public ResponseEntity<Profile> getUserProfileById(@PathVariable("id") String id) {
+    public ResponseEntity<UserProfileDTO> getUserProfileById(@PathVariable("id") String id) {
         try {
-            Profile profile = userProfileService.findByUserId(id);
+            UserProfileDTO profile = userProfileService.getUserProfile(id);
             if (profile != null) {
                 return new ResponseEntity<>(profile, HttpStatus.OK);
             } else {
@@ -31,9 +32,11 @@ public class UserProfileController {
     }
 
     @PutMapping("/id/{id}")
-    public ResponseEntity<Profile> updateUserProfileById(@PathVariable("id") String id, @RequestBody Profile profile) {
+    public ResponseEntity<UserProfileDTO> updateUserProfileById(
+            @PathVariable("id") String id, 
+            @RequestBody Profile profile) {
         try {
-            Profile updatedProfile = userProfileService.updateUserProfileById(id, profile);
+            UserProfileDTO updatedProfile = userProfileService.updateUserProfile(id, profile);
             if (updatedProfile != null) {
                 return new ResponseEntity<>(updatedProfile, HttpStatus.OK);
             } else {
