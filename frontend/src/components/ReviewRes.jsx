@@ -3,7 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
 import avatar from "../assets/banner.jpg";
 
-export default function ReviewRes({ handleClose }) {
+export default function ReviewRes({ handleClose ,resDetail}) {
+  console.log(resDetail)
   const [hoveredStar, setHoveredStar] = useState(null);
   const selectRef = useRef(null);
 
@@ -38,9 +39,9 @@ export default function ReviewRes({ handleClose }) {
         <div className="w-full p-10 ">
           <div className="bg-gray-200 w-full p-5 flex flex-col items-center shadow rounded-2xl">
             <div className="flex flex-col items-center space-y-4 w-full border-b p-2 ">
-              <img src={avatar} alt="" className="size-26 rounded-full" />
+              <img src={resDetail.restaurantImage} alt={resDetail.restaurantName} className="size-26 rounded-full" />
               <div className="flex space-x-4 items-center text-xl">
-                <p className=" font-semibold">Cơm gà số 23</p>
+                <p className=" font-semibold">{resDetail.restaurantName}</p>
                 <p>
                   4.8{" "}
                   <FontAwesomeIcon icon={faStar} className="text-yellow-400" />{" "}

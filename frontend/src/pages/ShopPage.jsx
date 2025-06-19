@@ -16,6 +16,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [review, setReview] = useState();
   const { id } = useParams();
   const { user } = useAuth();
   const options = [
@@ -26,34 +27,25 @@ export default function ShopPage() {
   const [priceSort, setPriceSort] = useState(0);
   const [shopDetail, setShopDetail] = useState({});
 
-  const fectchProducts = async () => {
-    try {
-      const response = await fetch("/sampleData/ProductDetail.json");
-      if (response.ok) {
-        const data = await response.json();
-        return data;
-      } else {
-        return {};
-      }
-    } catch (error) {
-      console.log("Error fetching product data:", error);
-    }
-  };
-
   useEffect(() => {
     getShopDetail(id, user.token).then((res) => {
-      console.log(res.data[0]);
+      console.log(res.data);
       setShopDetail({
-        name: res.data[0].restaurantName,
-        priceRang: res.data[0].restaurantPriceRange,
-        review:res.data[0].restaurantReviewCount,
-        star:res.data[0].restaurantReviewCount,
-        address:res.data[0].restaurantAddress
+        name: res.data.restaurantName,
+        priceRange: res.data.restaurantPriceRange,
+        review: res.data.restaurantReviewCount,
+        star: res.data.restaurantStar,
+        address: res.data.restaurantAddress,
+        timeRange: res.data.restaurantTimeRange,
+        isActive: res.data.restaurantIsActive,
       });
-    });
-    fectchProducts().then((res) => {
-      setProducts(res.data);
-      setCount(res.count);
+      setProducts(res.data.dishes);
+      setCount(res.data.dishes.length);
+      setReview({
+        ...res.data.ratingBreakdown,
+        total: res.data.restaurantReviewCount,
+        star: res.data.restaurantStar,
+      });
     });
   }, [id, user.token]);
   return (
@@ -62,9 +54,7 @@ export default function ShopPage() {
         <div className="w-[65%]">
           <BigShopCard shop={shopDetail} />
         </div>
-        <div className="w-[30%]">
-          <ReviewBox />
-        </div>
+        <div className="w-[30%]">{review && <ReviewBox review={review} />}</div>
       </div>
       <div className="mt-10 flex">
         <div className="space-y-4 w-1/5">

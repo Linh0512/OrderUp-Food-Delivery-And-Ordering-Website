@@ -1,18 +1,30 @@
 import {
   faArrowLeft,
   faCalendar,
-  faCircleUser,
   faLocationDot,
   faPhone,
   faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import avatar from "../../assets/avatar.png";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "../../components/common/AuthContext";
 import OrderItem from "../../components/hostRes/OrderItem";
-import { useNavigate } from "react-router-dom";
+import { getHistotyDetail } from "../../services/userServices/Service";
 
 export default function HistoryDetailPage() {
   const nav = useNavigate();
+  const { id } = useParams();
+  const { user } = useAuth();
+  const [detail, setDetail] = useState({});
+
+  useEffect(() => {
+    getHistotyDetail(id, user.token).then((res) => {
+      console.log(res);
+      setDetail(res);
+    });
+  }, [user, id]);
+
   return (
     <div className="w-[60vw] mx-auto">
       <div className="bg-white rounded-xl shadow p-4">
@@ -27,37 +39,43 @@ export default function HistoryDetailPage() {
             <h1 className="text-2xl font-bold text-gray-800">
               Chi tiết đơn hàng
             </h1>
-            <p className="text-gray-600">#123567</p>
+            <p className="text-gray-600">{detail.orderNumber}</p>
           </div>
         </div>
       </div>
       <div className=" bg-gray-200 p-2 my-5 rounded-2xl space-y-6">
         <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <FontAwesomeIcon icon={faCircleUser} />
-            Thông tin khách hàng
-          </h2>
           <div className="space-y-3">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                <img src={avatar} alt="" />
+                <img src={detail.restaurantImage} alt="" />
               </div>
               <div>
-                <p className="font-semibold text-gray-800">vô danh</p>
-                <p className="text-sm text-gray-600">Khách hàng</p>
+                <p className="font-semibold text-gray-800">
+                  {detail.restaurantName}
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-3 text-gray-600">
               <FontAwesomeIcon icon={faPhone} className="w-6" />
-              <span>093274832</span>
+              <span>{detail.restaurantPhone}</span>
             </div>
             <div className="flex items-center gap-3 text-gray-600">
               <FontAwesomeIcon icon={faLocationDot} className="w-6" />
-              <span className="leading-relaxed">quận 9 Hồ Chí Minh</span>
+              <span className="leading-relaxed">
+                {detail.restaurantAddress}
+              </span>
             </div>
             <div className="flex items-center gap-3 text-gray-600">
               <FontAwesomeIcon icon={faCalendar} className="w-6" />
-              <span>Đặt ngày 10/0/0000</span>
+              <span>Đặt ngày {detail.orderDate}</span>
+            </div>
+            <div className="flex items-center gap-3 text-gray-600 mt-5 px-1">
+              <div className="bg-green-500 rounded-full size-4"></div>
+              <span className="text-black text-lg font-semibold">
+                Giao đến:
+              </span>
+              <span>{detail.userAddress}</span>
             </div>
           </div>
         </div>
@@ -66,40 +84,29 @@ export default function HistoryDetailPage() {
             Món ăn đã đặt (2 món)
           </h2>
           <div className="space-y-4">
-            {Array.from({ length: 2 }).map((_, index) => (
-              <OrderItem key={index} />
-            ))}
+            {detail.orderItems &&
+              detail.orderItems.map((item, index) => (
+                <OrderItem
+                  key={index}
+                  orderItem={{
+                    ...item,
+                    unitPrice: item.dishPrice,
+                    specialInstructions: item.dishDescription,
+                    quantity: item.dishQuantity,
+                    subtotal: item.dishTotalPrice,
+                  }}
+                />
+              ))}
           </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-            <FontAwesomeIcon icon={faReceipt} />
-            Tóm tắt đơn hàng
-          </h2>
-          <div className="space-y-3">
-            <div className="flex justify-between text-gray-600">
-              <span>Tạm tính:</span>
-              <span>100.000</span>
-            </div>
-            <div className="flex justify-between text-gray-600">
-              <span>Phí giao hàng:</span>
-              <span>100.000</span>
-            </div>
-            <div className="flex justify-between text-green-600">
-              <span>Giảm giá:</span>
-              <span>100.000</span>
-            </div>
-            <div className="border-t pt-3">
-              <div className="flex justify-between text-lg font-bold text-gray-800">
-                <span>Tổng cộng:</span>
-                <span className="text-green-600">100.000</span>
-              </div>
+          <div className="border-t pt-3 mt-10">
+            <div className="flex justify-between text-lg font-bold text-gray-800">
+              <span>
+                <FontAwesomeIcon icon={faReceipt} /> Tổng cộng:
+              </span>
+              <span className="text-green-600">100.000</span>
             </div>
           </div>
         </div>
-        <button className="block w-[90%] mx-auto bg-green-500 p-2 text-2xl text-white font-semibold rounded-xl">
-          Xác nhận đơn hàng
-        </button>
       </div>
     </div>
   );

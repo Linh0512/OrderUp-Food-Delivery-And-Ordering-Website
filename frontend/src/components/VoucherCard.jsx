@@ -1,11 +1,11 @@
-import voucher from '../assets/voucher.png'
+import img from '../assets/voucher.png'
 
-export default function VoucherCard() {
+export default function VoucherCard({voucher,onSelect }) {
   return (
-    <div className="flex items-center bg-white  shadow-md overflow-hidden w-full max-w-3xl hover:bg-gray-200 transition">
+    <div className="flex items-center bg-white  shadow-md overflow-hidden w-full max-w-3xl hover:bg-gray-200 transition" onClick={onSelect}>
       <div className="bg-red-600 text-white  flex items-center w-[25%]">
         <img
-          src={voucher} 
+          src={img} 
           alt="Voucher Icon"
           className=""
         />
@@ -13,9 +13,9 @@ export default function VoucherCard() {
 
       <div className="flex-1 px-4 ">
         <p className="font-semibold ">
-          Giảm 50% tối đa 20.000đ trên phí vận chuyển
+          Giảm {voucher.value} trên tổng hóa đơn
         </p>
-        <p className="text-red-500 text-sm">Hóa đơn tối thiểu 100.000đ</p>
+        <p className="text-red-500 text-sm">Hóa đơn tối thiểu {voucher.minimumOrderAmount}</p>
       </div>
     </div>
   );
