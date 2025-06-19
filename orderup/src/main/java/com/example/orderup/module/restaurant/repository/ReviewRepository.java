@@ -1,22 +1,18 @@
 package com.example.orderup.module.restaurant.repository;
 
+import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.bson.types.ObjectId;
-import com.example.orderup.module.restaurant.entity.Review;
 import java.util.List;
+import java.util.Optional;
+
+import com.example.orderup.module.restaurant.entity.Review;
 
 @Repository
-public class ReviewRepository {
-    
-    @Autowired
-    private MongoTemplate mongoTemplate;
-    
-    public List<Review> findByRestaurantId(String restaurantId) {
-        Query query = new Query(Criteria.where("restaurantId").is(new ObjectId(restaurantId)));
-        return mongoTemplate.find(query, Review.class, "reviews");
-    }
+public interface ReviewRepository extends MongoRepository<Review, String> {
+    @Query("{ 'restaurantId': ?0 }")
+    List<Review> findByRestaurantId(String restaurantId);
+
+    @Query("{ 'userId': ?0, 'restaurantId': ?1 }")
+    Optional<Review> findByUserIdAndRestaurantId(String userId, String restaurantId);
 }

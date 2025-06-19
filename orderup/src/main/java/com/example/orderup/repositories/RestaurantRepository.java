@@ -89,4 +89,7 @@ public interface RestaurantRepository extends MongoRepository<Restaurant, String
     // Count restaurants created after a specific date
     @Query(value = "{'createdAt': {$gt: ?0}}", count = true)
     long countByCreatedAtAfter(LocalDateTime date);
+
+    @Query("{ '_id': ?0 }")
+    Restaurant findRestaurantById(String id);
 }
