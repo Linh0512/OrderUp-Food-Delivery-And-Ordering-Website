@@ -42,8 +42,19 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getUserIdFromToken(String token) {
+    private String extractToken(String bearerToken) {
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return bearerToken;
+    }
+
+    public String getUserIdFromToken(String bearerToken) {
         try {
+            String token = extractToken(bearerToken);
+            if (token == null) {
+                return null;
+            }
             byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
             var key = Keys.hmacShaKeyFor(keyBytes);
             
@@ -57,6 +68,27 @@ public class JwtTokenProvider {
         } catch (Exception e) {
             e.printStackTrace();
             return null; // Token không hợp lệ hoặc đã hết hạn
+        }
+    }
+
+    public String getRoleFromToken(String bearerToken) {
+        try {
+            String token = extractToken(bearerToken);
+            if (token == null) {
+                return null;
+            }
+            byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+            var key = Keys.hmacShaKeyFor(keyBytes);
+            
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+            return claims.get("role", String.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

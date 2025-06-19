@@ -16,7 +16,9 @@ public class EntityUpdater {
     static {
         IGNORED_FIELDS.add("id");
         IGNORED_FIELDS.add("createdAt");
+        IGNORED_FIELDS.add("updatedAt");
         IGNORED_FIELDS.add("password"); // Mật khẩu cần xử lý riêng
+        IGNORED_FIELDS.add("usage");
     }
     
     /**
