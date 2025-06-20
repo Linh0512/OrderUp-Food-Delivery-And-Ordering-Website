@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Chi tiết người dùng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .user-avatar {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .badge-role {
+            font-size: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Chi tiết người dùng</h1>
+            <a href="/admin/users" class="btn btn-secondary">Quay lại danh sách</a>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3 text-center">
+                        <img th:if="${user.profile != null && user.profile.avatar != null}"
+                             th:src="${user.profile.avatar}"
+                             class="user-avatar mb-3"
+                             alt="Avatar">
+                        <div th:unless="${user.profile != null && user.profile.avatar != null}"
+                             class="user-avatar mb-3 bg-secondary text-white d-flex align-items-center justify-content-center">
+                            <span th:if="${user.profile != null}" 
+                                  th:text="${#strings.substring(user.profile.firstName,0,1) + #strings.substring(user.profile.lastName,0,1)}"
+                                  style="font-size: 3rem;"></span>
+                            <span th:unless="${user.profile != null}" style="font-size: 3rem;">N/A</span>
+                        </div>
+                        
+                        <h4 th:if="${user.profile != null}" 
+                            th:text="${user.profile.firstName + ' ' + user.profile.lastName}"></h4>
+                        <h4 th:unless="${user.profile != null}" th:text="${user.email}"></h4>
+                        
+                        <div class="mb-3">
+                            <span th:if="${user.role == 'admin'}" class="badge bg-danger badge-role">Admin</span>
+                            <span th:if="${user.role == 'restaurantHost'}" class="badge bg-warning badge-role">Chủ nhà hàng</span>
+                            <span th:if="${user.role == 'user'}" class="badge bg-success badge-role">Người dùng</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <span th:if="${user.isActive}" class="badge bg-success">Đang hoạt động</span>
+                            <span th:unless="${user.isActive}" class="badge bg-danger">Đã khóa</span>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a th:href="@{/admin/users/{id}/edit(id=${user.id})}" class="btn btn-warning w-100 mb-2">Chỉnh sửa</a>
+                            <button type="button" class="btn btn-danger w-100" data-bs-toggle="modal" data-bs-target="#deleteModal">Xóa người dùng</button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-9">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5 class="text-primary">Thông tin cơ bản</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th>ID:</th>
+                                        <td th:text="${user.id}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Email:</th>
+                                        <td th:text="${user.email}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Số điện thoại:</th>
+                                        <td th:text="${user.profile != null ? user.profile.phone : 'N/A'}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Giới tính:</th>
+                                        <td th:text="${user.profile != null ? user.profile.gender : 'N/A'}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Ngày sinh:</th>
+                                        <td th:text="${user.profile != null && user.profile.dateOfBirth != null ? #dates.format(user.profile.dateOfBirth, 'dd/MM/yyyy') : 'N/A'}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Địa chỉ:</th>
+                                        <td th:text="${user.addresses != null && !user.addresses.isEmpty() ? user.addresses[0].fullAddress : 'N/A'}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Đã xác thực:</th>
+                                        <td>
+                                            <span th:if="${user.isVerified}" class="badge bg-success">Đã xác thực</span>
+                                            <span th:unless="${user.isVerified}" class="badge bg-warning">Chưa xác thực</span>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                            
+                            <div class="col-md-6">
+                                <h5 class="text-primary">Thông tin tài khoản</h5>
+                                <table class="table table-borderless">
+                                    <tr>
+                                        <th>Điểm tích lũy:</th>
+                                        <td th:text="${user.loyaltyPoints != null ? user.loyaltyPoints : 0}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Đăng nhập cuối:</th>
+                                        <td th:text="${user.lastLogin != null ? #dates.format(user.lastLogin, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Ngày tạo:</th>
+                                        <td th:text="${#dates.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th>Cập nhật cuối:</th>
+                                        <td th:text="${#dates.format(user.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${user.addresses != null && !user.addresses.isEmpty()}" class="mb-4">
+                            <h5 class="text-primary">Địa chỉ đã lưu</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Tiêu đề</th>
+                                            <th>Địa chỉ đầy đủ</th>
+                                            <th>Vĩ độ</th>
+                                            <th>Kinh độ</th>
+                                            <th>Mặc định</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="address : ${user.addresses}">
+                                            <td th:text="${address.title}"></td>
+                                            <td th:text="${address.fullAddress}"></td>
+                                            <td th:text="${address.coordinates.lat}"></td>
+                                            <td th:text="${address.coordinates.lng}"></td>
+                                            <td>
+                                                <span th:if="${address.default}" class="badge bg-primary">Mặc định</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div th:if="${user.paymentMethods != null && !user.paymentMethods.isEmpty()}" class="mb-4">
+                            <h5 class="text-primary">Phương thức thanh toán</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Loại</th>
+                                            <th>Ví điện tử</th>
+                                            <th>Tài khoản</th>
+                                            <th>Mặc định</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="payment : ${user.paymentMethods}">
+                                            <td th:text="${payment.type}"></td>
+                                            <td th:text="${payment.ewalletType}"></td>
+                                            <td th:text="${payment.ewalletAccount}"></td>
+                                            <td>
+                                                <span th:if="${payment.default}" class="badge bg-primary">Mặc định</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc chắn muốn xóa người dùng này?<br>
+                    <strong>Lưu ý:</strong> Hành động này không thể hoàn tác.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <form th:action="@{/admin/users/{id}/delete(id=${user.id})}" method="post">
+                        <button type="submit" class="btn btn-danger">Xóa</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

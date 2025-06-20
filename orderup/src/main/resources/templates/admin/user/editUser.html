@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${isNew ? 'Thêm người dùng mới' : 'Chỉnh sửa người dùng'}"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 th:text="${isNew ? 'Thêm người dùng mới' : 'Chỉnh sửa người dùng'}"></h1>
+            <a href="/admin/users" class="btn btn-secondary">Quay lại danh sách</a>
+        </div>
+        
+        <div th:if="${error}" class="alert alert-danger" role="alert" th:text="${error}"></div>
+        <div th:if="${message}" class="alert alert-success" role="alert" th:text="${message}"></div>
+        
+        <div class="card">
+            <div class="card-body">
+                <form th:action="${isNew ? '/admin/users/create' : '/admin/users/' + user.id + '/edit'}" 
+                      th:object="${user}" method="post">
+                    
+                    <input type="hidden" th:if="${!isNew}" th:field="*{id}" />
+                    
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Thông tin cơ bản</h5>
+                            
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email*</label>
+                                <input type="email" class="form-control" id="email" th:field="*{email}" required />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="password" class="form-label">
+                                    <span th:if="${isNew}">Mật khẩu*</span>
+                                    <span th:unless="${isNew}">Mật khẩu (để trống nếu không thay đổi)</span>
+                                </label>
+                                <input type="password" class="form-control" id="password" th:field="*{password}"
+                                       th:required="${isNew}" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">Địa chỉ</label>
+                                <div id="addressesContainer">
+                                    <div th:each="address, stat : *{addresses}" class="address-entry mb-2">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <input type="text" class="form-control" th:field="*{addresses[__${stat.index}__].title}" placeholder="Tiêu đề địa chỉ"/>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <input type="text" class="form-control" th:field="*{addresses[__${stat.index}__].fullAddress}" placeholder="Địa chỉ chi tiết"/>
+                                                <input type="text" class="form-control" th:field="*{addresses[__${stat.index}__].coordinates.lat}" placeholder="Vĩ độ"/>
+                                                <input type="text" class="form-control" th:field="*{addresses[__${stat.index}__].coordinates.lng}" placeholder="Kinh độ"/>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" th:field="*{addresses[__${stat.index}__].default}"/>
+                                                    <label class="form-check-label">Mặc định</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn btn-outline-secondary mt-2" onclick="addNewAddress()">
+                                    <i class="bi bi-plus"></i> Thêm địa chỉ
+                                </button>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="role" class="form-label">Vai trò*</label>
+                                <select class="form-select" id="role" th:field="*{role}" required>
+                                    <option value="user">Người dùng</option>
+                                    <option value="restaurantHost">Chủ nhà hàng</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="active" th:field="*{active}">
+                                    <label class="form-check-label" for="active">Trạng thái hoạt động</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="verified" th:field="*{verified}">
+                                    <label class="form-check-label" for="verified">Đã xác thực</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h5 class="mb-3">Thông tin cá nhân</h5>
+                            
+                            <div class="mb-3">
+                                <label for="firstName" class="form-label">Họ</label>
+                                <input type="text" class="form-control" id="firstName" th:field="*{profile.firstName}" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="lastName" class="form-label">Tên</label>
+                                <input type="text" class="form-control" id="lastName" th:field="*{profile.lastName}" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="phone" class="form-label">Số điện thoại</label>
+                                <input type="text" class="form-control" id="phone" th:field="*{profile.phone}" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="gender" class="form-label">Giới tính</label>
+                                <select class="form-select" id="gender" th:field="*{profile.gender}">
+                                    <option value="">-- Chọn giới tính --</option>
+                                    <option value="male">Nam</option>
+                                    <option value="female">Nữ</option>
+                                    <option value="other">Khác</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="dateOfBirth" class="form-label">Ngày sinh</label>
+                                <input type="date" class="form-control" id="dateOfBirth" 
+                                       th:field="*{profile.dateOfBirth}" 
+                                       th:value="${user.profile != null && user.profile.dateOfBirth != null ? #dates.format(user.profile.dateOfBirth, 'yyyy-MM-dd') : ''}" />
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="avatar" class="form-label">URL Avatar</label>
+                                <input type="url" class="form-control" id="avatar" th:field="*{profile.avatar}" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-end">
+                        <a href="/admin/users" class="btn btn-secondary me-2">Hủy</a>
+                        <button type="submit" class="btn btn-primary">
+                            <span th:if="${isNew}">Tạo người dùng</span>
+                            <span th:unless="${isNew}">Cập nhật</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function addNewAddress() {
+            const container = document.getElementById('addressesContainer');
+            const index = container.children.length;
+            
+            const newAddressHtml = `
+                <div class="address-entry mb-2">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <input type="text" class="form-control" name="addresses[${index}].title" placeholder="Tiêu đề địa chỉ"/>
+                        </div>
+                        <div class="col-md-6">
+                            <input type="text" class="form-control" name="addresses[${index}].fullAddress" placeholder="Địa chỉ chi tiết"/>
+                            <input type="text" class="form-control" name="addresses[${index}].coordinates.lat" placeholder="Vĩ độ"/>
+                            <input type="text" class="form-control" name="addresses[${index}].coordinates.lng" placeholder="Kinh độ"/>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="addresses[${index}].default"/>
+                                <label class="form-check-label">Mặc định</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            container.insertAdjacentHTML('beforeend', newAddressHtml);
+        }
+    </script>
+</body>
+</html>

@@ -1,23 +1,35 @@
-import { faList, faUser } from "@fortawesome/free-solid-svg-icons";
+import {
+  faClockRotateLeft,
+  faList,
+  faLocationDot,
+  faRightToBracket,
+  faUser
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "./common/AuthContext";
 
 export default function CustomIconButtonSelect() {
   const navigate = useNavigate();
-  // State to manage the visibility of the dropdown options
   const [isOpen, setIsOpen] = useState(false);
-  // Ref to detect clicks outside the dropdown, closing it
   const selectRef = useRef(null);
-  // Define the options for the select dropdown
+  const { Logout } = useAuth();
+
   const options = [
-    { label: "Profile", value: "profile" },
-    { label: "History", value: "history" },
+    { label: "Hồ sơ", value: "profile", icon: faUser },
+    { label: "Lịch sử", value: "history", icon: faClockRotateLeft },
+    { label: "Địa chỉ", value: "address", icon: faLocationDot },
   ];
 
-  const handleMove=(value)=>{
-    navigate(`/${value}`)
-    setIsOpen(false)
+  const handleMove = (value) => {
+    navigate(`/${value}`);
+    setIsOpen(false);
+  };
+
+  const handleLogOut=()=>{
+    Logout()
+    navigate('/login')
   }
 
   // Effect to handle clicks outside the component to close the dropdown
@@ -46,23 +58,31 @@ export default function CustomIconButtonSelect() {
         onClick={() => setIsOpen(!isOpen)}
       >
         <FontAwesomeIcon icon={faList} />
-        <FontAwesomeIcon icon={faUser} />
 
         {/* <FontAwesomeIcon icon={faAngleDown} className={`transition-transform duration-200 ${isOpen?'rotate-180':''}`}/> */}
       </button>
 
       {/* Dropdown options list */}
       {isOpen && (
-        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 rounded-xl shadow-lg z-20 min-w-[150px]">
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-300 rounded-xl shadow-lg z-20 min-w-[200px]">
           {options.map((option) => (
             <div
               key={option.value}
-              className="p-2 text-lg cursor-pointer hover:bg-blue-100 transition-colors duration-150 rounded-xl"
+              className=" flex items-center space-x-2 p-3 px-5 text-lg cursor-pointer hover:bg-blue-100 transition-colors duration-150 "
               onClick={() => handleMove(option.value)}
             >
+              <FontAwesomeIcon icon={option.icon} />
               <p>{option.label}</p>
             </div>
           ))}
+          <hr />
+          <div
+            className="flex items-center space-x-2 p-3 px-5 text-lg cursor-pointer hover:bg-red-100 transition-colors duration-150 text-red-500"
+            onClick={handleLogOut}
+          >
+            <FontAwesomeIcon icon={faRightToBracket} />
+            <p>Đăng xuất</p>
+          </div>
         </div>
       )}
     </div>

@@ -3,15 +3,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import ReviewPopUp from "./ReviewPopUp";
 
-export default function ReviewBox() {
-  const totalReviews = 876;
-  const rating = 5.0;
+export default function ReviewBox({review,id}) {
+  const totalReviews = review.total
+  const rating = review.star;
   const ratingBars = [
-    { stars: 5, percent: 100 },
-    { stars: 4, percent: 0 },
-    { stars: 3, percent: 0 },
-    { stars: 2, percent: 0 },
-    { stars: 1, percent: 0 },
+    { stars: 5, percent: (review["5star"]/totalReviews)*100 },
+    { stars: 4, percent: (review["4star"]/totalReviews)*100 },
+    { stars: 3, percent: (review["3star"]/totalReviews)*100 },
+    { stars: 2, percent: (review["2star"]/totalReviews)*100 },
+    { stars: 1, percent: (review["1star"]/totalReviews)*100 },
   ];
   const [showPopup, setShowPopup] = useState(false);
 
@@ -20,7 +20,6 @@ export default function ReviewBox() {
       <div className="bg-white py-2 border-b rounded-t-2xl">
         <h2 className="font-semibold text-lg">Review</h2>
       </div>
-
       <div className="bg-white p-5">
         <div className="flex items-center justify-between text-sm mb-2 px-6 py-2 bg-[rgba(217,217,217,0.4)] rounded-t-2xl">
           <div className="flex items-center space-x-1">
@@ -57,6 +56,7 @@ export default function ReviewBox() {
           rating={rating}
           totalReviews={totalReviews}
           handleClose={setShowPopup}
+          idRes={id}
         />
       )}
     </div>
