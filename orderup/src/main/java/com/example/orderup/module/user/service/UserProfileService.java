@@ -12,12 +12,19 @@ import com.example.orderup.module.user.entirty.Profile;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.entirty.Addresses;
 import com.example.orderup.module.user.entirty.Coordinates;
+import com.example.orderup.module.user.dto.SetDefaultAddressDTO;
+import com.example.orderup.module.user.dto.DefaultAddressDTO;
+import com.example.orderup.config.security.JwtTokenProvider;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Date;
+import org.bson.types.ObjectId;
 
 @Service
 public class UserProfileService {
@@ -26,6 +33,9 @@ public class UserProfileService {
 
     @Autowired
     private RestaurantRepository restaurantRepository;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -236,16 +246,67 @@ public class UserProfileService {
         return getUserProfile(userId);
     }
 
+    public UserProfileDTO setDefaultAddress(String token, int addressIndex) {
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+        if (userId == null) {
+            throw new RuntimeException("Không tìm thấy người dùng");
+        }
+
+        User user = userProfileRepository.findByUserId(userId);
+
+        List<Addresses> addresses = user.getAddresses();
+        if (addresses == null || addresses.isEmpty()) {
+            throw new RuntimeException("Người dùng chưa có địa chỉ nào");
+        }
+
+        if (addressIndex < 0 || addressIndex >= addresses.size()) {
+            throw new RuntimeException("Chỉ số địa chỉ không hợp lệ");
+        }
+
+        // Set tất cả địa chỉ thành không mặc định
+        addresses.forEach(addr -> addr.setDefault(false));
+        
+        // Set địa chỉ được chọn thành mặc định
+        addresses.get(addressIndex).setDefault(true);
+
+        user.setAddresses(addresses);
+        userProfileRepository.updateUser(user);
+
+        return getUserProfile(userId);
+    }
+
+    public DefaultAddressDTO getDefaultAddress(String token) {
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+        User user = userProfileRepository.findByUserId(userId);
+        if (user == null) {
+            throw new RuntimeException("Không tìm thấy người dùng");
+        }
+
+        List<Addresses> addresses = user.getAddresses();
+        if (addresses == null || addresses.isEmpty()) {
+            throw new RuntimeException("Người dùng chưa có địa chỉ nào");
+        }
+
+        // Tìm địa chỉ mặc định và index của nó
+        for (int i = 0; i < addresses.size(); i++) {
+            if (addresses.get(i).isDefault()) {
+                Addresses defaultAddress = addresses.get(i);
+                return DefaultAddressDTO.builder()
+                    .addressIndex(i)
+                    .title(defaultAddress.getTitle())
+                    .fullAddress(defaultAddress.getFullAddress())
+                    .build();
+            }
+        }
+
+        throw new RuntimeException("Không tìm thấy địa chỉ mặc định");
+    }
+
     private UserProfileDTO.AddressInfo convertToAddressInfo(Addresses address) {
         return UserProfileDTO.AddressInfo.builder()
             .title(address.getTitle())
             .fullAddress(address.getFullAddress())
             .isDefault(address.isDefault())
-            .coordinates(address.getCoordinates() != null ? 
-                UserProfileDTO.GeoCoordinates.builder()
-                    .lat(address.getCoordinates().getLat())
-                    .lng(address.getCoordinates().getLng())
-                    .build() : null)
             .build();
     }
 
@@ -254,11 +315,6 @@ public class UserProfileService {
             .title("Restaurant Address")
             .fullAddress(address.getFullAddress())
             .isDefault(true)
-            .coordinates(address.getCoordinates() != null ? 
-                UserProfileDTO.GeoCoordinates.builder()
-                    .lat(address.getCoordinates().getLat())
-                    .lng(address.getCoordinates().getLng())
-                    .build() : null)
             .build();
     }
 }

@@ -4,9 +4,13 @@ import com.example.orderup.module.user.entirty.Coordinates;
 
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;
+import org.springframework.data.annotation.Id;
 
 @Data
 public class Addresses {
+    @Id
+    private String id;
+
     @Field("title")
     private String title;
     
