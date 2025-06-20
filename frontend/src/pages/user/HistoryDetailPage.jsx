@@ -103,7 +103,7 @@ export default function HistoryDetailPage() {
               <span>
                 <FontAwesomeIcon icon={faReceipt} /> Tổng cộng:
               </span>
-              <span className="text-green-600">100.000</span>
+              <span className="text-green-600">{detail.orderTotalAmount}</span>
             </div>
           </div>
         </div>

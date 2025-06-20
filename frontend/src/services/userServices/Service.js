@@ -59,9 +59,9 @@ export const getShopDetail = async (id, token) => {
   }
 };
 
-export const getCart = async (id, token) => {
+export const getCart = async (token) => {
   try {
-    const response = await api.get(`/api/cart/${id}`, {
+    const response = await api.get(`/api/cart`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -119,7 +119,7 @@ export const getHistotyData = async (id, token) => {
   }
 };
 
-export const getHistotyDetail=async(id,token)=>{
+export const getHistotyDetail = async (id, token) => {
   try {
     const response = await api.get(`/api/orders/${id}`, {
       headers: {
@@ -132,9 +132,9 @@ export const getHistotyDetail=async(id,token)=>{
     console.log(error);
     return {};
   }
-}
+};
 
-export const getReview=async(id)=>{
+export const getReview = async (id) => {
   try {
     const response = await api.get(`/api/reviews/restaurant/${id}`);
     if (response.data) return response.data;
@@ -143,11 +143,92 @@ export const getReview=async(id)=>{
     console.log(error);
     return {};
   }
-}
+};
 
-export const getVoucher=async(id,token)=>{
+export const getVoucher = async (id, token) => {
   try {
     const response = await api.get(`/api/user/vouchers/restaurant/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const changePassword = async (token, oldPass, newPass, newPass1) => {
+  console.log(token);
+  const pass = {
+    oldPassword: oldPass,
+    newPassword: newPass,
+    confirmNewPassword: newPass1,
+  };
+  try {
+    const response = await api.post(`/api/users/password/update`, pass, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const getAddress=async(id, token)=>{
+   try {
+    const response = await api.get(`/api/users/profile/id/${id}/address`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
+export const addAddress=async(id, token,address)=>{
+  try {
+    const response = await api.post(`/api/users/profile/id/${id}/address`, address,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
+export const deleteAddress=async(id,token,index)=>{
+  try {
+    const response = await api.delete(`/api/users/profile/id/${id}/address/${index}`,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
+export const updateAddress=async(id,token,address,index)=>{
+  try {
+    const response = await api.put(`/api/users/profile/id/${id}/address/${index}`,address,{
       headers: {
         Authorization: `Bearer ${token}`,
       },

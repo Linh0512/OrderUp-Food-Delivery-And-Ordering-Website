@@ -79,7 +79,8 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getUserProfile(user.userId, user.token).then((res) => {
-      setUserDetail(res);
+      console.log(res)
+      setUserDetail(res.profile);
     });
   }, [user]);
   return (
@@ -97,9 +98,9 @@ export default function ProfilePage() {
                   type="text"
                   placeholder="Fullname"
                   className="w-[90%] focus:outline-none"
-                  defaultValue={userDetail.name}
+                  defaultValue={userDetail.fullName}
                   onChange={(e) =>
-                    setUserDetail({ ...userDetail, lastName: e.target.value })
+                    setUserDetail({ ...userDetail, fullName: e.target.value })
                   }
                 />
               </div>
@@ -201,7 +202,7 @@ export default function ProfilePage() {
           Đổi mật khẩu
         </button>
       </div>
-      {showPopUp && <ChangePasswordPopUp handleClose={setShowPopup} />}
+      {showPopUp && <ChangePasswordPopUp handleClose={setShowPopup} token={user.token} />}
     </div>
   );
 }

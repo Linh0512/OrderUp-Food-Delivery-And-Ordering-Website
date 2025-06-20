@@ -22,8 +22,9 @@ export default function CartPage() {
   };
 
   useEffect(() => {
-    getCart("68417874a74d530ba550eb69", user.token).then((res) => {
-      setCart(res.items);
+    getCart(user.token).then((res) => {
+      console.log(res)
+      setCart(res);
       setSubtotal(res.subtotal);
     });
     getVoucher("684844b61a05cf815c50eb73", user.token).then((res) => {

@@ -1,9 +1,9 @@
 import {
   faClockRotateLeft,
-  faComment,
   faList,
-  faUser,
+  faLocationDot,
   faRightToBracket,
+  faUser
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
@@ -19,7 +19,7 @@ export default function CustomIconButtonSelect() {
   const options = [
     { label: "Hồ sơ", value: "profile", icon: faUser },
     { label: "Lịch sử", value: "history", icon: faClockRotateLeft },
-    { label: "Trò chuyện", value: "chat", icon: faComment },
+    { label: "Địa chỉ", value: "address", icon: faLocationDot },
   ];
 
   const handleMove = (value) => {
