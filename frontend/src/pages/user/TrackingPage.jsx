@@ -11,14 +11,16 @@ import { useLocation, useNavigate } from "react-router-dom";
 import OrderItem from "../../components/hostRes/OrderItem";
 import money from '../../assets/money.png'
 import zalo from '../../assets/zalopay.png'
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function TrackingPage() {
   const [stage, setStage] = useState("pending");
   const navigate = useNavigate();
   const location = useLocation();
   const cart = location.state?.cart || [];
-  const address = location.state?.address || {};
-  console.log(cart);
+  const address = location.state?.addressDetail || {};
+  const subtotal=location.state?.subtotal||0
+  const discount = location.state?.discount || 0;
 
   const isActive = (current) => {
     const orderStage = ["pending", "cooking", "delivering", "completed"];
@@ -136,20 +138,20 @@ export default function TrackingPage() {
           </div>
           <hr />
           <div className="space-y-5 ml-auto">
-            <p className="font-bold">Tổng 4 món</p>
+            <p className="font-bold">Tổng {cart.length} món</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
-              <p>171đ</p>
+              <p>{formatCurrencyVN(subtotal)}</p>
             </div>
             <div className="flex justify-between">
-              <p>Tạm tính</p>
-              <p>171đ</p>
+              <p>Giảm giá</p>
+              <p>- {formatCurrencyVN(discount)}</p>
             </div>
             <div className="flex justify-between">
-              <p>Tạm tính</p>
-              <p>171đ</p>
+              <p>Phí vận chuyển</p>
+              <p>{formatCurrencyVN(30000)}</p>
             </div>
-            <p className="text-end mt-7 text-2xl font-semibold">181đ</p>
+            <p className="text-end mt-7 text-2xl font-semibold">{formatCurrencyVN(subtotal-discount+30000)}</p>
           </div>
         </div>
       </div>

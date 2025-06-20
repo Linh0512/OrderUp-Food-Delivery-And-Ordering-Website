@@ -1,4 +1,5 @@
 import product from '../../assets/product.jpg'
+import { formatCurrencyVN } from '../../utils/Format';
 
 export default function OrderItem({ orderItem }) {
   return (
@@ -17,8 +18,8 @@ export default function OrderItem({ orderItem }) {
         </div>
         <p className="font-semibold">Số lượng: {orderItem?.quantity}</p>
         <div className="space-y-2">
-          <p className="font-semibold">{orderItem?.subtotal}</p>
-          <p className="text-sm text-gray-500">{orderItem?.unitPrice}/món</p>
+          <p className="font-semibold">{formatCurrencyVN(orderItem?.subtotal)}</p>
+          <p className="text-sm text-gray-500">{formatCurrencyVN(orderItem?.unitPrice)}/món</p>
         </div>
       </div>
     </div>

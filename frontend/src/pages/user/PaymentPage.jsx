@@ -10,9 +10,10 @@ import { useAuth } from "../../components/common/AuthContext";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [addressDetail, setAddressDetail] = useState({
-    address: "Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam",
+    address: "",
     note: "",
     name: "",
     email: "",
@@ -33,6 +34,11 @@ export default function PaymentPage() {
     });
   }, [user]);
 
+  useEffect(() => {
+    const defaultAddr = addresses.find((item) => item.default);
+    if (defaultAddr) setSelectedAddress(defaultAddr.fullAddress);
+  }, [addresses]);
+
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
     setAddressDetail({ ...addressDetail, method: event.target.value });
@@ -47,7 +53,7 @@ export default function PaymentPage() {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-    navigate("/tracking", { state: { cart, addressDetail } });
+    navigate("/tracking", { state: { cart, addressDetail ,subtotal,discount} });
   };
   return (
     <div className="w-[70vw] mx-auto">
@@ -65,19 +71,40 @@ export default function PaymentPage() {
       </div>
       <div className="flex mt-8 space-x-10">
         <div className="w-[65%] space-y-5 ">
-          <div className="p-4 shadow rounded-3xl bg-white px-7">
+          <div className="p-4 shadow rounded-3xl bg-white px-7 space-y-3">
             <h3 className="font-semibold ">Giao đến</h3>
-            <select value={} className="w-full px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200 cursor-pointer">
-              {addresses.map((item, index) => (
-                <option
-                  value={item.fullAddress}
-                  key={index}
-                  className="py-2 px-4 text-gray-900 hover:bg-blue-50"
-                >
-                  {item.fullAddress}
-                </option>
-              ))}
-            </select>
+            <div className="flex items-center space-x-4">
+              <p className="font-semibold text-sm text-gray-400">
+                Chọn địa chỉ
+              </p>
+              <select
+                value={selectedAddress}
+                onChange={(e) => {setSelectedAddress(e.target.value)
+                  setAddressDetail({ ...addressDetail, address: e.target.value })
+                }}
+                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200 cursor-pointer"
+              >
+                {addresses.map((item, index) => (
+                  <option
+                    value={item.fullAddress + " (" + item.title + ")"}
+                    key={index}
+                    className="py-2 px-4 text-gray-900 hover:bg-blue-50"
+                  >
+                    {item.fullAddress + " (" + item.title + ")"}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="items-center flex space-x-4">
+              <p className="font-semibold text-sm text-gray-400">
+                Hoặc nhập địa chỉ
+              </p>
+              <input
+                type="text"
+                onChange={(e)=>setAddressDetail({ ...addressDetail, address: e.target.value })}
+                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200"
+              />
+            </div>
             <p className="font-semibold my-3">Ghi chú</p>
             <input
               type="text"
