@@ -57,3 +57,7 @@ export const getDishbyId=async(id)=>{
     return {};
   }
 }
+
+export const updateDish=async(id)=>{
+  
+}

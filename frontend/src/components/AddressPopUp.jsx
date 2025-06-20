@@ -6,7 +6,7 @@ export default function AddressPopUp({index,formData,setFormData,setShowModal,ha
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">
-                  {index ? 'Chỉnh Sửa Địa Chỉ' : 'Thêm Địa Chỉ Mới'}
+                  {(index===0||index) ? 'Chỉnh Sửa Địa Chỉ' : 'Thêm Địa Chỉ Mới'}
                 </h2>
 
                 <div className="space-y-4">
@@ -61,7 +61,7 @@ export default function AddressPopUp({index,formData,setFormData,setShowModal,ha
                     onClick={handleSave}
                     className="flex-1 bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition-colors"
                   >
-                    {index ? 'Cập Nhật' : 'Thêm Mới'}
+                    {(index===0||index) ? 'Cập Nhật' : 'Thêm Mới'}
                   </button>
                 </div>
               </div>

@@ -14,11 +14,12 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";
 import { getDishbyId } from "../../services/hosResServices/Product";
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function ProductDetailPage() {
   const [isEditing, setIsEditing] = useState(false);
   const [isSale, setIsSale] = useState(true);
-  const [dish,setDish]=useState()
+  const [dish,setDish]=useState({})
   const {user}=useAuth()
   const {id}=useParams()
   
@@ -114,11 +115,12 @@ export default function ProductDetailPage() {
               {isEditing ? (
                 <input
                   type="text"
+                  defaultValue={dish.name}
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none"
                 />
               ) : (
                 <p className=" font-semibold text-gray-800 text-2xl">
-                  Cơm chiên dương châu
+                  {dish.name}
                 </p>
               )}
             </div>
@@ -149,11 +151,12 @@ export default function ProductDetailPage() {
                 <div className="relative">
                   <input
                     type="number"
+                    defaultValue={dish.basePrice}
                     className="w-full pl-5 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none"
                   />
                 </div>
               ) : (
-                <p className="text-2xl font-bold text-green-600">100.000 vnđ</p>
+                <p className="text-2xl font-bold text-green-600">{formatCurrencyVN(dish.basePrice)}</p>
               )}
             </div>
             <div className="flex items-center space-x-4">
@@ -161,10 +164,11 @@ export default function ProductDetailPage() {
               {isEditing ? (
                 <textarea
                   rows={4}
+                  defaultValue={dish.description} 
                   className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none"
                 />
               ) : (
-                <p className="text-gray-600 leading-relaxed">siu ngon</p>
+                <p className="text-gray-600 leading-relaxed">{dish.description}</p>
               )}
             </div>
           </div>

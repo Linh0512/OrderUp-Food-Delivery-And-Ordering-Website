@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import VoucherCard from "./VoucherCard";
 
-export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher}) {
+export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher,subtotal}) {
   const selectRef = useRef(null);
   const [voucherCode,setVoucherCode]=useState()
   
@@ -54,7 +54,7 @@ export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher}) 
         <div className="space-y-6">
           {vouchers.length!==0 ? (
             vouchers.map((item, index) => (
-              <VoucherCard key={index} voucher={item} onSelect={() => onSelectVoucher(item)}/>
+              <VoucherCard key={index} voucher={item} onSelect={() => onSelectVoucher(item)} subtotal={subtotal}/>
             ))
           ) : (
             <div className="h-50 w-full flex items-center justify-center">

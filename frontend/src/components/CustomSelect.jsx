@@ -15,7 +15,6 @@ export default function CustomSelect({ options,selected,handleChange }) {
   }, [selected, options]);
 
   useEffect(() => {
-    
     const handleClickOutside = (event) => {
       if (selectRef.current && !selectRef.current.contains(event.target)) {
         setIsOpen(false);

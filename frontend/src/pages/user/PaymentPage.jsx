@@ -1,33 +1,51 @@
 import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
+import { formatCurrencyVN } from "../../utils/Format";
+import { getAddress } from "../../services/userServices/Service";
+import { useAuth } from "../../components/common/AuthContext";
 
 export default function PaymentPage() {
+  const [addresses, setAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
-  const [address, setAddress] = useState({
-    address: "Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam",
+  const [addressDetail, setAddressDetail] = useState({
+    address: "",
     note: "",
     name: "",
     email: "",
     phone: "",
     method: "",
   });
+  const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const cart = location.state?.cart || [];
-  const subtotal=location.state?.subtotal
-  const discount=location.state?.discount||0
+  const subtotal = location.state?.subtotal;
+  const discount = location.state?.discount || 0;
+
+  useEffect(() => {
+    getAddress(user.userId, user.token).then((res) => {
+      console.log(res);
+      setAddresses(res);
+    });
+  }, [user]);
+
+  useEffect(() => {
+    const defaultAddr = addresses.find((item) => item.default);
+    if (defaultAddr) setSelectedAddress(defaultAddr.fullAddress);
+  }, [addresses]);
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
-    setAddress({...address,method:event.target.value})
+    setAddressDetail({ ...addressDetail, method: event.target.value });
   };
 
   const handleSubmit = () => {
-    const { note, ...fieldsToCheck } = address;
+    const { note, ...fieldsToCheck } = addressDetail;
     const isFilled = Object.values(fieldsToCheck).every(
       (value) => value && value.trim() !== ""
     );
@@ -35,7 +53,7 @@ export default function PaymentPage() {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-    navigate("/tracking", { state: { cart,address } })
+    navigate("/tracking", { state: { cart, addressDetail ,subtotal,discount} });
   };
   return (
     <div className="w-[70vw] mx-auto">
@@ -53,16 +71,49 @@ export default function PaymentPage() {
       </div>
       <div className="flex mt-8 space-x-10">
         <div className="w-[65%] space-y-5 ">
-          <div className="p-4 shadow rounded-3xl bg-white px-7">
+          <div className="p-4 shadow rounded-3xl bg-white px-7 space-y-3">
             <h3 className="font-semibold ">Giao đến</h3>
-            <p>Số 100 đường A, Phường B, Quận 7, Hồ Chí Minh, Việt Nam</p>
+            <div className="flex items-center space-x-4">
+              <p className="font-semibold text-sm text-gray-400">
+                Chọn địa chỉ
+              </p>
+              <select
+                value={selectedAddress}
+                onChange={(e) => {setSelectedAddress(e.target.value)
+                  setAddressDetail({ ...addressDetail, address: e.target.value })
+                }}
+                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200 cursor-pointer"
+              >
+                {addresses.map((item, index) => (
+                  <option
+                    value={item.fullAddress + " (" + item.title + ")"}
+                    key={index}
+                    className="py-2 px-4 text-gray-900 hover:bg-blue-50"
+                  >
+                    {item.fullAddress + " (" + item.title + ")"}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="items-center flex space-x-4">
+              <p className="font-semibold text-sm text-gray-400">
+                Hoặc nhập địa chỉ
+              </p>
+              <input
+                type="text"
+                onChange={(e)=>setAddressDetail({ ...addressDetail, address: e.target.value })}
+                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200"
+              />
+            </div>
             <p className="font-semibold my-3">Ghi chú</p>
             <input
               type="text"
               name=""
               id=""
               placeholder="Ghi chú cho giao hàng, ví dụ: tầng phòng,..."
-              onChange={(e)=>setAddress({...address,note:e.target.value})}
+              onChange={(e) =>
+                setAddressDetail({ ...addressDetail, note: e.target.value })
+              }
               className="border p-3 w-full rounded-2xl"
             />
           </div>
@@ -74,7 +125,9 @@ export default function PaymentPage() {
                 type="text"
                 name=""
                 id=""
-                onChange={(e)=>setAddress({...address,name:e.target.value})}
+                onChange={(e) =>
+                  setAddressDetail({ ...addressDetail, name: e.target.value })
+                }
                 placeholder="Nhập họ tên đầy đủ của bạn"
                 className="border p-3 w-full rounded-2xl"
               />
@@ -85,7 +138,9 @@ export default function PaymentPage() {
                 type="text"
                 name=""
                 id=""
-                onChange={(e)=>setAddress({...address,email:e.target.value})}
+                onChange={(e) =>
+                  setAddressDetail({ ...addressDetail, email: e.target.value })
+                }
                 placeholder="Nhập email của bạn"
                 className="border p-3 w-full rounded-2xl"
               />
@@ -96,7 +151,9 @@ export default function PaymentPage() {
                 type="text"
                 name=""
                 id=""
-                onChange={(e)=>setAddress({...address,phone:e.target.value})}
+                onChange={(e) =>
+                  setAddressDetail({ ...addressDetail, phone: e.target.value })
+                }
                 placeholder="Nhập số điện thoại của bạn"
                 className="border p-3 w-full rounded-2xl"
               />
@@ -137,20 +194,22 @@ export default function PaymentPage() {
             <p>chi tiết thanh toán</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
-              <p>{subtotal}</p>
+              <p>{formatCurrencyVN(subtotal)}</p>
             </div>
             <div className="flex justify-between">
               <p>Giảm giá</p>
-              <p className="text-red-500">-{discount}</p>
+              <p className="text-red-500">-{formatCurrencyVN(discount)}</p>
             </div>
             <div className="flex justify-between">
               <p>Phí giao hàng</p>
-              <p>30000</p>
+              <p>{formatCurrencyVN(30000)}</p>
             </div>
             <hr className="w-[80%] mx-auto" />
             <div className="flex justify-between text-xl">
               <p>Tổng cộng</p>
-              <p className="text-green-500 ">{subtotal+30000-discount}</p>
+              <p className="text-green-500 ">
+                {formatCurrencyVN(subtotal + 30000 - discount)}
+              </p>
             </div>
           </div>
           <button

@@ -77,7 +77,7 @@ export default function ShopPage() {
               products
                 .slice((page - 1) * PRODUCT_LIMIT, page * PRODUCT_LIMIT)
                 .map((item, index) => (
-                  <ProductCard key={index} productDetail={item} />
+                  <ProductCard key={index} productDetail={item} token={user.token}/>
                 ))}
           </div>
           <Pagination

@@ -79,7 +79,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     getUserProfile(user.userId, user.token).then((res) => {
-      console.log(res)
+      console.log(res);
       setUserDetail(res.profile);
     });
   }, [user]);
@@ -154,27 +154,22 @@ export default function ProfilePage() {
           </div>
         </div>
         <div className="flex flex-col items-center space-y-4 w-[40%]">
-          <div className="w-[40%] overflow-hidden bg-gray-100">
+          <div className="size-40 overflow-hidden bg-gray-100">
             <img
               src={previewImage || userDetail.avatar}
               alt="Avatar"
               className="size-40 object-cover rounded-full text-center "
             />
           </div>
-          <div className="flex space-x-4">
-            <label className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer text-sm hover:bg-red-600 transition">
-              Thay hình ảnh
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileSelect}
-              />
-            </label>
-            <button className="border border-gray-400 px-4 py-2 rounded text-sm hover:bg-gray-200 transition">
-              Xoá
-            </button>
-          </div>
+          <label className="bg-red-500 text-white px-4 py-2 rounded cursor-pointer text-sm hover:bg-red-600 transition">
+            Thay hình ảnh
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileSelect}
+            />
+          </label>
         </div>
       </div>
       <div className="flex w-fit gap-5 mt-10">
@@ -202,7 +197,9 @@ export default function ProfilePage() {
           Đổi mật khẩu
         </button>
       </div>
-      {showPopUp && <ChangePasswordPopUp handleClose={setShowPopup} token={user.token} />}
+      {showPopUp && (
+        <ChangePasswordPopUp handleClose={setShowPopup} token={user.token} />
+      )}
     </div>
   );
 }

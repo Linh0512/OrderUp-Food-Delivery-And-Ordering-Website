@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import logo from "../../assets/logo.png";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faBowlRice,
   faChartPie,
-  faTags,
-  faTruck,
+  faTicket,
+  faTruck
 } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
 export default function SideBar() {
   const options = [
     { icon: faChartPie, name: "Dashboard" },
     { icon: faTruck, name: "Order" },
     { icon: faBowlRice, name: "Product" },
-    { icon: faTags, name: "Category" },
+    { icon: faTicket, name: "Voucher" },
   ];
   
   const nav = useNavigate();
