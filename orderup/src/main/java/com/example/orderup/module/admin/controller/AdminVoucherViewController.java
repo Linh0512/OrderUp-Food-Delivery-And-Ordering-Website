@@ -41,12 +41,12 @@ public class AdminVoucherViewController {
         }
     }
 
-    @GetMapping("/api/vouchers/{id}")
+    @GetMapping("/api/vouchers/{code}")
     @ResponseBody
     public ResponseEntity<VoucherDetailDTO> getVoucherDetail(
-            @PathVariable String id,
+            @PathVariable String code,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        VoucherDetailDTO voucher = voucherService.getVoucherDetail(id);
+        VoucherDetailDTO voucher = voucherService.getVoucherDetail(code);
         return ResponseEntity.ok(voucher);
     }
 
@@ -58,22 +58,38 @@ public class AdminVoucherViewController {
         return ResponseEntity.ok(voucherService.createVoucher(dto, token));
     }
 
-    @PatchMapping("/api/vouchers/{id}")
+    @PatchMapping("/api/vouchers/{code}")
     @ResponseBody
     public ResponseEntity<VoucherDetailDTO> updateVoucher(
-            @PathVariable String id,
+            @PathVariable String code,
             @RequestBody CreateVoucherDTO dto,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        return ResponseEntity.ok(voucherService.updateVoucher(id, dto, token));
+        try {
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            return ResponseEntity.ok(voucherService.updateVoucher(code, dto, token));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
-    @DeleteMapping("/api/vouchers/{id}")
+    @DeleteMapping("/api/vouchers/{code}")
     @ResponseBody
     public ResponseEntity<Void> deleteVoucher(
-            @PathVariable String id,
+            @PathVariable String code,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        voucherService.deleteVoucher(id, token);
-        return ResponseEntity.ok().build();
+        try {
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+            }
+            voucherService.deleteVoucher(code, token);
+            return ResponseEntity.ok().build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     @GetMapping("/api/restaurants")

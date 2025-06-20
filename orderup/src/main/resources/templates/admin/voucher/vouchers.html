@@ -153,6 +153,23 @@
         const voucherModal = new bootstrap.Modal(document.getElementById('createVoucherModal'));
         const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
 
+        // Thêm hàm xử lý response
+        async function handleResponse(response) {
+            if (response.status === 401) {
+                handleUnauthorized();
+                throw new Error('401 Unauthorized');
+            }
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        function handleUnauthorized() {
+            localStorage.clear();
+            window.location.href = 'http://localhost:5173/login';
+        }
+
         // Load vouchers when page loads
         document.addEventListener('DOMContentLoaded', function() {
             loadVouchers();
@@ -229,7 +246,7 @@
             const col = document.createElement('div');
             col.className = 'col-md-4';
             col.innerHTML = `
-                <div class="card voucher-card">
+                <div class="card voucher-card" data-voucher-code="${voucher.code}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title">${voucher.code}</h5>
@@ -248,10 +265,10 @@
                                 ${voucher.active ? 'Đang hoạt động' : 'Không hoạt động'}
                             </span>
                             <div class="btn-group">
-                                <button class="btn btn-sm btn-outline-primary" onclick="editVoucher('${voucher.id}')">
+                                <button class="btn btn-sm btn-outline-primary edit-btn">
                                     <i class="bi bi-pencil"></i>
                                 </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteVoucher('${voucher.id}')">
+                                <button class="btn btn-sm btn-outline-danger delete-btn">
                                     <i class="bi bi-trash"></i>
                                 </button>
                             </div>
@@ -259,6 +276,15 @@
                     </div>
                 </div>
             `;
+
+            // Thêm event listeners cho các nút
+            const card = col.querySelector('.voucher-card');
+            const editBtn = card.querySelector('.edit-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+
+            editBtn.addEventListener('click', () => editVoucher(voucher));
+            deleteBtn.addEventListener('click', () => deleteVoucher(voucher.code));
+
             return col;
         }
 
@@ -270,38 +296,27 @@
             return new Date(dateString).toLocaleString('vi-VN');
         }
 
-        function editVoucher(id) {
-            fetch(`api/admin/view/vouchers/${id}`, {
-                headers: {
-                    'Authorization': 'Bearer ' + getToken()
-                }
-            })
-            .then(handleResponse)
-            .then(voucher => {
-                if (!voucher) return;
-                currentVoucherId = voucher.id;
-                document.getElementById('modalTitle').textContent = 'Chỉnh sửa Voucher';
-                document.getElementById('voucherId').value = voucher.id;
-                document.getElementById('code').value = voucher.code;
-                document.getElementById('type').value = voucher.type;
-                document.getElementById('value').value = voucher.value;
-                document.getElementById('minimumOrderAmount').value = voucher.minimumOrderAmount;
-                document.getElementById('remainingValue').value = voucher.remainingValue;
-                document.getElementById('expiresAt').value = formatDateTimeForInput(voucher.expiresAt);
-                
-                if (voucher.type === 'LOCAL' && voucher.restaurantId) {
-                    document.getElementById('restaurantId').value = voucher.restaurantId;
-                }
-                
-                toggleRestaurantField();
-                voucherModal.show();
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                if (error.message.includes('401')) {
-                    handleUnauthorized(error);
-                }
-            });
+        function editVoucher(voucher) {
+            currentVoucherId = voucher.code;
+            document.getElementById('modalTitle').textContent = 'Chỉnh sửa Voucher';
+            document.getElementById('code').value = voucher.code;
+            document.getElementById('type').value = voucher.type;
+            document.getElementById('value').value = voucher.value;
+            document.getElementById('minimumOrderAmount').value = voucher.minimumOrderAmount;
+            document.getElementById('remainingValue').value = voucher.remainingValue;
+            document.getElementById('expiresAt').value = formatDateTimeForInput(voucher.expiresAt);
+            
+            if (voucher.type === 'LOCAL' && voucher.restaurantId) {
+                document.getElementById('restaurantId').value = voucher.restaurantId;
+            }
+            
+            toggleRestaurantField();
+            voucherModal.show();
+        }
+
+        function deleteVoucher(code) {
+            currentVoucherId = code;
+            deleteModal.show();
         }
 
         function saveVoucher() {
@@ -316,8 +331,8 @@
             };
 
             const url = currentVoucherId 
-                ? `api/admin/view/vouchers/${currentVoucherId}`
-                : 'api/admin/view/vouchers';
+                ? `/admin/view/api/vouchers/${encodeURIComponent(currentVoucherId)}`
+                : '/admin/view/api/vouchers';
             
             const method = currentVoucherId ? 'PATCH' : 'POST';
 
@@ -325,56 +340,49 @@
                 method: method,
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + getToken()
+                    'Authorization': `Bearer ${getToken()}`
                 },
                 body: JSON.stringify(voucherData)
             })
-            .then(handleResponse)
-            .then(data => {
-                if (!data) return;
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(() => {
                 voucherModal.hide();
                 loadVouchers();
                 resetForm();
+                alert(currentVoucherId ? 'Cập nhật voucher thành công!' : 'Tạo voucher mới thành công!');
             })
             .catch(error => {
                 console.error('Error:', error);
-                if (error.message.includes('401')) {
-                    handleUnauthorized(error);
-                }
+                alert('Có lỗi xảy ra khi lưu voucher. Vui lòng thử lại!');
             });
-        }
-
-        function deleteVoucher(id) {
-            currentVoucherId = id;
-            deleteModal.show();
         }
 
         function confirmDelete() {
             if (!currentVoucherId) return;
-
-            fetch(`api/admin/view/vouchers/${currentVoucherId}`, {
+            
+            fetch(`/admin/view/api/vouchers/${encodeURIComponent(currentVoucherId)}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': 'Bearer ' + getToken()
+                    'Authorization': `Bearer ${getToken()}`
                 }
             })
             .then(response => {
-                if (response.status === 401) {
-                    handleUnauthorized('Token expired or invalid');
-                    return;
-                }
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 deleteModal.hide();
                 loadVouchers();
                 currentVoucherId = null;
+                alert('Xóa voucher thành công!');
             })
             .catch(error => {
                 console.error('Error:', error);
-                if (error.message.includes('401')) {
-                    handleUnauthorized(error);
-                }
+                alert('Có lỗi xảy ra khi xóa voucher. Vui lòng thử lại!');
             });
         }
 
@@ -402,6 +410,11 @@
                 card.closest('.col-md-4').style.display = 
                     typeMatch && statusMatch && searchMatch ? 'block' : 'none';
             });
+        }
+
+        function formatDateTimeForInput(dateString) {
+            const date = new Date(dateString);
+            return date.toISOString().slice(0, 16);
         }
     </script>
 </body>
