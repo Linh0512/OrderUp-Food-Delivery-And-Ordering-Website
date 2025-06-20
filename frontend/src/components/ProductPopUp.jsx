@@ -4,13 +4,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
 import { formatCurrencyVN } from "../utils/Format";
 import { getDishbyId } from "../services/hosResServices/Product";
-import { addCart } from "../services/userServices/Service";
+import { addCart, updateCart } from "../services/userServices/Service";
 
-export default function ProductPopUp({ cartItem, handleClose, token }) {
+export default function ProductPopUp({
+  orderId,
+  cartItem,
+  handleClose,
+  token,
+  index,
+  reloadCart
+}) {
   const productRef = useRef(null);
+  const [showError,setShowError]=useState(false)
   const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
   const [dish, setDish] = useState({});
-  const [specialInstructions,setSpecialInstructions]=useState(cartItem.specialInstructions||'')
+  const [specialInstructions, setSpecialInstructions] = useState(
+    cartItem.specialInstructions || ""
+  );
   const [selectedOptions, setSelectedOptions] = useState(() => {
     if (cartItem?.selectedOptions) {
       return cartItem.selectedOptions;
@@ -20,7 +30,7 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
   const [data, setData] = useState({
     dishId: cartItem.dishId || cartItem.id,
     quantity: quantity,
-    selectedOptions: [],
+    selectedOptions: selectedOptions,
     specialInstructions: specialInstructions,
   });
 
@@ -48,19 +58,33 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
           choiceName,
         });
       }
-      setData({...data,selectedOptions:newOptions})
+      setData({ ...data, selectedOptions: newOptions });
       return newOptions;
     });
   };
 
-  const handleAdd = () => {
-    console.log(data)
-    addCart(token, data);
+  const handleSave = async (index) => {
+    if (!orderId)
+    {
+      if(dish.options.length===selectedOptions.length)
+      {
+        addCart(token, data);
+        handleClose(false);
+      }
+      else
+        setShowError(true)
+    }
+    else {
+      const {dishId,...exceptId}=data
+      await updateCart(orderId,token,exceptId,index);
+      reloadCart()
+      handleClose(false);
+    }
   };
 
   useEffect(() => {
     getDishbyId(cartItem.dishId || cartItem.id).then((res) => {
-      console.log(res);
+      console.log(res)
       setDish(res);
     });
   }, [cartItem]);
@@ -86,7 +110,7 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
           className="rounded-t-4xl shadow"
         />
         <div className="p-6">
-          <div className="pb-3 mb-4 space-y-2">
+          <div className="pb-3 mb-2 space-y-2">
             <div className="font-semibold flex justify-between">
               <p>{cartItem.dishName || cartItem.name}</p>
               <p>
@@ -95,6 +119,7 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
             </div>
             <p className="text-gray-400 text-sm">{dish.description}</p>
           </div>
+          {showError&&<div className="text-red-500 bg-red-100 p-2 font-semibold text-center">Lựa chọn đủ các option</div>}
           <div className="mb-4 ">
             {dish?.options?.map((item, index) => (
               <div key={index}>
@@ -106,11 +131,9 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
                         type="radio"
                         value={item1.name}
                         checked={isChoiceSelected(index, item1.name)}
-                        onChange={()=>hanndleOptionsChange(
-                          index,
-                          item1.name,
-                          item.name
-                        )}
+                        onChange={() =>
+                          hanndleOptionsChange(index, item1.name, item.name)
+                        }
                       />
                       <p>{item1.name}</p>
                     </div>
@@ -125,8 +148,9 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
             type="text"
             defaultValue={specialInstructions}
             className="w-full p-2 border rounded-xl my-4 focus:outline-none caret-black"
-            onChange={(e)=>{setSpecialInstructions(e.target.value)
-              setData({...data,specialInstructions:e.target.value})
+            onChange={(e) => {
+              setSpecialInstructions(e.target.value);
+              setData({ ...data, specialInstructions: e.target.value });
             }}
           />
           <div className="flex justify-between items-center bg-gray-100 p-2 rounded-xl">
@@ -145,7 +169,7 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
                 className="border-2 px-1.5 hover:bg-black/20 transition"
                 onClick={() => {
                   setQuantity((prev) => {
-                    const newQuantity = prev > 0 ? prev - 1 : 0;
+                    const newQuantity = prev > 1 ? prev - 1 : 1;
                     setData((data) => ({ ...data, quantity: newQuantity }));
                     return newQuantity;
                   });
@@ -156,11 +180,11 @@ export default function ProductPopUp({ cartItem, handleClose, token }) {
             </div>
             <button
               onClick={() => {
-                handleAdd()
-                handleClose(false)}}
+                handleSave(index);
+              }}
               className="bg-[rgba(227,70,63,1)] hover:bg-red-700 transition text-white px-4 py-2 rounded"
             >
-              xác nhận
+              {!orderId ? "Thêm món" : "Thay đổi"}
             </button>
           </div>
         </div>
