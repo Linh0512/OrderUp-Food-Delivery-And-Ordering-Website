@@ -204,6 +204,14 @@ public class ShoppingCartService {
             cart.setRestaurantId(dish.getRestaurantId());
             cart.setItems(new ArrayList<>());
             cart.setSummary(new ShoppingCart.OrderSummary());
+        } else {
+            // Kiểm tra xem món ăn đã tồn tại trong giỏ hàng chưa
+            boolean dishExists = cart.getItems().stream()
+                .anyMatch(item -> item.getDishId().equals(new ObjectId(request.getDishId())));
+            
+            if (dishExists) {
+                throw new IllegalArgumentException("Món ăn này đã có trong giỏ hàng. Vui lòng sử dụng chức năng cập nhật nếu muốn thay đổi.");
+            }
         }
 
         // Tạo item mới
