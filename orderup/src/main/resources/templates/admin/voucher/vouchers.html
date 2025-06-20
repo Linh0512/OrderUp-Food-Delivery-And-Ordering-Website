@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Voucher</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+    <style>
+        .voucher-card {
+            transition: transform 0.2s;
+        }
+        .voucher-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .badge-active {
+            background-color: #198754;
+        }
+        .badge-inactive {
+            background-color: #dc3545;
+        }
+        .voucher-type-global {
+            background-color: #0d6efd;
+        }
+        .voucher-type-local {
+            background-color: #6610f2;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Quản lý Voucher</h2>
+            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createVoucherModal">
+                <i class="bi bi-plus-circle"></i> Thêm Voucher mới
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <select class="form-select" id="typeFilter">
+                            <option value="">Tất cả loại</option>
+                            <option value="GLOBAL">Toàn hệ thống</option>
+                            <option value="LOCAL">Nhà hàng</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="statusFilter">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="true">Đang hoạt động</option>
+                            <option value="false">Không hoạt động</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" id="searchInput" placeholder="Tìm kiếm theo mã voucher...">
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-secondary w-100" onclick="applyFilters()">
+                            <i class="bi bi-funnel"></i> Lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Voucher List -->
+        <div class="row g-4" id="voucherList">
+            <!-- Voucher cards will be dynamically added here -->
+        </div>
+    </div>
+
+    <!-- Create/Edit Voucher Modal -->
+    <div class="modal fade" id="createVoucherModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalTitle">Thêm Voucher mới</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="voucherForm">
+                        <input type="hidden" id="voucherId">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Mã voucher</label>
+                                <input type="text" class="form-control" id="code" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Loại voucher</label>
+                                <select class="form-select" id="type" required>
+                                    <option value="GLOBAL">Toàn hệ thống</option>
+                                    <option value="LOCAL">Nhà hàng</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Giá trị</label>
+                                <input type="number" class="form-control" id="value" required min="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Giá trị đơn hàng tối thiểu</label>
+                                <input type="number" class="form-control" id="minimumOrderAmount" required min="0">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Số lượng</label>
+                                <input type="number" class="form-control" id="remainingValue" required min="1">
+                            </div>
+                            <div class="col-md-6 restaurant-field" style="display: none;">
+                                <label class="form-label">Nhà hàng</label>
+                                <select class="form-select" id="restaurantId">
+                                    <!-- Restaurant options will be loaded dynamically -->
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ngày hết hạn</label>
+                                <input type="datetime-local" class="form-control" id="expiresAt" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="saveVoucher()">Lưu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Bạn có chắc chắn muốn xóa voucher này không?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-danger" onclick="confirmDelete()">Xóa</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let currentVoucherId = null;
+        const voucherModal = new bootstrap.Modal(document.getElementById('createVoucherModal'));
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+
+        // Thêm hàm xử lý response
+        async function handleResponse(response) {
+            if (response.status === 401) {
+                handleUnauthorized();
+                throw new Error('401 Unauthorized');
+            }
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        }
+
+        function handleUnauthorized() {
+            localStorage.clear();
+            window.location.href = 'http://localhost:5173/login';
+        }
+
+        // Load vouchers when page loads
+        document.addEventListener('DOMContentLoaded', function() {
+            loadVouchers();
+            loadRestaurants();
+            document.getElementById('type').addEventListener('change', toggleRestaurantField);
+        });
+
+        function loadVouchers() {
+            const token = getToken();
+            fetch('/admin/view/api/vouchers', {
+                headers: token ? {
+                    'Authorization': `Bearer ${token}`
+                } : {}
+            })
+            .then(response => response.json())
+            .then(vouchers => {
+                displayVouchers(vouchers);
+            })
+            .catch(error => {
+                console.error('Error loading vouchers:', error);
+            });
+        }
+
+        function loadRestaurants() {
+            const token = getToken();
+            fetch('/admin/view/api/restaurants', {
+                headers: token ? {
+                    'Authorization': `Bearer ${token}`
+                } : {}
+            })
+            .then(response => response.json())
+            .then(restaurants => {
+                const select = document.getElementById('restaurantId');
+                select.innerHTML = '';
+                restaurants.forEach(restaurant => {
+                    const option = document.createElement('option');
+                    option.value = restaurant.id;
+                    option.textContent = restaurant.name;
+                    select.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading restaurants:', error);
+            });
+        }
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function toggleRestaurantField() {
+            const type = document.getElementById('type').value;
+            const restaurantField = document.querySelector('.restaurant-field');
+            if (type === 'LOCAL') {
+                restaurantField.style.display = 'block';
+                document.getElementById('restaurantId').required = true;
+            } else {
+                restaurantField.style.display = 'none';
+                document.getElementById('restaurantId').required = false;
+            }
+        }
+
+        function displayVouchers(vouchers) {
+            const voucherList = document.getElementById('voucherList');
+            voucherList.innerHTML = '';
+            
+            vouchers.forEach(voucher => {
+                const card = createVoucherCard(voucher);
+                voucherList.appendChild(card);
+            });
+        }
+
+        function createVoucherCard(voucher) {
+            const col = document.createElement('div');
+            col.className = 'col-md-4';
+            col.innerHTML = `
+                <div class="card voucher-card" data-voucher-code="${voucher.code}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h5 class="card-title">${voucher.code}</h5>
+                            <span class="badge ${voucher.type === 'GLOBAL' ? 'voucher-type-global' : 'voucher-type-local'}">
+                                ${voucher.type === 'GLOBAL' ? 'Toàn hệ thống' : 'Nhà hàng'}
+                            </span>
+                        </div>
+                        <p class="card-text">
+                            <strong>Giá trị:</strong> ${formatCurrency(voucher.value)}<br>
+                            <strong>Đơn tối thiểu:</strong> ${formatCurrency(voucher.minimumOrderAmount)}<br>
+                            <strong>Còn lại:</strong> ${voucher.remainingValue} lượt<br>
+                            <strong>Hết hạn:</strong> ${formatDateTime(voucher.expiresAt)}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge ${voucher.active ? 'badge-active' : 'badge-inactive'}">
+                                ${voucher.active ? 'Đang hoạt động' : 'Không hoạt động'}
+                            </span>
+                            <div class="btn-group">
+                                <button class="btn btn-sm btn-outline-primary edit-btn">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger delete-btn">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Thêm event listeners cho các nút
+            const card = col.querySelector('.voucher-card');
+            const editBtn = card.querySelector('.edit-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+
+            editBtn.addEventListener('click', () => editVoucher(voucher));
+            deleteBtn.addEventListener('click', () => deleteVoucher(voucher.code));
+
+            return col;
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(value);
+        }
+
+        function formatDateTime(dateString) {
+            return new Date(dateString).toLocaleString('vi-VN');
+        }
+
+        function editVoucher(voucher) {
+            currentVoucherId = voucher.code;
+            document.getElementById('modalTitle').textContent = 'Chỉnh sửa Voucher';
+            document.getElementById('code').value = voucher.code;
+            document.getElementById('type').value = voucher.type;
+            document.getElementById('value').value = voucher.value;
+            document.getElementById('minimumOrderAmount').value = voucher.minimumOrderAmount;
+            document.getElementById('remainingValue').value = voucher.remainingValue;
+            document.getElementById('expiresAt').value = formatDateTimeForInput(voucher.expiresAt);
+            
+            if (voucher.type === 'LOCAL' && voucher.restaurantId) {
+                document.getElementById('restaurantId').value = voucher.restaurantId;
+            }
+            
+            toggleRestaurantField();
+            voucherModal.show();
+        }
+
+        function deleteVoucher(code) {
+            currentVoucherId = code;
+            deleteModal.show();
+        }
+
+        function saveVoucher() {
+            const voucherData = {
+                code: document.getElementById('code').value,
+                type: document.getElementById('type').value,
+                value: parseInt(document.getElementById('value').value),
+                minimumOrderAmount: parseInt(document.getElementById('minimumOrderAmount').value),
+                remainingValue: parseInt(document.getElementById('remainingValue').value),
+                expiresAt: document.getElementById('expiresAt').value,
+                restaurantId: document.getElementById('type').value === 'LOCAL' ? document.getElementById('restaurantId').value : null
+            };
+
+            const url = currentVoucherId 
+                ? `/admin/view/api/vouchers/${encodeURIComponent(currentVoucherId)}`
+                : '/admin/view/api/vouchers';
+            
+            const method = currentVoucherId ? 'PATCH' : 'POST';
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${getToken()}`
+                },
+                body: JSON.stringify(voucherData)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(() => {
+                voucherModal.hide();
+                loadVouchers();
+                resetForm();
+                alert(currentVoucherId ? 'Cập nhật voucher thành công!' : 'Tạo voucher mới thành công!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi lưu voucher. Vui lòng thử lại!');
+            });
+        }
+
+        function confirmDelete() {
+            if (!currentVoucherId) return;
+            
+            fetch(`/admin/view/api/vouchers/${encodeURIComponent(currentVoucherId)}`, {
+                method: 'DELETE',
+                headers: {
+                    'Authorization': `Bearer ${getToken()}`
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                deleteModal.hide();
+                loadVouchers();
+                currentVoucherId = null;
+                alert('Xóa voucher thành công!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Có lỗi xảy ra khi xóa voucher. Vui lòng thử lại!');
+            });
+        }
+
+        function resetForm() {
+            document.getElementById('voucherForm').reset();
+            currentVoucherId = null;
+            document.getElementById('modalTitle').textContent = 'Thêm Voucher mới';
+        }
+
+        function applyFilters() {
+            const type = document.getElementById('typeFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            const search = document.getElementById('searchInput').value.toLowerCase();
+
+            const cards = document.querySelectorAll('.voucher-card');
+            cards.forEach(card => {
+                const cardType = card.querySelector('.badge').textContent.trim();
+                const cardStatus = card.querySelector('.badge-active, .badge-inactive').classList.contains('badge-active');
+                const cardCode = card.querySelector('.card-title').textContent.toLowerCase();
+
+                const typeMatch = !type || (type === 'GLOBAL' ? cardType === 'Toàn hệ thống' : cardType === 'Nhà hàng');
+                const statusMatch = status === '' || cardStatus.toString() === status;
+                const searchMatch = !search || cardCode.includes(search);
+
+                card.closest('.col-md-4').style.display = 
+                    typeMatch && statusMatch && searchMatch ? 'block' : 'none';
+            });
+        }
+
+        function formatDateTimeForInput(dateString) {
+            const date = new Date(dateString);
+            return date.toISOString().slice(0, 16);
+        }
+    </script>
+</body>
+</html> 

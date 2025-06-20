@@ -1,0 +1,185 @@
+{
+  "count": 20,
+  "data": [
+    {
+      "name": "Phở Hà Nội 24h",
+      "address": "12 Nguyễn Trãi, Q1, TP.HCM",
+      "review": 120,
+      "star": 4.5,
+      "isActive": true,
+      "timeRange": "6:00 - 22:00",
+      "priceRange": "30k - 50k"
+    },
+    {
+      "name": "Bún Chả Obama",
+      "address": "45 Lý Thường Kiệt, Hà Nội",
+      "review": 89,
+      "star": 4.2,
+      "isActive": false,
+      "timeRange": "9:00 - 20:00",
+      "priceRange": "40k - 60k"
+    },
+    {
+      "name": "Pizza Home",
+      "address": "99 Lê Lợi, TP.HCM",
+      "review": 230,
+      "star": 4.7,
+      "isActive": true,
+      "timeRange": "10:00 - 23:00",
+      "priceRange": "80k - 150k"
+    },
+    {
+      "name": "Trà Sữa TocoToco",
+      "address": "66 Trần Hưng Đạo, Đà Nẵng",
+      "review": 140,
+      "star": 4.3,
+      "isActive": true,
+      "timeRange": "8:00 - 22:30",
+      "priceRange": "25k - 55k"
+    },
+    {
+      "name": "Gà Rán KFC",
+      "address": "21 Lê Văn Sỹ, TP.HCM",
+      "review": 310,
+      "star": 4.6,
+      "isActive": true,
+      "timeRange": "10:00 - 22:00",
+      "priceRange": "50k - 120k"
+    },
+    {
+      "name": "Bánh Mì Pew Pew",
+      "address": "32 Hoàng Diệu, TP.HCM",
+      "review": 95,
+      "star": 4.1,
+      "isActive": false,
+      "timeRange": "7:00 - 19:00",
+      "priceRange": "15k - 30k"
+    },
+    {
+      "name": "Cơm Tấm 123",
+      "address": "11 Tôn Đức Thắng, Hà Nội",
+      "review": 80,
+      "star": 4.0,
+      "isActive": true,
+      "timeRange": "6:30 - 14:00",
+      "priceRange": "25k - 40k"
+    },
+    {
+      "name": "Cháo Dinh Dưỡng Măm Măm",
+      "address": "55 Võ Văn Ngân, Thủ Đức",
+      "review": 60,
+      "star": 3.8,
+      "isActive": true,
+      "timeRange": "6:00 - 20:00",
+      "priceRange": "20k - 35k"
+    },
+    {
+      "name": "Ốc 5 Tý",
+      "address": "25 Phạm Văn Đồng, Gò Vấp",
+      "review": 110,
+      "star": 4.4,
+      "isActive": true,
+      "timeRange": "17:00 - 23:30",
+      "priceRange": "40k - 100k"
+    },
+    {
+      "name": "Lẩu Băng Chuyền Osaka",
+      "address": "18 Nguyễn Huệ, TP.HCM",
+      "review": 150,
+      "star": 4.6,
+      "isActive": false,
+      "timeRange": "11:00 - 21:00",
+      "priceRange": "120k - 200k"
+    },
+    {
+      "name": "Bánh Tráng Trộn Cô Ba",
+      "address": "22 Cách Mạng Tháng 8, TP.HCM",
+      "review": 70,
+      "star": 4.1,
+      "isActive": true,
+      "timeRange": "10:00 - 19:00",
+      "priceRange": "15k - 25k"
+    },
+    {
+      "name": "Sushi Tokyo",
+      "address": "88 Pasteur, TP.HCM",
+      "review": 210,
+      "star": 4.8,
+      "isActive": true,
+      "timeRange": "11:00 - 22:00",
+      "priceRange": "150k - 300k"
+    },
+    {
+      "name": "Chè Thái Ý Phương",
+      "address": "5 Nguyễn Tri Phương, Hà Nội",
+      "review": 95,
+      "star": 4.3,
+      "isActive": false,
+      "timeRange": "13:00 - 21:30",
+      "priceRange": "20k - 40k"
+    },
+    {
+      "name": "Nem Nướng Nha Trang",
+      "address": "17 Trần Quang Diệu, Đà Nẵng",
+      "review": 130,
+      "star": 4.5,
+      "isActive": true,
+      "timeRange": "9:00 - 21:00",
+      "priceRange": "35k - 60k"
+    },
+    {
+      "name": "Bò Né 3 Ngon",
+      "address": "14 Nguyễn Cư Trinh, Q1",
+      "review": 88,
+      "star": 4.2,
+      "isActive": true,
+      "timeRange": "7:00 - 11:00",
+      "priceRange": "30k - 50k"
+    },
+    {
+      "name": "Súp Cua Chợ Lớn",
+      "address": "76 Hậu Giang, Q5, TP.HCM",
+      "review": 70,
+      "star": 4.0,
+      "isActive": false,
+      "timeRange": "15:00 - 20:00",
+      "priceRange": "25k - 35k"
+    },
+    {
+      "name": "Cà Phê Highlands",
+      "address": "Vincom Đồng Khởi, Q1",
+      "review": 310,
+      "star": 4.6,
+      "isActive": true,
+      "timeRange": "7:00 - 23:00",
+      "priceRange": "40k - 90k"
+    },
+    {
+      "name": "Bún Bò Huế Bà Hương",
+      "address": "61 Phan Xích Long, Bình Thạnh",
+      "review": 190,
+      "star": 4.4,
+      "isActive": true,
+      "timeRange": "6:30 - 21:00",
+      "priceRange": "35k - 60k"
+    },
+    {
+      "name": "Bánh Cuốn Nóng",
+      "address": "12 Âu Cơ, Tây Hồ, Hà Nội",
+      "review": 55,
+      "star": 3.9,
+      "isActive": true,
+      "timeRange": "6:00 - 11:00",
+      "priceRange": "20k - 35k"
+    },
+    {
+      "name": "Mì Quảng Đà Thành",
+      "address": "102 Lý Thái Tổ, Đà Nẵng",
+      "review": 125,
+      "star": 4.5,
+      "isActive": true,
+      "timeRange": "7:00 - 20:00",
+      "priceRange": "30k - 50k"
+    }
+  ]
+}
