@@ -3,8 +3,10 @@ package com.example.orderup.module.restaurant.mapper;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.dto.ShopThumbDTO;
 import com.example.orderup.module.restaurant.dto.ShopThumbResponseDTO;
+import com.example.orderup.module.restaurant.service.RestaurantService;
 import org.springframework.stereotype.Component;
 import org.springframework.data.domain.Page;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,7 +14,15 @@ import java.util.stream.Collectors;
 @Component
 public class RestaurantMapper {
 
-    public ShopThumbDTO toShopThumbDTO(Restaurant restaurant) {
+    @Autowired
+    private RestaurantService restaurantService;
+
+    public ShopThumbDTO toShopThumbDTO(Restaurant restaurant, String userId) {
+        double distance = 0.0;
+        if (userId != null) {
+            distance = restaurantService.generateDistance(restaurant.getId(), userId);
+        }
+
         return ShopThumbDTO.builder()
                 .id(restaurant.getId())
                 .name(restaurant.getBasicInfo() != null ? restaurant.getBasicInfo().getName() : "Chưa cập nhật")
@@ -23,12 +33,13 @@ public class RestaurantMapper {
                 .timeRange(generateTimeRange(restaurant))
                 .priceRange(priceRange(restaurant))
                 .image(getFirstImage(restaurant))
+                .distance(distance)
                 .build();
     }
 
-    public ShopThumbResponseDTO toShopThumbResponseDTO(List<Restaurant> restaurants) {
+    public ShopThumbResponseDTO toShopThumbResponseDTO(List<Restaurant> restaurants, String userId) {
         List<ShopThumbDTO> shopDetails = restaurants.stream()
-                .map(this::toShopThumbDTO)
+                .map(restaurant -> toShopThumbDTO(restaurant, userId))
                 .collect(Collectors.toList());
 
         return ShopThumbResponseDTO.builder()
@@ -37,9 +48,9 @@ public class RestaurantMapper {
                 .build();
     }
 
-    public ShopThumbResponseDTO toShopThumbResponseDTO(Page<Restaurant> restaurantPage) {
+    public ShopThumbResponseDTO toShopThumbResponseDTO(Page<Restaurant> restaurantPage, String userId) {
         List<ShopThumbDTO> shopDetails = restaurantPage.getContent().stream()
-                .map(this::toShopThumbDTO)
+                .map(restaurant -> toShopThumbDTO(restaurant, userId))
                 .collect(Collectors.toList());
 
         return ShopThumbResponseDTO.builder()

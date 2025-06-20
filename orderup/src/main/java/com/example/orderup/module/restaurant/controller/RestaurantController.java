@@ -12,16 +12,15 @@ import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.mapper.RestaurantMapper;
 import com.example.orderup.module.restaurant.service.RestaurantService;
 import com.example.orderup.module.restaurant.dto.ShopThumbResponseDTO;
-
-import java.util.List;
+import com.example.orderup.module.user.dto.ErrorResponse;
+import com.example.orderup.config.security.JwtTokenProvider;
 
 @RestController
 @RequestMapping("/api/shop")
 @CrossOrigin(origins = "http://localhost:5173", 
     methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE},
     allowedHeaders = "*")
-    
-    public class RestaurantController {     
+public class RestaurantController {     
 
     @Autowired
     private RestaurantService restaurantService;
@@ -29,30 +28,41 @@ import java.util.List;
     @Autowired
     private RestaurantMapper restaurantMapper;
 
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
     @GetMapping()
     public ResponseEntity<?> getAllRestaurants(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantService.getAllRestaurantsPage(pageable);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            String userId = token != null ? jwtTokenProvider.getUserIdFromToken(token) : null;
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Restaurant> restaurants = restaurantService.getAllRestaurantsPage(pageable);
+            ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants, userId);
+            return ResponseEntity.ok(shopThumbResponseDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi lấy danh sách nhà hàng"));
+        }
     }
     
     @GetMapping("/{id}")
-    public ResponseEntity<?> getRestaurantById(@PathVariable String id) {
-        Restaurant restaurant = restaurantService.getRestaurantById(id);
-        if (restaurant == null) {
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getRestaurantById(
+            @PathVariable String id,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            String userId = token != null ? jwtTokenProvider.getUserIdFromToken(token) : null;
+            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            if (restaurant == null) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.ok(restaurantMapper.toShopThumbDTO(restaurant, userId));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi lấy thông tin nhà hàng"));
         }
-        return ResponseEntity.ok(restaurant);
-    }
-    
-    @GetMapping("/name/{name}")
-    public ResponseEntity<?> getRestaurantByName(@PathVariable String name) {
-        List<Restaurant> restaurants = restaurantService.searchRestaurantsByName(name);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
     }
     
     @PostMapping
@@ -92,79 +102,81 @@ import java.util.List;
         return ResponseEntity.ok(updatedRestaurant);
     }
     
-    @PutMapping("/{id}/verification")
-    public ResponseEntity<?> updateVerificationStatus(
-            @PathVariable String id,
-            @RequestParam String status) {
-        Restaurant updatedRestaurant = restaurantService.updateVerificationStatus(id, status);
-        if (updatedRestaurant == null) {
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok(updatedRestaurant);
-    }
     
     @GetMapping("/cuisine/{cuisineType}")
     public ResponseEntity<?> getRestaurantsByCuisineType(
             @PathVariable String cuisineType,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantService.getRestaurantsByCuisineType(cuisineType, pageable);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            String userId = token != null ? jwtTokenProvider.getUserIdFromToken(token) : null;
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Restaurant> restaurants = restaurantService.getRestaurantsByCuisineType(cuisineType, pageable);
+            ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants, userId);
+            return ResponseEntity.ok(shopThumbResponseDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi lọc nhà hàng theo loại ẩm thực"));
+        }
     }
     
-    @GetMapping("/city/{city}")
-    public ResponseEntity<?> getRestaurantsByCity(
-            @PathVariable String city,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantService.getRestaurantsByCity(city, pageable);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
-    }
     
-    @GetMapping("/search")
+    @GetMapping("/search/{name}")
     public ResponseEntity<?> searchRestaurants(
-            @RequestParam String name,
+            @PathVariable String name,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantService.searchRestaurantsByName(name, pageable);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
-    }
-    
-    @GetMapping("/featured")
-    public ResponseEntity<?> getFeaturedRestaurants(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantService.getFeaturedRestaurants(pageable);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            String userId = token != null ? jwtTokenProvider.getUserIdFromToken(token) : null;
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Restaurant> restaurants = restaurantService.searchRestaurantsByName(name, pageable);
+            ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants, userId);
+            return ResponseEntity.ok(shopThumbResponseDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi tìm kiếm nhà hàng"));
+        }
     }
     
     @GetMapping("/delivery/{area}")
     public ResponseEntity<?> getRestaurantsByDeliveryArea(
             @PathVariable String area,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantService.getRestaurantsByDeliveryArea(area, pageable);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
+            @RequestParam(defaultValue = "10") int size,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            String userId = token != null ? jwtTokenProvider.getUserIdFromToken(token) : null;
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Restaurant> restaurants = restaurantService.getRestaurantsByDeliveryArea(area, pageable);
+            ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants, userId);
+            return ResponseEntity.ok(shopThumbResponseDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi lọc nhà hàng theo khu vực giao hàng"));
+        }
     }
-    
-    @GetMapping("/rating")
-    public ResponseEntity<?> getRestaurantsByMinimumRating(
-            @RequestParam double minRating,
+
+    @GetMapping("/filter")
+    public ResponseEntity<?> filterRestaurants(
+            @RequestParam(required = false) Double minRating,
+            @RequestParam(required = false) Integer minReviews,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Double maxDistance,
+            @RequestHeader(value = "Authorization", required = false) String token,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Restaurant> restaurants = restaurantService.getRestaurantsByMinimumRating(minRating, pageable);
-        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants);
-        return ResponseEntity.ok(shopThumbResponseDTO);
+        try {
+            String userId = jwtTokenProvider.getUserIdFromToken(token);
+            Pageable pageable = PageRequest.of(page, size);
+            Page<Restaurant> restaurants = restaurantService.filterRestaurants(
+                minRating, minReviews, maxPrice, maxDistance, userId, pageable);
+            ShopThumbResponseDTO response = restaurantMapper.toShopThumbResponseDTO(restaurants, userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi lọc danh sách nhà hàng"));
+        }
     }
 }

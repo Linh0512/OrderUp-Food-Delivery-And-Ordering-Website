@@ -75,7 +75,7 @@ public interface RestaurantRepository extends MongoRepository<Restaurant, String
     Page<Restaurant> findByBasicInfoNameContainingIgnoreCase(String name, Pageable pageable);
     
     // Find restaurants by delivery areas
-    @Query("{'delivery.deliveryAreas': {$regex: ?0, $options: 'i'}, 'isActive': true}")
+    @Query("{'delivery.deliveryAreas': {$gte: ?0}, 'isActive': true}")
     Page<Restaurant> findByDeliveryDeliveryAreasContaining(String area, Pageable pageable);
     
     // Find restaurants by minimum rating with field path
@@ -92,4 +92,16 @@ public interface RestaurantRepository extends MongoRepository<Restaurant, String
 
     @Query("{ '_id': ?0 }")
     Restaurant findRestaurantById(String id);
+
+    @Query("{'ratings.totalReviews': {$gte: ?0}, 'isActive': true}")
+    Page<Restaurant> findByMinimumReviews(int minReviews, Pageable pageable);
+
+    @Query("{'basicInfo.priceRange': ?0, 'isActive': true}")
+    Page<Restaurant> findByPriceRange(String priceRange, Pageable pageable);
+
+    @Query("{'ratings.averageRating': {$gte: ?0}, 'ratings.totalReviews': {$gte: ?1}, 'basicInfo.priceRange': ?2, 'isActive': true}")
+    Page<Restaurant> findByFilters(double minRating, int minReviews, String priceRange, Pageable pageable);
+
+    @Query("{'ratings.averageRating': {$gte: ?0}, 'ratings.totalReviews': {$gte: ?1}, 'isActive': true}")
+    Page<Restaurant> findByFilters(double minRating, int minReviews, double maxPrice, Pageable pageable);
 }

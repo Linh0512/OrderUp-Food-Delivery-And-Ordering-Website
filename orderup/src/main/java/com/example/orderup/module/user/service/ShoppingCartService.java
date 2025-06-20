@@ -276,8 +276,45 @@ public class ShoppingCartService {
         }
 
         ShoppingCart.CartItem item = cart.getItems().get(itemIndex);
+        
+        // Lấy thông tin món ăn để validate options
+        Dish dish = dishRepository.findById(item.getDishId().toString());
+        if (dish == null) {
+            throw new IllegalArgumentException("Không tìm thấy món ăn");
+        }
+
+        // Cập nhật quantity và specialInstructions
         item.setQuantity(request.getQuantity());
         item.setSpecialInstructions(request.getSpecialInstructions());
+        
+        // Cập nhật selectedOptions
+        if (request.getSelectedOptions() != null) {
+            item.setSelectedOptions(new ArrayList<>());
+            
+            for (SelectedOptionRequest optionRequest : request.getSelectedOptions()) {
+                // Tìm option và choice tương ứng từ dish
+                Dish.Option dishOption = dish.getOptions().stream()
+                    .filter(opt -> opt.getName().equals(optionRequest.getOptionName()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy option: " + optionRequest.getOptionName()));
+
+                Dish.Choice dishChoice = dishOption.getChoices().stream()
+                    .filter(choice -> choice.getName().equals(optionRequest.getChoiceName()))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalArgumentException(
+                        "Không tìm thấy choice: " + optionRequest.getChoiceName()));
+
+                // Thêm option vào item
+                ShoppingCart.SelectedOption option = new ShoppingCart.SelectedOption();
+                option.setOptionName(optionRequest.getOptionName());
+                option.setChoiceName(optionRequest.getChoiceName());
+                option.setAdditionalPrice(dishChoice.getPrice());
+                item.getSelectedOptions().add(option);
+            }
+        } else {
+            item.setSelectedOptions(new ArrayList<>());
+        }
         
         // Cập nhật subtotal cho item
         double itemSubtotal = calculateItemSubtotal(item);

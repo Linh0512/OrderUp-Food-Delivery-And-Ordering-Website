@@ -10,6 +10,7 @@ import com.example.orderup.module.restaurant.dto.DishThumbDTO;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.entity.Dish;
 import com.example.orderup.module.restaurant.entity.Review;
+import com.example.orderup.module.restaurant.service.RestaurantService;
 import com.example.orderup.module.user.entirty.Order;
 
 import java.util.List;
@@ -23,7 +24,15 @@ public class RestaurantDetailMapper {
     @Autowired
     private DishMapper dishMapper;
 
-    public RestaurantDetailDTO toRestaurantDetailDTO(Restaurant restaurant, List<Dish> dishes) {
+    @Autowired
+    private RestaurantService restaurantService;
+
+    public RestaurantDetailDTO toRestaurantDetailDTO(Restaurant restaurant, List<Dish> dishes, String userId) {
+        double distance = 0.0;
+        if (userId != null && restaurant != null) {
+            distance = restaurantService.generateDistance(restaurant.getId(), userId);
+        }
+
         List<DishThumbDTO> dishDTOs = dishes != null ? 
             dishes.stream()
                 .map(dish -> dishMapper.toDishThumbDTO(dish, restaurant))
@@ -36,6 +45,9 @@ public class RestaurantDetailMapper {
                 restaurant.getBasicInfo().getName() : "Chưa cập nhật")
             .restaurantAddress(restaurant.getAddress() != null ? 
                 restaurant.getAddress().getFullAddress() : "Chưa cập nhật")
+            .restaurantPhone(restaurant.getBasicInfo() != null ? 
+                restaurant.getBasicInfo().getPhone() : "Chưa cập nhật")
+            .distance(distance)
             .restaurantReviewCount(restaurant.getRatings() != null ? 
                 restaurant.getRatings().getTotalReviews() : 0)
             .restaurantStar(restaurant.getRatings() != null ? 
@@ -50,9 +62,9 @@ public class RestaurantDetailMapper {
             .build();
     }
 
-    public RestaurantDetailResponseDTO toRestaurantDetailResponseDTO(Restaurant restaurant, List<Dish> dishes) {
+    public RestaurantDetailResponseDTO toRestaurantDetailResponseDTO(Restaurant restaurant, List<Dish> dishes, String userId) {
         return RestaurantDetailResponseDTO.builder()
-            .data(toRestaurantDetailDTO(restaurant, dishes))
+            .data(toRestaurantDetailDTO(restaurant, dishes, userId))
             .build();
     }
 
