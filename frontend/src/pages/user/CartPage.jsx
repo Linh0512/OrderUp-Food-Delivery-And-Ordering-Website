@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";
 import { getCart, getVoucher } from "../../services/userServices/Service";
+import food from '../../assets/food1.jpg'
 
 export default function CartPage() {
   const [showPopup, setShowPopup] = useState(false);
@@ -23,12 +24,11 @@ export default function CartPage() {
 
   useEffect(() => {
     getCart(user.token).then((res) => {
-      console.log(res)
+      console.log(res);
       setCart(res);
       setSubtotal(res.subtotal);
     });
-    getVoucher("684844b61a05cf815c50eb73", user.token).then((res) => {
-      console.log(res);
+    getVoucher(user.userId, user.token).then((res) => {
       setVouchers(res);
     });
   }, [user]);
@@ -48,13 +48,19 @@ export default function CartPage() {
       </div>
       <div className="flex mt-8 space-x-10">
         <div className="p-7 rounded-3xl w-[65%] bg-white shadow">
-          <h3 className="font-semibold m-4">
-            {" "}
-            có {cart.length} sản phẩm trong giỏ hàng{" "}
-          </h3>
-          <div className="space-y-7 py-5 bg-gray-100 p-5 rounded-2xl">
+          <div className="space-y-5 py-5 bg-gray-100 p-5 rounded-2xl">
             {cart.map((item, index) => (
-              <CartItem key={index} cartItem={item} />
+              <div key={index} className="space-y-3">
+                <div className="flex items-center space-x-3">
+                  <input type='checkbox' />
+                  <p className="font-semibold">{item.restaurant.name}</p>
+                </div>
+                <div className="space-y-7">
+                  {item.items.map((item1, index1) => (
+                  <CartItem key={index1} cartItem={item1} />
+                ))}
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -77,7 +83,9 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between">
               <p>Giảm giá</p>
-              <p className="text-red-500">- {selectedVoucher?selectedVoucher.value:"0"}</p>
+              <p className="text-red-500">
+                - {selectedVoucher ? selectedVoucher.value : "0"}
+              </p>
             </div>
             <div className="flex justify-between">
               <p>Phí giao hàng</p>
@@ -86,12 +94,18 @@ export default function CartPage() {
             <hr className="w-[90%] mx-auto" />
             <div className="flex justify-between text-xl">
               <p>Tổng cộng</p>
-              <p className="text-green-500 ">{subtotal+30000-selectedVoucher?.value||subtotal+30000}</p>
+              <p className="text-green-500 ">
+                {subtotal + 30000 - selectedVoucher?.value || subtotal + 30000}
+              </p>
             </div>
           </div>
           <button
             className="w-full bg-[rgba(227,70,63,1)] hover:bg-red-700 transition rounded-3xl shadow font-bold p-3 text-white text-xl mt-7"
-            onClick={() => navigate("/payment", { state: { cart,subtotal,discount:selectedVoucher?.value } })}
+            onClick={() =>
+              navigate("/payment", {
+                state: { cart, subtotal, discount: selectedVoucher?.value },
+              })
+            }
           >
             Thanh toán
           </button>

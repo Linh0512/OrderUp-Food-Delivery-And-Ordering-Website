@@ -74,6 +74,21 @@ export const getCart = async (token) => {
   }
 };
 
+export const addCart=async(token,item)=>{
+  try {
+    const response = await api.post(`/api/cart/add`,item ,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
 export const getUserProfile = async (id, token) => {
   try {
     const response = await api.get(`/api/users/profile/id/${id}`, {

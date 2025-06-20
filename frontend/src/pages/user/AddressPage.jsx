@@ -8,6 +8,7 @@ import {
   deleteAddress,
   getAddress,
   updateAddress,
+  updatedUser,
 } from "../../services/userServices/Service";
 import { useAuth } from "../../components/common/AuthContext";
 import { Await } from "react-router-dom";
@@ -64,12 +65,11 @@ export default function AddressPage() {
   };
 
   // Đặt làm địa chỉ mặc định
-  const handleSetDefault = (id) => {
+  const handleSetDefault = (index) => {
+    const tmp={...addresses[index],default:true}
+    updateAddress(user.userId,user.token,tmp,index)
     setAddresses(
-      addresses.map((addr) => ({
-        ...addr,
-        default: addr.id === id,
-      }))
+      addresses.map((addr,i) => i===index?{...addr,default:true}:{...addr,default:false})
     );
   };
 
@@ -80,11 +80,12 @@ export default function AddressPage() {
       return;
     }
 
-    if (index) {
+    if (index===0||index) {
       await updateAddress(user.userId,user.token,formData,index)
+      console.log("sửa địa chỉ thành công");
       setAddresses(
         addresses.map((addr,i) =>
-          addr[i] === index
+          i === index
             ? { ...addr, ...formData }
             : formData.default
             ? { ...addr, default: false }
@@ -149,6 +150,7 @@ export default function AddressPage() {
                 key={index}
                 index={index}
                 handleDelete={handleDelete}
+                handleSetDefault={handleSetDefault}
               />
             ))
           )}

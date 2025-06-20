@@ -2,7 +2,7 @@ import { faLocationDot, faPenToSquare, faStar, faTrash } from "@fortawesome/free
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 
-export default function AddressItem({ address,handleEdit,handleDelete,index}) {
+export default function AddressItem({ address,handleEdit,handleDelete,index,handleSetDefault}) {
   return (
     <div
       className={`bg-white rounded-lg shadow-md p-6 border-l-4 ${
@@ -34,7 +34,7 @@ export default function AddressItem({ address,handleEdit,handleDelete,index}) {
         <div className="flex items-center gap-2 ml-4">
           {!address.default && (
             <button
-            //   onClick={() => handleSetDefault(address.id)}
+              onClick={() => handleSetDefault(index)}
               className="text-gray-500 hover:text-blue-500 p-2 rounded-lg hover:bg-blue-50 transition-colors"
               title="Đặt làm mặc định"
             >
