@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,8 +39,8 @@ public class VoucherService {
                 .collect(Collectors.toList());
     }
 
-    public VoucherDetailDTO getVoucherDetail(String id) {
-        Voucher voucher = voucherRepository.findById(id)
+    public VoucherDetailDTO getVoucherDetail(String code) {
+        Voucher voucher = voucherRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
         voucher.updateActiveStatus();
         voucherRepository.save(voucher);
@@ -61,8 +62,8 @@ public class VoucherService {
     }
 
     @Transactional
-    public VoucherDetailDTO updateVoucher(String id, CreateVoucherDTO dto, String token) {
-        Voucher voucher = voucherRepository.findById(id)
+    public VoucherDetailDTO updateVoucher(String code, CreateVoucherDTO dto, String token) {
+        Voucher voucher = voucherRepository.findByCode(code)
                 .orElseThrow(() -> new RuntimeException("Voucher not found"));
         
         voucherMapper.updateFromDTO(voucher, dto);
@@ -72,9 +73,10 @@ public class VoucherService {
     }
 
     @Transactional
-    public boolean deleteVoucher(String id, String token) {
-        if (voucherRepository.existsById(id)) {
-            voucherRepository.deleteById(id);
+    public boolean deleteVoucher(String code, String token) {
+        Optional<Voucher> voucherOpt = voucherRepository.findByCode(code);
+        if (voucherOpt.isPresent()) {
+            voucherRepository.delete(voucherOpt.get());
             return true;
         }
         return false;

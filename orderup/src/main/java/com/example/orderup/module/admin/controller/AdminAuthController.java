@@ -32,26 +32,15 @@ public class AdminAuthController {
     @GetMapping("/login-with-token")
     public String loginWithToken(@RequestParam String token, HttpSession session) {
         try {
-            System.out.println("Attempting login with token: " + token);
-            
-            // Kiểm tra nếu token là undefined
-            if (token == null || token.equals("undefined")) {
-                System.out.println("Token is null or undefined");
-                return "redirect:/error?reason=invalid-token";
-            }
-            
             // Xác thực token JWT
             String userId = jwtTokenProvider.getUserIdFromToken(token);
-            System.out.println("User ID from token: " + userId);
             
             if (userId != null) {
                 User user = userService.getUserById(userId);
-                System.out.println("User found: " + (user != null ? user.getEmail() : "null"));
                 
                 if (user != null && "admin".equals(user.getRole())) {
                     // Lưu thông tin user vào session
                     session.setAttribute("adminUser", user);
-                    session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
                     
                     // Thiết lập authentication trong SecurityContext
                     List<GrantedAuthority> authorities = new ArrayList<>();
@@ -64,19 +53,14 @@ public class AdminAuthController {
                     );
                     
                     SecurityContextHolder.getContext().setAuthentication(auth);
-                    
-                    System.out.println("Admin authentication successful, redirecting to /admin/users");
                     return "redirect:/";
-                } else {
-                    System.out.println("User is not admin or null");
-                    return "redirect:/error?reason=not-admin";
                 }
-            } else {
-                System.out.println("Invalid token, userId is null");
-                return "redirect:/error?reason=invalid-token";
             }
+            
+            // Nếu không phải admin hoặc token không hợp lệ
+            return "redirect:/error?reason=unauthorized";
+            
         } catch (Exception e) {
-            e.printStackTrace();
             return "redirect:/error?reason=server-error&message=" + e.getMessage();
         }
     }

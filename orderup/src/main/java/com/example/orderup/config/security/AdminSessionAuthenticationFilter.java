@@ -37,8 +37,6 @@ public class AdminSessionAuthenticationFilter extends OncePerRequestFilter {
                 User adminUser = (User) session.getAttribute("adminUser");
                 
                 if (adminUser != null && "admin".equals(adminUser.getRole())) {
-                    System.out.println("Restoring admin authentication from session for: " + adminUser.getEmail());
-                    
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         adminUser,
                         null,
@@ -46,7 +44,13 @@ public class AdminSessionAuthenticationFilter extends OncePerRequestFilter {
                     );
                     
                     SecurityContextHolder.getContext().setAuthentication(auth);
+                } else if (request.getRequestURI().startsWith("/admin/")) {
+                    response.sendRedirect("/error?reason=unauthorized");
+                    return;
                 }
+            } else if (request.getRequestURI().startsWith("/admin/")) {
+                response.sendRedirect("/error?reason=unauthorized");
+                return;
             }
         }
         

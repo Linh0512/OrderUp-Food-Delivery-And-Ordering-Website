@@ -59,17 +59,17 @@ public class SecurityConfig {
     public SecurityFilterChain webSecurityFilterChain(HttpSecurity http) throws Exception {
         http
             .securityMatcher("/admin/**", "/", "/error")
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers("/admin/view/api/**")) // Disable CSRF cho các API admin
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/error").permitAll()
-                .requestMatchers("/admin/**").authenticated()
-            )
-            .formLogin(form -> form
-                .disable()
+                .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
+                .requestMatchers("/admin/**").hasRole("ADMIN")
             )
             .addFilterBefore(adminSessionAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .sessionManagement(session ->
-                session.sessionCreationPolicy(SessionCreationPolicy.ALWAYS)
+                session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
             );
             
         return http.build();
