@@ -12,6 +12,8 @@ public class RestaurantDetailDTO {
     private String restaurantId;
     private String restaurantName;
     private String restaurantAddress;
+    private String restaurantPhone;
+    private double distance;
     private int restaurantReviewCount;
     private double restaurantStar;
     private Map<String, Integer> ratingBreakdown;

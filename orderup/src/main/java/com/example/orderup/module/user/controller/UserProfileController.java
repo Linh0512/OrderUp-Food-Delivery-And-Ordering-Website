@@ -11,6 +11,9 @@ import com.example.orderup.module.user.service.UserProfileService;
 import com.example.orderup.module.user.dto.UserProfileDTO;
 import com.example.orderup.module.user.dto.UserProfileDTO.*;
 import com.example.orderup.module.user.entirty.Profile;
+import com.example.orderup.module.user.dto.SetDefaultAddressDTO;
+import com.example.orderup.module.user.dto.DefaultAddressDTO;
+import com.example.orderup.module.user.dto.ErrorResponse;
 
 @RestController
 @RequestMapping("/api/users/profile")
@@ -119,6 +122,38 @@ public class UserProfileController {
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/address/{addressIndex}/setDefaultAddress")
+    public ResponseEntity<?> setDefaultAddress(
+            @RequestHeader("Authorization") String token,
+            @PathVariable("addressIndex") int addressIndex) {
+        try {
+            UserProfileDTO updatedProfile = userProfileService.setDefaultAddress(token, addressIndex);
+            return ResponseEntity.ok(updatedProfile);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                .body(new ErrorResponse("Đã xảy ra lỗi khi cập nhật địa chỉ mặc định"));
+        }
+    }
+
+    @GetMapping("/defaultAddress")
+    public ResponseEntity<?> getDefaultAddress(@RequestHeader("Authorization") String token) {
+        try {
+            DefaultAddressDTO defaultAddress = userProfileService.getDefaultAddress(token);
+            return ResponseEntity.ok(defaultAddress);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                .body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError()
+                .body(new ErrorResponse("Đã xảy ra lỗi khi lấy địa chỉ mặc định"));
         }
     }
 }

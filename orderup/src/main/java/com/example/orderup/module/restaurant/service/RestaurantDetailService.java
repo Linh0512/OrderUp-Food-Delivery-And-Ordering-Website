@@ -8,6 +8,7 @@ import com.example.orderup.module.restaurant.mapper.RestaurantDetailMapper;
 import com.example.orderup.module.restaurant.dto.RestaurantDetailResponseDTO;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.entity.Dish;
+import com.example.orderup.config.security.JwtTokenProvider;
 
 import java.util.List;
 import java.util.Collections;
@@ -22,7 +23,15 @@ public class RestaurantDetailService {
     @Autowired
     private RestaurantDetailMapper restaurantDetailMapper;
 
-    public RestaurantDetailResponseDTO getRestaurantDetail(String restaurantId) {
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+
+    public RestaurantDetailResponseDTO getRestaurantDetail(String restaurantId, String token) {
+        String userId = null;
+        if (token != null) {
+            userId = jwtTokenProvider.getUserIdFromToken(token);
+        }
+
         // Lấy thông tin nhà hàng
         Restaurant restaurant = restaurantDetailRepository.findRestaurantById(restaurantId);
         if (restaurant == null) {
@@ -37,7 +46,7 @@ public class RestaurantDetailService {
             dishes = Collections.emptyList();
         }
     
-        return restaurantDetailMapper.toRestaurantDetailResponseDTO(restaurant, dishes);
+        return restaurantDetailMapper.toRestaurantDetailResponseDTO(restaurant, dishes, userId);
     }
 
     public boolean isRestaurantExists(String restaurantId) {

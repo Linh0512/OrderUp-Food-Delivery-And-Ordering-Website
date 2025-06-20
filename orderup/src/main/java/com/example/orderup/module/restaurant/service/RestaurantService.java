@@ -227,4 +227,132 @@ public class RestaurantService {
         
         return stats;
     }
+
+    /**
+     * Generate khoảng cách giả lập cho nhà hàng dựa trên ID của nhà hàng và user
+     */
+    public double generateDistance(String restaurantId, String userId) {
+        if (restaurantId == null || userId == null) {
+            return 0.0;
+        }
+        // Tạo một số ngẫu nhiên nhưng ổn định dựa trên restaurantId và userId
+        int hash = (restaurantId + userId).hashCode();
+        // Chuyển hash thành số dương
+        hash = Math.abs(hash);
+        // Tạo khoảng cách từ 0.5 đến 20.0 km
+        return 0.5 + (hash % 95) / 4.0;
+    }
+
+    /**
+     * Kiểm tra xem nhà hàng có đang trong giờ hoạt động không
+     */
+    private boolean isRestaurantOpen(Restaurant restaurant) {
+        if (restaurant.getOperatingHours() == null || restaurant.getOperatingHours().isEmpty()) {
+            return false;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+        int dayOfWeek = now.getDayOfWeek().getValue(); // 1 = Monday, 7 = Sunday
+        
+        // Chuyển đổi Sunday từ 7 thành 0 để khớp với dữ liệu
+        final int currentDayOfWeek = dayOfWeek == 7 ? 0 : dayOfWeek;
+
+        // Tìm thời gian hoạt động của ngày hiện tại
+        Restaurant.OperatingHour todayHours = restaurant.getOperatingHours().stream()
+                .filter(oh -> oh.getDayOfWeek() == currentDayOfWeek)
+                .findFirst()
+                .orElse(null);
+
+        if (todayHours == null || todayHours.getOpenTime() == null || todayHours.getCloseTime() == null) {
+            return false;
+        }
+
+        // Parse thời gian hoạt động
+        String[] openTimeParts = todayHours.getOpenTime().split(":");
+        String[] closeTimeParts = todayHours.getCloseTime().split(":");
+        
+        int openHour = Integer.parseInt(openTimeParts[0]);
+        int openMinute = Integer.parseInt(openTimeParts[1]);
+        int closeHour = Integer.parseInt(closeTimeParts[0]);
+        int closeMinute = Integer.parseInt(closeTimeParts[1]);
+
+        // Tạo LocalDateTime cho thời gian mở cửa và đóng cửa
+        LocalDateTime openTime = now.withHour(openHour).withMinute(openMinute).withSecond(0);
+        LocalDateTime closeTime = now.withHour(closeHour).withMinute(closeMinute).withSecond(0);
+
+        // Kiểm tra xem thời gian hiện tại có nằm trong khoảng hoạt động không
+        return now.isAfter(openTime) && now.isBefore(closeTime);
+    }
+
+    /**
+     * Cập nhật trạng thái hoạt động của nhà hàng
+     */
+    public void updateRestaurantActiveStatus(Restaurant restaurant) {
+        boolean isOpen = isRestaurantOpen(restaurant);
+        if (restaurant.isActive() != isOpen) {
+            restaurant.setActive(isOpen);
+            restaurantRepository.save(restaurant);
+        }
+    }
+
+    /**
+     * Extract maxPrice từ chuỗi priceRange
+     * Format: "80,000 - 180,000" -> 180000
+     */
+    private double extractMaxPrice(String priceRange) {
+        try {
+            if (priceRange == null || !priceRange.contains("-")) {
+                return 0.0;
+            }
+            // Lấy phần sau dấu -
+            String maxPriceStr = priceRange.split("-")[1].trim();
+            // Loại bỏ dấu phẩy
+            maxPriceStr = maxPriceStr.replace(",", "");
+            return Double.parseDouble(maxPriceStr);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0.0;
+        }
+    }
+
+    /**
+     * Lọc nhà hàng theo các tiêu chí
+     */
+    public Page<Restaurant> filterRestaurants(Double minRating, Integer minReviews, 
+            Double maxPrice, Double maxDistance, String userId, Pageable pageable) {
+        
+        Page<Restaurant> restaurants;
+        
+        if (minRating != null && minReviews != null && maxPrice != null) {
+            restaurants = restaurantRepository.findByFilters(minRating, minReviews, maxPrice, pageable);
+        } else if (minRating != null) {
+            restaurants = restaurantRepository.findByMinimumRating(minRating, pageable);
+        } else if (minReviews != null) {
+            restaurants = restaurantRepository.findByMinimumReviews(minReviews, pageable);
+        } else {
+            restaurants = restaurantRepository.findByActiveTrue(pageable);
+        }
+
+        // Lọc thêm theo maxPrice nếu cần (vì MongoDB không hỗ trợ trực tiếp extract từ string)
+        List<Restaurant> filteredList = restaurants.getContent().stream()
+            .peek(this::updateRestaurantActiveStatus)
+            .filter(restaurant -> {
+                if (maxPrice != null) {
+                    double restaurantMaxPrice = extractMaxPrice(
+                        restaurant.getBasicInfo() != null ? restaurant.getBasicInfo().getPriceRange() : null
+                    );
+                    if (restaurantMaxPrice == 0.0 || restaurantMaxPrice > maxPrice) {
+                        return false;
+                    }
+                }
+                if (maxDistance != null && userId != null) {
+                    double distance = generateDistance(restaurant.getId(), userId);
+                    return distance <= maxDistance;
+                }
+                return true;
+            })
+            .collect(Collectors.toList());
+
+        return new PageImpl<>(filteredList, pageable, filteredList.size());
+    }
 }

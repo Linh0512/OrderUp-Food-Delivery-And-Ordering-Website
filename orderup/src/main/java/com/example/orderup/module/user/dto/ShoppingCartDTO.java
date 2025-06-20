@@ -72,5 +72,6 @@ public class ShoppingCartDTO {
     public static class UpdateCartItemRequest {
         private int quantity;
         private String specialInstructions;
+        private List<SelectedOptionRequest> selectedOptions;
     }
 } 
