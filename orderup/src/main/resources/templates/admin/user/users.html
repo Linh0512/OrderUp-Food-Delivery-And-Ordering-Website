@@ -185,8 +185,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
-                    <form id="deleteForm" method="POST" action="">
-                        <input type="hidden" name="_method" value="DELETE">
+                    <form id="deleteForm" method="POST">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn btn-danger">Xóa</button>
                     </form>
                 </div>
@@ -204,9 +204,8 @@
                     const button = event.relatedTarget;
                     const userId = button.getAttribute('data-id');
                     const userName = button.getAttribute('data-name');
-                    
                     document.getElementById('userName').textContent = userName;
-                    document.getElementById('deleteForm').action = '/api/users/' + userId;
+                    document.getElementById('deleteForm').action = '/admin/users/' + userId + '/delete';
                 });
             }
         });

@@ -4,6 +4,9 @@ import com.example.orderup.config.security.JwtTokenProvider;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.service.UserService;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -62,6 +65,32 @@ public class AdminAuthController {
             
         } catch (Exception e) {
             return "redirect:/error?reason=server-error&message=" + e.getMessage();
+        }
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            // Xóa session
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
+            
+            // Xóa security context
+            SecurityContextHolder.clearContext();
+            
+            // Xóa JWT token bằng cách set cookie hết hạn
+            Cookie cookie = new Cookie("jwt", "");
+            cookie.setMaxAge(0);
+            cookie.setPath("/");
+            response.addCookie(cookie);
+            
+            // Chuyển hướng về trang đăng nhập frontend với tham số để xóa token
+            return "redirect:http://localhost:5173/login?clearToken=true";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "redirect:/error?reason=logout-error";
         }
     }
 }
