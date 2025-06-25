@@ -12,7 +12,7 @@ export default function ShopCard({ shopDetail }) {
   }
   return (
     <div className="flex flex-col rounded-2xl shadow-xl bg-white">  
-      <img src={shopDetail.image} alt={shopDetail.name} className="rounded-t-2xl" />
+      <img src={shop||shopDetail.image} alt={shopDetail.name} className="rounded-t-2xl" />
       <div className="p-2 space-y-1 flex flex-col justify-center">
         <h3 className="font-bold text-xl py-2 truncate">{shopDetail.name}</h3>
         <p className="text-sm">{shopDetail.address}</p>
@@ -48,7 +48,7 @@ export default function ShopCard({ shopDetail }) {
           </div>
         </div>
         <p className="text-xl py-2">
-          <FontAwesomeIcon icon={faMoneyBill} />{shopDetail.priceRange} VNĐ
+          <FontAwesomeIcon icon={faMoneyBill} className="mr-2"/>{shopDetail.priceRange} VNĐ
         </p>
       </div>
     </div>
