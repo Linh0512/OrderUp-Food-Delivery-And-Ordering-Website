@@ -7,32 +7,24 @@ import org.bson.types.ObjectId;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.orderup.module.user.entirty.ShoppingCart;
 import com.example.orderup.module.user.repository.ShoppingCartRepository;
-import com.example.orderup.module.restaurant.service.RestaurantService;
 import com.example.orderup.module.user.dto.ShoppingCartDTO;
 import com.example.orderup.module.user.dto.ShoppingCartDTO.*;
-import com.example.orderup.module.restaurant.entity.Restaurant;
-import com.example.orderup.repositories.RestaurantRepository;
 import com.example.orderup.module.user.entirty.Order;
 import com.example.orderup.module.user.repository.UserOrderHistoryRepository;
 import com.example.orderup.module.user.mapper.ShoppingCartMapper;
 import com.example.orderup.config.security.JwtTokenProvider;
 import com.example.orderup.module.restaurant.entity.Dish;
 import com.example.orderup.module.restaurant.repository.DishRepository;
-import com.example.orderup.module.user.service.OrderNumberGenerator;
 
 @Service
 public class ShoppingCartService {
     
     @Autowired
     private ShoppingCartRepository cartRepository;
-    
-    @Autowired
-    private RestaurantRepository restaurantRepository;
     
     @Autowired
     private UserOrderHistoryRepository orderRepository;
@@ -100,74 +92,6 @@ public class ShoppingCartService {
         cart.getSummary().setSubtotal(cartSubtotal);
         
         return cartRepository.save(cart);
-    }
-
-    public ShoppingCart updateCartItem(String userId, String itemId, int quantity) {
-        ObjectId userObjectId = new ObjectId(userId);
-        List<ShoppingCart> carts = cartRepository.findByUserId(userObjectId);
-        ShoppingCart cart = null;
-        if (carts != null && !carts.isEmpty()) {
-            cart = carts.get(0);
-        }
-        
-        if (cart != null) {
-            cart.getItems().stream()
-                .filter(item -> item.getDishId().toString().equals(itemId))
-                .findFirst()
-                .ifPresent(item -> {
-                    item.setQuantity(quantity);
-                    double itemSubtotal = item.getUnitPrice() * quantity;
-                    if (item.getSelectedOptions() != null) {
-                        for (ShoppingCart.SelectedOption option : item.getSelectedOptions()) {
-                            itemSubtotal += option.getAdditionalPrice() * quantity;
-                        }
-                    }
-                    item.setSubtotal(itemSubtotal);
-                });
-            
-            double cartSubtotal = cart.getItems().stream()
-                    .mapToDouble(ShoppingCart.CartItem::getSubtotal)
-                    .sum();
-            cart.getSummary().setSubtotal(cartSubtotal);
-            
-            return cartRepository.save(cart);
-        }
-        
-        return null;
-    }
-
-    public void removeFromCart(String userId, String itemId) {
-        ObjectId userObjectId = new ObjectId(userId);
-        List<ShoppingCart> carts = cartRepository.findByUserId(userObjectId);
-        ShoppingCart cart = null;
-        if (carts != null && !carts.isEmpty()) {
-            cart = carts.get(0);
-        }
-        
-        if (cart != null) {
-            cart.getItems().removeIf(item -> item.getDishId().toString().equals(itemId));
-            
-            double cartSubtotal = cart.getItems().stream()
-                    .mapToDouble(ShoppingCart.CartItem::getSubtotal)
-                    .sum();
-            cart.getSummary().setSubtotal(cartSubtotal);
-            
-            cartRepository.save(cart);
-        }
-    }
-
-    public void clearCart(String userId) {
-        ObjectId userObjectId = new ObjectId(userId);
-        cartRepository.deleteByUserId(userObjectId);
-    }
-
-    public ShoppingCart getCart(String userId) {
-        ObjectId userObjectId = new ObjectId(userId);
-        List<ShoppingCart> carts = cartRepository.findByUserId(userObjectId);
-        if (carts != null && !carts.isEmpty()) {
-            return carts.get(0);
-        }
-        return null;
     }
 
     public List<ShoppingCartDTO> getUserCarts(String token) {

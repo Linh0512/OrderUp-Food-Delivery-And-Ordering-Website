@@ -10,8 +10,6 @@ import org.springframework.web.bind.annotation.*;
 import com.example.orderup.module.user.service.UserProfileService;
 import com.example.orderup.module.user.dto.UserProfileDTO;
 import com.example.orderup.module.user.dto.UserProfileDTO.*;
-import com.example.orderup.module.user.entirty.Profile;
-import com.example.orderup.module.user.dto.SetDefaultAddressDTO;
 import com.example.orderup.module.user.dto.DefaultAddressDTO;
 import com.example.orderup.module.user.dto.ErrorResponse;
 

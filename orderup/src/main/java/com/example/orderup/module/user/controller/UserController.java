@@ -1,18 +1,11 @@
 package com.example.orderup.module.user.controller;
 
 import com.example.orderup.module.user.entirty.User;
-import com.example.orderup.module.user.entirty.Profile;
-import com.example.orderup.module.user.service.UserProfileService;
 import com.example.orderup.module.user.service.UserService;
-import com.example.orderup.module.user.service.UserOrderHistoryService;
-import com.example.orderup.module.user.dto.UserOrderHistoryThumbDTO;
-import com.example.orderup.module.user.dto.UserOrderHistoryDetailDTO;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -31,12 +24,6 @@ import java.util.HashMap;
 public class UserController {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private UserProfileService userProfileService;
-
-    @Autowired
-    private UserOrderHistoryService orderHistoryService;
 
     // Sử dụng UserService để lấy tất cả người dùng với phân trang và sắp xếp
     @GetMapping

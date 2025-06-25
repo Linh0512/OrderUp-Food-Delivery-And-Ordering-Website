@@ -12,19 +12,14 @@ import com.example.orderup.module.user.entirty.Profile;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.entirty.Addresses;
 import com.example.orderup.module.user.entirty.Coordinates;
-import com.example.orderup.module.user.dto.SetDefaultAddressDTO;
 import com.example.orderup.module.user.dto.DefaultAddressDTO;
 import com.example.orderup.config.security.JwtTokenProvider;
-
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.Date;
-import org.bson.types.ObjectId;
+
 
 @Service
 public class UserProfileService {
