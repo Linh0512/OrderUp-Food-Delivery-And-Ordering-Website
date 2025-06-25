@@ -69,13 +69,6 @@ public class ShoppingCartDTO {
     }
 
     @Data
-    public static class GetItemInCartRequest {
-        private int quantity;
-        private List<SelectedOptionRequest> selectedOptions;
-        private String specialInstructions;
-    }
-
-    @Data
     public static class UpdateCartItemRequest {
         private int quantity;
         private String specialInstructions;
