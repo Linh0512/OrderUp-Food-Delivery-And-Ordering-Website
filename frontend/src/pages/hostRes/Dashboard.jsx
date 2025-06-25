@@ -13,18 +13,19 @@ import MyChart from "../../components/MyChart";
 import { useEffect, useState } from "react";
 import { useAuth } from "../../components/common/AuthContext";
 import { getDashboardData } from "../../services/hosResServices/service";
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function Dashboard() {
   const [data, setData] = useState();
-  const { user } = useAuth();
+  const { user, resId } = useAuth();
   useEffect(() => {
-    console.log("user:", user);
-    console.log("user.token:", user?.token);
-    getDashboardData("684844b61a05cf815c50eb74", user.token).then((res) => {
-      console.log(res);
-      setData(res);
-    });
-  }, [user]);
+    if (resId) {
+      getDashboardData(resId, user.token).then((res) => {
+        console.log(res);
+        setData(res);
+      });
+    }
+  }, [user, resId]);
   return (
     <div className="w-full p-3 space-y-5">
       <div className="flex items-center space-x-2 font-semibold text-2xl mb-4">
@@ -40,11 +41,11 @@ export default function Dashboard() {
         <div className="flex items-center space-x-5">
           <div className="p-3 font-semibold text-xl bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-xl text-white grow">
             <FontAwesomeIcon icon={faDollarSign} className="mr-2" />
-            Tổng doanh thu: {data?.totalRevenue} vnđ
+            Tổng doanh thu: {formatCurrencyVN(data?.totalRevenue)} 
           </div>
           <div className="p-3 font-semibold text-xl bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white grow">
             <FontAwesomeIcon icon={faArrowTrendUp} className="mr-2" />
-            Doanh thu tháng này: {data?.currentMonthRevenue} vnđ
+            Doanh thu tháng này: {formatCurrencyVN(data?.currentMonthRevenue)}
           </div>
         </div>
       </div>

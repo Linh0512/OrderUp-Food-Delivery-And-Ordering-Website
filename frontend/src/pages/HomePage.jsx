@@ -6,8 +6,10 @@ import {
   getAllShops,
   getShopsByCuisine,
 } from "../services/userServices/Service";
+import { useOutletContext } from "react-router-dom";
 
 export default function HomePage() {
+  const { search } = useOutletContext();
   const SHOP_LIMIT = 12;
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
@@ -42,17 +44,17 @@ export default function HomePage() {
   useEffect(() => {
     if (category === "Tất cả") {
       getAllShops(page - 1, SHOP_LIMIT).then((res) => {
-        console.log(res.data)
+        console.log(res.data);
         setShops(res.data);
         setCount(res.count);
       });
     } else {
-      getShopsByCuisine(category, page-1, SHOP_LIMIT).then((res) => {
+      getShopsByCuisine(category, page - 1, SHOP_LIMIT).then((res) => {
         setShops(res.data);
         setCount(res.count);
       });
     }
-  }, [page,category]);
+  }, [page, category]);
 
   return (
     <div className="w-[80vw] mx-auto flex">
@@ -63,9 +65,11 @@ export default function HomePage() {
         <hr className="w-[90%] mx-auto mb-3" />
         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-1 gap-10 mb-7">
           {Array.isArray(shops) &&
-            shops.map((item, index) => (
-              <ShopCard key={index} shopDetail={item} />
-            ))}
+            shops
+              .filter((item) =>
+                item.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((item, index) => <ShopCard key={index} shopDetail={item} />)}
         </div>
         <Pagination
           limit={SHOP_LIMIT}

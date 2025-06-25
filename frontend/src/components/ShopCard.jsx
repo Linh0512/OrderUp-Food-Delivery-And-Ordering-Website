@@ -32,15 +32,15 @@ export default function ShopCard({ shopDetail }) {
         <div className="flex justify-between items-center ">
           <p
             className={`${
-              shopDetail.isActive ? "text-[rgba(109,213,29,1)]" : "text-red-600"
+              shopDetail.active ? "text-[rgba(109,213,29,1)]" : "text-red-600"
             } flex items-center`}
           >
             <span
               className={`size-3 rounded-full mr-2 ${
-                shopDetail.isActive ? "bg-[rgba(109,213,29,1)]" : "bg-red-600"
+                shopDetail.active ? "bg-[rgba(109,213,29,1)]" : "bg-red-600"
               }`}
             ></span>
-            {shopDetail.isActive ? "Mở cửa" : "Đóng cửa"}
+            {shopDetail.active ? "Mở cửa" : "Đóng cửa"}
           </p>
           <div className="space-x-2 flex items-center">
             <FontAwesomeIcon icon={faClock} />
