@@ -129,8 +129,6 @@
                                         <tr>
                                             <th>Tiêu đề</th>
                                             <th>Địa chỉ đầy đủ</th>
-                                            <th>Vĩ độ</th>
-                                            <th>Kinh độ</th>
                                             <th>Mặc định</th>
                                         </tr>
                                     </thead>
@@ -138,8 +136,6 @@
                                         <tr th:each="address : ${user.addresses}">
                                             <td th:text="${address.title}"></td>
                                             <td th:text="${address.fullAddress}"></td>
-                                            <td th:text="${address.coordinates.lat}"></td>
-                                            <td th:text="${address.coordinates.lng}"></td>
                                             <td>
                                                 <span th:if="${address.default}" class="badge bg-primary">Mặc định</span>
                                             </td>
