@@ -34,7 +34,7 @@ export default function App() {
     <Routes>
       <Route path="/" element={<HomePageLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="shop/:id" element={<ShopPage />} />
+        
       </Route>
 
       <Route path="/" element={<NoBannerLayout />}>
@@ -54,6 +54,7 @@ export default function App() {
           <Route path="history/:id" element={<HistoryDetailPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="address" element={<AddressPage />} />
+          <Route path="shop/:id" element={<ShopPage />} />
         </Route>
         <Route path="unAuth" element={<UnAuthorizedPage />} />
       </Route>
