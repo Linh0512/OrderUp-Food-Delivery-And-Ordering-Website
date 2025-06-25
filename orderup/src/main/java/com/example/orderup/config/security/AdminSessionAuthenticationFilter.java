@@ -40,7 +40,7 @@ public class AdminSessionAuthenticationFilter extends OncePerRequestFilter {
                     UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         adminUser,
                         null,
-                        Collections.singletonList(new SimpleGrantedAuthority("ROLE_ADMIN"))
+                        Collections.singletonList(new SimpleGrantedAuthority("admin"))
                     );
                     
                     SecurityContextHolder.getContext().setAuthentication(auth);

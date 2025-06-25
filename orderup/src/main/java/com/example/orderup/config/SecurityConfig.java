@@ -65,11 +65,15 @@ public class SecurityConfig {
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**").hasAuthority("admin")
             )
             .addFilterBefore(adminSessionAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            )
+            .formLogin(form -> form
+                .loginPage("/admin/login")
+                .permitAll()
             );
             
         return http.build();

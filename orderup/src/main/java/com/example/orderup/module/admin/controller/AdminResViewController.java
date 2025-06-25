@@ -251,11 +251,19 @@ public class AdminResViewController {
     @PostMapping("/{id}/delete")
     public String deleteRestaurant(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
+            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            if (restaurant == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhà hàng với ID: " + id);
+                return "redirect:/admin/restaurants";
+            }
+
             restaurantService.deleteRestaurant(id);
             redirectAttributes.addFlashAttribute("success", "Xóa nhà hàng thành công");
             return "redirect:/admin/restaurants";
         } catch (Exception e) {
             e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
             redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi xóa nhà hàng: " + e.getMessage());
             return "redirect:/admin/restaurants";
         }
@@ -355,7 +363,7 @@ public class AdminResViewController {
         
         // Đặt các giá trị mặc định cho nhà hàng mới
         if (restaurant.getId() == null) {
-            restaurant.setActive(false);
+            restaurant.setActive(true); // Set active mặc định là true
             restaurant.setVerified(false);
             restaurant.setFeatured(false);
             restaurant.setVerificationStatus("PENDING");

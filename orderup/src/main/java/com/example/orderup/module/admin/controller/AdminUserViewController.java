@@ -1,5 +1,6 @@
 package com.example.orderup.module.admin.controller;
 
+import com.example.orderup.config.security.JwtTokenProvider;
 import com.example.orderup.module.user.entirty.Profile;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.service.UserService;
@@ -31,6 +32,9 @@ import java.util.Map;
 public class AdminUserViewController {
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
     
     @GetMapping("/users")
     public String viewUsers(Model model, 
@@ -200,9 +204,22 @@ public class AdminUserViewController {
     @PostMapping("/users/{id}/delete")
     public String deleteUser(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
-            User user = userService.getUserById(id);
-            if(user == null) {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                redirectAttributes.addFlashAttribute("error", "Unauthorized access");
+                return "redirect:/admin/users";
+            }
+            
+            // Lấy user cần xóa
+            User targetUser = userService.getUserById(id);
+            if(targetUser == null) {
                 redirectAttributes.addFlashAttribute("error", "User not found");
+                return "redirect:/admin/users";
+            }
+            
+            // Không cho phép xóa tài khoản admin
+            if ("admin".equals(targetUser.getRole())) {
+                redirectAttributes.addFlashAttribute("error", "Cannot delete admin account");
                 return "redirect:/admin/users";
             }
             
@@ -212,7 +229,7 @@ public class AdminUserViewController {
         } catch (Exception e) {
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error", "An error occurred while deleting user: " + e.getMessage());
-            return "redirect:/admin/users"; // Quay lại trang danh sách người dùng
+            return "redirect:/admin/users";
         }
     }
 
