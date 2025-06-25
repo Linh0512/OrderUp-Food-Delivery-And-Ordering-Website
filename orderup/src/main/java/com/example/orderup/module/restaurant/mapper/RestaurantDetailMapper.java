@@ -7,6 +7,8 @@ import org.springframework.data.domain.Page;
 import com.example.orderup.module.restaurant.dto.RestaurantDetailDTO;
 import com.example.orderup.module.restaurant.dto.RestaurantDetailResponseDTO;
 import com.example.orderup.module.restaurant.dto.DishThumbDTO;
+import com.example.orderup.module.restaurant.dto.RestaurantProfileDTO;
+import com.example.orderup.module.restaurant.dto.RestaurantProfileResponseDTO;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.entity.Dish;
 import com.example.orderup.module.restaurant.entity.Review;
@@ -65,6 +67,52 @@ public class RestaurantDetailMapper {
     public RestaurantDetailResponseDTO toRestaurantDetailResponseDTO(Restaurant restaurant, List<Dish> dishes, String userId) {
         return RestaurantDetailResponseDTO.builder()
             .data(toRestaurantDetailDTO(restaurant, dishes, userId))
+            .build();
+    }
+
+    public RestaurantProfileDTO toRestaurantProfileDTO(Restaurant restaurant, String userId) {
+
+        return RestaurantProfileDTO.builder()
+            .restaurantId(restaurant.getId())
+            .restaurantName(restaurant.getBasicInfo() != null ? 
+                restaurant.getBasicInfo().getName() : "Chưa cập nhật")
+            .restaurantImages(restaurant.getBasicInfo() != null ? 
+                restaurant.getBasicInfo().getImages() : null)
+            .restaurantOwner(restaurant.getHostId() != null ? 
+                restaurant.getHostId() : "Chưa cập nhật")
+            .restaurantDescription(restaurant.getBasicInfo() != null ? 
+                restaurant.getBasicInfo().getDescription() : "Chưa cập nhật")
+            .restaurantEmail(restaurant.getBasicInfo() != null ? 
+                restaurant.getBasicInfo().getEmail() : "Chưa cập nhật")
+            .restaurantWebsite(restaurant.getBasicInfo() != null ? 
+                restaurant.getBasicInfo().getWebsite() : "Chưa cập nhật")
+            .restaurantAddress(restaurant.getAddress() != null ? 
+                restaurant.getAddress().getFullAddress() : "Chưa cập nhật")
+            .restaurantPhone(restaurant.getBasicInfo() != null ? 
+                restaurant.getBasicInfo().getPhone() : "Chưa cập nhật")
+            .restaurantReviewCount(restaurant.getRatings() != null ? 
+                restaurant.getRatings().getTotalReviews() : 0)
+            .restaurantStar(restaurant.getRatings() != null ? 
+                restaurant.getRatings().getAverageRating() : 0.0)
+            .ratingBreakdown(restaurant.getRatings() != null ? 
+                restaurant.getRatings().getRatingBreakdown() : null)
+            .restaurantIsActive(restaurant.isActive())
+            .restaurantTimeRange(generateTimeRange(restaurant))
+            .restaurantPriceRange(getPriceRange(restaurant))
+            .restaurantDeliveryRadius(restaurant.getDelivery() != null ? 
+                restaurant.getDelivery().getDeliveryRadius() + " km" : "Chưa cập nhật")
+            .restaurantDeliveryTime(restaurant.getDelivery() != null ? 
+                restaurant.getDelivery().getEstimatedDeliveryTime() + " phút" : "Chưa cập nhật")
+            .restaurantDeliveryFee(restaurant.getDelivery() != null ? 
+                restaurant.getDelivery().getDeliveryFee() + " VND" : "Chưa cập nhật")
+            .restaurantDeliveryAvailable(restaurant.getDelivery() != null ? 
+                restaurant.getDelivery().isDeliveryAvailable() : false)
+            .build();
+    }
+
+    public RestaurantProfileResponseDTO toRestaurantProfileResponseDTO(Restaurant restaurant, String userId) {
+        return RestaurantProfileResponseDTO.builder()
+            .data(toRestaurantProfileDTO(restaurant, userId))
             .build();
     }
 
