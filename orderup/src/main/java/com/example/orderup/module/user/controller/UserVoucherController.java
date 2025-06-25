@@ -31,7 +31,7 @@ public class UserVoucherController {
     public ResponseEntity<Void> useVoucher(
             @PathVariable String code,
             @RequestHeader("Authorization") String token) {
-        boolean used = voucherService.useVoucher(code, token);
-        return used ? ResponseEntity.ok().build() : ResponseEntity.badRequest().build();
+        voucherService.useVoucher(code, token);
+        return ResponseEntity.ok().build();
     }
 } 
