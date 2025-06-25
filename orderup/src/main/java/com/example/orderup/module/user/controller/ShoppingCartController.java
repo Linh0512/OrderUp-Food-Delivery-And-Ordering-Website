@@ -20,6 +20,27 @@ public class ShoppingCartController {
     @Autowired
     private ShoppingCartService cartService;
 
+    // Lấy thông tin món ăn trong giỏ hàng của nhà hàng
+    @GetMapping("/restaurant/{restaurantId}/dish/{dishId}")
+    public ResponseEntity<?> getItemInRestaurantCart(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @PathVariable String restaurantId,
+            @PathVariable String dishId) {
+        try {
+            if (token == null) {
+                return ResponseEntity.ok(null);
+            }
+            ShoppingCartDTO.CartItem cartItem = cartService.getItemInRestaurantCart(token, restaurantId, dishId);
+            return ResponseEntity.ok(cartItem);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi hệ thống", "Đã có lỗi xảy ra, vui lòng thử lại sau"));
+        }
+    }
+
     // Lấy tất cả giỏ hàng của user
     @GetMapping
     public ResponseEntity<?> getUserCarts(@RequestHeader("Authorization") String token) {

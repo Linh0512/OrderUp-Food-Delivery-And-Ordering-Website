@@ -179,6 +179,7 @@ public class ShoppingCartService {
         return carts.stream().map(cartMapper::toDTO).collect(Collectors.toList());
     }
 
+
     @Transactional
     public ShoppingCartDTO addToCart(String token, AddToCartRequest request) {
         // Validate input
@@ -503,5 +504,45 @@ public class ShoppingCartService {
                       cart.getSummary().getServiceFee() + cart.getSummary().getTax() - 
                       cart.getSummary().getDiscount();
         cart.getSummary().setTotal(total);
+    }
+
+    public ShoppingCartDTO.CartItem getItemInRestaurantCart(String token, String restaurantId, String dishId) {
+        String userId = jwtService.getUserIdFromToken(token);
+        
+        // Tìm giỏ hàng của nhà hàng này
+        ShoppingCart cart = cartRepository.findByUserIdAndRestaurantId(
+            new ObjectId(userId), 
+            new ObjectId(restaurantId));
+        if (cart == null) {
+            return null;
+        }
+
+        // Tìm món ăn trong giỏ hàng
+        ShoppingCart.CartItem item = cart.getItems().stream()
+            .filter(i -> i.getDishId().toString().equals(dishId))
+            .findFirst()
+            .orElse(null);
+
+        if (item == null) {
+            return null;
+        }
+
+        // Chuyển đổi sang DTO và trả về
+        return ShoppingCartDTO.CartItem.builder()
+            .dishId(item.getDishId().toString())
+            .dishName(item.getDishName())
+            .dishImage(item.getDishImage())
+            .quantity(item.getQuantity())
+            .unitPrice(item.getUnitPrice())
+            .selectedOptions(item.getSelectedOptions().stream()
+                .map(opt -> ShoppingCartDTO.SelectedOption.builder()
+                    .optionName(opt.getOptionName())
+                    .choiceName(opt.getChoiceName())
+                    .additionalPrice(opt.getAdditionalPrice())
+                    .build())
+                .collect(Collectors.toList()))
+            .subtotal(item.getSubtotal())
+            .specialInstructions(item.getSpecialInstructions())
+            .build();
     }
 } 
