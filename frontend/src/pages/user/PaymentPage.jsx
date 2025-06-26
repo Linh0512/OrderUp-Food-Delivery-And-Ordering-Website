@@ -10,10 +10,11 @@ import { useAuth } from "../../components/common/AuthContext";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
+  const [addressMethod, setAddressMethod] = useState("select");
   const [selectedAddress, setSelectedAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [addressDetail, setAddressDetail] = useState({
-    address: "",
+    address: selectedAddress,
     note: "",
     name: "",
     email: "",
@@ -31,13 +32,18 @@ export default function PaymentPage() {
     getAddress(user.userId, user.token).then((res) => {
       console.log(res);
       setAddresses(res);
+      const defaultAddr = res.find((item) => item.default);
+      if (defaultAddr) {
+        setAddressDetail((prev) => ({
+          ...prev,
+          address: defaultAddr.fullAddress + " (" + defaultAddr.title + ")",
+        }));
+        setSelectedAddress(
+          defaultAddr.fullAddress + " (" + defaultAddr.title + ")"
+        );
+      }
     });
   }, [user]);
-
-  useEffect(() => {
-    const defaultAddr = addresses.find((item) => item.default);
-    if (defaultAddr) setSelectedAddress(defaultAddr.fullAddress);
-  }, [addresses]);
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
@@ -53,7 +59,9 @@ export default function PaymentPage() {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-    navigate("/tracking", { state: { cart, addressDetail ,subtotal,discount} });
+    navigate("/tracking", {
+      state: { cart, addressDetail, subtotal, discount },
+    });
   };
   return (
     <div className="w-[70vw] mx-auto">
@@ -74,15 +82,32 @@ export default function PaymentPage() {
           <div className="p-4 shadow rounded-3xl bg-white px-7 space-y-3">
             <h3 className="font-semibold ">Giao đến</h3>
             <div className="flex items-center space-x-4">
+              <input
+                type="radio"
+                name=""
+                id=""
+                value={"select"}
+                checked={addressMethod === "select"}
+                onChange={(e) => setAddressMethod(e.target.value)}
+              />
               <p className="font-semibold text-sm text-gray-400">
                 Chọn địa chỉ
               </p>
               <select
                 value={selectedAddress}
-                onChange={(e) => {setSelectedAddress(e.target.value)
-                  setAddressDetail({ ...addressDetail, address: e.target.value })
+                onChange={(e) => {
+                  setSelectedAddress(e.target.value);
+                  setAddressDetail({
+                    ...addressDetail,
+                    address: e.target.value,
+                  });
                 }}
-                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200 cursor-pointer"
+                disabled={addressMethod !== "select"}
+                className={`w-[80%] px-4 py-3 border ${
+                  addressMethod !== "select"
+                    ? "bg-gray-200 cursor-not-allowed text-gray-500"
+                    : "hover:border-gray-400"
+                } border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200 cursor-pointer`}
               >
                 {addresses.map((item, index) => (
                   <option
@@ -96,13 +121,29 @@ export default function PaymentPage() {
               </select>
             </div>
             <div className="items-center flex space-x-4">
+              <input
+                type="radio"
+                value={"write"}
+                checked={addressMethod === "write"}
+                onChange={(e) => setAddressMethod(e.target.value)}
+              />
               <p className="font-semibold text-sm text-gray-400">
                 Hoặc nhập địa chỉ
               </p>
               <input
                 type="text"
-                onChange={(e)=>setAddressDetail({ ...addressDetail, address: e.target.value })}
-                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200"
+                onChange={(e) =>
+                  setAddressDetail({
+                    ...addressDetail,
+                    address: e.target.value,
+                  })
+                }
+                disabled={addressMethod !== "write"}
+                className={`w-[80%] px-4 py-3 border ${
+                  addressMethod !== "write"
+                    ? "bg-gray-200 cursor-not-allowed text-gray-500"
+                    : "hover:border-gray-400"
+                } border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200`}
               />
             </div>
             <p className="font-semibold my-3">Ghi chú</p>

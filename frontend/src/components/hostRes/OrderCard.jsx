@@ -10,8 +10,9 @@ import {
 import avatar from "../../assets/avatar.png";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { formatCurrencyVN } from "../../utils/Format";
 
-const OrderCard = ({ loading }) => {
+const OrderCard = ({ loading,item }) => {
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
       case "pending":
@@ -68,7 +69,7 @@ const OrderCard = ({ loading }) => {
           <div className="text-end text-sm opacity-70 space-y-2">
             <div>123456789</div>
             <div>
-              <FontAwesomeIcon icon={faCalendar} /> 20/6/2025
+              <FontAwesomeIcon icon={faCalendar} /> {item.orderDate}
             </div>
             <div>10 items</div>
           </div>
@@ -83,7 +84,7 @@ const OrderCard = ({ loading }) => {
           <FontAwesomeIcon icon={getStatusIcon("pending")} /> pending
         </div>
         <div className="text-green-500 font font-semibold">
-          <FontAwesomeIcon icon={faMoneyBill} /> 100.000.000 vnđ
+          <FontAwesomeIcon icon={faMoneyBill} /> {formatCurrencyVN(item.orderTotalAmount)}
         </div>
       </div>
     </Link>

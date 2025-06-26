@@ -1,13 +1,14 @@
 import { useState } from "react";
 import ProductPopUp from "./ProductPopUp";
 import { formatCurrencyVN } from "../utils/Format";
+import product from '../assets/product.jpg'
 
 export default function ProductCard({ productDetail ,token}) {
   const [showPopUp,setShowPopup]=useState(false)
   return (
     <div className="flex shadow p-3 space-x-5 items-center bg-white">
       <img
-        src={productDetail.image}
+        src={product||productDetail.image}
         alt={productDetail.name}
         className="size-24 shadow-xl"
       />

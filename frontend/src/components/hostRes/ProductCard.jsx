@@ -1,7 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useNavigate } from "react-router-dom";
 import product from "../../assets/product.jpg";
-import { faStar } from "@fortawesome/free-solid-svg-icons";
-import { Link, useNavigate } from "react-router-dom";
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function ProductCard({ item, Loading }) {
   const nav = useNavigate();
@@ -17,17 +16,12 @@ export default function ProductCard({ item, Loading }) {
         alt=""
         className="w-[20%] h-auto object-contain shadow"
       />
-      <div className="flex justify-between w-full ml-5 py-3">
+      <div className="flex flex-col justify-between ml-5 py-3 w-full">
         <div className="space-y-1">
           <p className="font-bold">{item.name}</p>
-          <p className="text-sm text-gray-500"> cơm </p>
+          <p className="text-sm text-gray-500"> {item.description} </p>
         </div>
-        <div className="space-y-8">
-          <p className="text-sm text-yellow-500 text-end">
-            5 <FontAwesomeIcon icon={faStar} />{" "}
-          </p>
-          <p className="font-semibold">{item.basePrice}đ</p>
-        </div>
+        <p className="font-semibold text-end self-end">{formatCurrencyVN(item.basePrice)}</p>
       </div>
     </div>
   );

@@ -31,7 +31,7 @@ export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher,su
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div
-        className="bg-white p-6 rounded-3xl shadow-lg w-[40vw]"
+        className="bg-white p-6 rounded-3xl shadow-lg w-[40vw] "
         ref={selectRef}
       >
         <h2 className="text-xl font-bold mb-5 ">Mã khuyến mãi</h2>
@@ -51,7 +51,7 @@ export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher,su
         <p className="mb-4 text-sm text-gray-400">
           Hoặc chọn mã giảm giá của bạn.
         </p>
-        <div className="space-y-6">
+        <div className="space-y-6 ">
           {vouchers.length!==0 ? (
             vouchers.map((item, index) => (
               <VoucherCard key={index} voucher={item} onSelect={() => onSelectVoucher(item)} subtotal={subtotal}/>

@@ -26,6 +26,17 @@ export default function ShopPage() {
   ];
   const [priceSort, setPriceSort] = useState(0);
   const [shopDetail, setShopDetail] = useState({});
+  const [search, setSearch] = useState("");
+
+  let sortedProduct = [...products];
+
+  if (priceSort === 1) {
+    sortedProduct.sort((a, b) => a.basePrice - b.basePrice);
+  } else if (priceSort === -1) {
+    sortedProduct.sort((a, b) => b.basePrice - a.basePrice);
+  }
+
+
 
   useEffect(() => {
     getShopDetail(id, user.token).then((res) => {
@@ -54,7 +65,9 @@ export default function ShopPage() {
         <div className="w-[65%]">
           <BigShopCard shop={shopDetail} />
         </div>
-        <div className="w-[30%]">{review && <ReviewBox review={review} id={id}/>}</div>
+        <div className="w-[30%]">
+          {review && <ReviewBox review={review} id={id} />}
+        </div>
       </div>
       <div className="mt-10 flex">
         <div className="space-y-4 w-1/5">
@@ -68,16 +81,22 @@ export default function ShopPage() {
               type="text"
               name=""
               id=""
+              value={search}
+              onChange={(e)=>setSearch(e.target.value)}
               placeholder="Tìm món"
               className="w-full focus:outline-none focus:ring-0 focus:border-none "
             />
           </div>
           <div className="grid grid-cols-3 gap-7 ">
             {Array.isArray(products) &&
-              products
+              sortedProduct.filter((item)=>item.name.toLowerCase().includes(search.toLowerCase()))
                 .slice((page - 1) * PRODUCT_LIMIT, page * PRODUCT_LIMIT)
                 .map((item, index) => (
-                  <ProductCard key={index} productDetail={item} token={user.token}/>
+                  <ProductCard
+                    key={index}
+                    productDetail={item}
+                    token={user.token}
+                  />
                 ))}
           </div>
           <Pagination
