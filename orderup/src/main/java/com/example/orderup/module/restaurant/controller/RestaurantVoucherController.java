@@ -41,22 +41,22 @@ public class RestaurantVoucherController {
         return ResponseEntity.ok(voucherService.createVoucher(dto, token));
     }
     
-    @PutMapping("/{code}")
+    @PutMapping("/{voucherId}")
     public ResponseEntity<VoucherDetailDTO> updateVoucher(
             @PathVariable String restaurantId,
-            @PathVariable String code,
+            @PathVariable String voucherId,
             @RequestBody CreateVoucherDTO dto,
             @RequestHeader("Authorization") String token) {
         dto.setRestaurantId(restaurantId);
-        return ResponseEntity.ok(voucherService.updateVoucher(code, dto, token));
+        return ResponseEntity.ok(voucherService.updateVoucher(voucherId, dto, token));
     }
     
-    @DeleteMapping("/{code}")
+    @DeleteMapping("/{voucherId}")
     public ResponseEntity<Void> deleteVoucher(
             @PathVariable String restaurantId,
-            @PathVariable String code,
+            @PathVariable String voucherId,
             @RequestHeader("Authorization") String token) {
-        boolean deleted = voucherService.deleteVoucher(code, token);
+        boolean deleted = voucherService.deleteVoucher(voucherId, token);
         return deleted ? ResponseEntity.ok().build() : ResponseEntity.notFound().build();
     }
 } 

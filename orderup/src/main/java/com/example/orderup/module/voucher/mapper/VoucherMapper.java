@@ -3,6 +3,7 @@ package com.example.orderup.module.voucher.mapper;
 import com.example.orderup.module.voucher.dto.*;
 import com.example.orderup.module.voucher.entity.Voucher;
 import org.springframework.stereotype.Component;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
@@ -85,7 +86,10 @@ public class VoucherMapper {
 
     public void updateFromDTO(Voucher voucher, CreateVoucherDTO dto) {
         voucher.setCode(dto.getCode());
-        voucher.setType(dto.getType());
+        // Chỉ update type nếu không null
+        if (dto.getType() != null) {
+            voucher.setType(dto.getType());
+        }
         voucher.setValue(dto.getValue());
         
         Voucher.VoucherCondition conditions = voucher.getConditions();
@@ -103,6 +107,7 @@ public class VoucherMapper {
         validity.setExpiresAt(dto.getExpiresAt());
         
         voucher.setRemainingValue(dto.getRemainingValue());
+        // Chỉ update restaurantId nếu không null
         if (dto.getRestaurantId() != null) {
             voucher.setRestaurantId(dto.getRestaurantId());
         }

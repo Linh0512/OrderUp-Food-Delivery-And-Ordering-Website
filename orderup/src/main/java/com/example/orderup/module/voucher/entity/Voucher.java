@@ -3,6 +3,7 @@ package com.example.orderup.module.voucher.entity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -32,7 +33,7 @@ public class Voucher {
     }
 
     public void updateActiveStatus() {
-        boolean isExpired = this.validity.getExpiresAt().isBefore(LocalDateTime.now());
+        boolean isExpired = this.validity.getExpiresAt().isBefore(LocalDate.now());
         boolean isOutOfStock = this.remainingValue <= 0;
         this.isActive = !isExpired && !isOutOfStock;
     }
@@ -46,7 +47,7 @@ public class Voucher {
     @Data
     public static class VoucherValidity {
         private LocalDateTime issuedAt;
-        private LocalDateTime expiresAt;
+        private LocalDate expiresAt;
     }
 
     @Data
