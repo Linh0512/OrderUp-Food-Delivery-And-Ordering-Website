@@ -285,3 +285,18 @@ export const updateAddress=async(id,token,address,index)=>{
     return {};
   }
 }
+
+export const createOrder=async(token,order)=>{
+  try {
+    const response = await api.post(`/api/cart/checkout`,order,{
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}

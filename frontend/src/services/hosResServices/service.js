@@ -10,13 +10,13 @@ export const getDashboardData = async (id, token) => {
     if (response.data) return response.data;
     else return {};
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {};
   }
 };
 
-export const getOrderData=async(id,token)=>{
-    try {
+export const getOrderData = async (id, token) => {
+  try {
     const response = await api.get(`/api/orders/restaurantId/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -25,12 +25,12 @@ export const getOrderData=async(id,token)=>{
     if (response.data) return response.data;
     else return [];
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {};
   }
-}
+};
 
-export const getVoucher=async(id,token)=>{
+export const getVoucher = async (id, token) => {
   try {
     const response = await api.get(`/api/restaurants/${id}/vouchers`, {
       headers: {
@@ -40,22 +40,39 @@ export const getVoucher=async(id,token)=>{
     if (response.data) return response.data;
     else return [];
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {};
   }
-}
+};
 
-export const addVoucher=async(id,token,voucher)=>{
+export const addVoucher = async (id, token, voucher) => {
   try {
-    const response = await api.post(`/api/restaurants/${id}/vouchers`,voucher, {
+    const response = await api.post(
+      `/api/restaurants/${id}/vouchers`,
+      voucher,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return [];
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const deleteVoucher = async (id, token, code) => {
+  try {
+    await api.delete(`/api/restaurants/${id}/vouchers/${code}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    if (response.data) return response.data;
-    else return [];
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {};
   }
-}
+};

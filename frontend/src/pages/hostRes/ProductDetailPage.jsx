@@ -12,7 +12,6 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import product from "../../assets/product.jpg";
 import { useAuth } from "../../components/common/AuthContext";
-import OptionsManager from "../../components/hostRes/OptionsManager";
 import { getDishbyId } from "../../services/hosResServices/Product";
 import { formatCurrencyVN } from "../../utils/Format";
 
@@ -165,27 +164,6 @@ export default function ProductDetailPage() {
                 </p>
               )}
             </div>
-
-            {/* <div className="flex items-center space-x-4">
-              <label className=" font-medium text-gray-700 w-27">
-                Danh mục:
-              </label>
-              {isEditing ? (
-                <select className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none">
-                  <option value="Cơm">Cơm</option>
-                  <option value="Phở">Phở</option>
-                  <option value="Bánh mì">Bánh mì</option>
-                  <option value="Bún">Bún</option>
-                  <option value="Đồ uống">Đồ uống</option>
-                </select>
-              ) : (
-                <div className="flex items-center gap-2">
-                  <FontAwesomeIcon icon={faTag} />
-                  <span className="text-gray-800">Cơm</span>
-                </div>
-              )}
-            </div> */}
-
             <div className="flex items-center ">
               <label className="font-medium text-gray-700 w-34">Giá :</label>
               {isEditing ? (
@@ -216,7 +194,6 @@ export default function ProductDetailPage() {
                 </p>
               )}
             </div>
-            <OptionsManager isEditing={isEditing} />
           </div>
         </div>
       </div>

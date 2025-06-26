@@ -63,9 +63,9 @@ export default function CartPage() {
     if (selectedRes) {
       navigate("/payment", {
         state: {
-          cart: selectedRes.items,
+          cart: { id: selectedRes.id, items: selectedRes.items },
           subtotal: subtotal,
-          discount: selectedVoucher?.value,
+          discount: selectedVoucher,
         },
       });
     } else alert("Chưa chọn món ăn");
