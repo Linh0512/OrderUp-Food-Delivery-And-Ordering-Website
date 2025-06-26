@@ -11,6 +11,8 @@ import com.example.orderup.module.user.dto.ShoppingCartDTO;
 import com.example.orderup.module.user.dto.ShoppingCartDTO.*;
 import com.example.orderup.module.user.service.ShoppingCartService;
 import com.example.orderup.module.user.entirty.Order;
+import com.example.orderup.module.user.dto.CheckoutDTO;
+import com.example.orderup.module.user.dto.ErrorResponse;
 import lombok.Data;
 
 @RestController
@@ -119,12 +121,12 @@ public class ShoppingCartController {
     }
 
     // Thanh toán giỏ hàng
-    @PostMapping("/{cartId}/checkout")
+    @PostMapping("/checkout")
     public ResponseEntity<?> checkoutCart(
             @RequestHeader("Authorization") String token,
-            @PathVariable String cartId) {
+            @RequestBody CheckoutDTO checkoutDTO) {
         try {
-            Order order = cartService.checkoutCart(token, cartId);
+            Order order = cartService.checkoutCart(token, checkoutDTO);
             return ResponseEntity.ok(order);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()

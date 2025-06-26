@@ -6,13 +6,15 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface VoucherRepository extends MongoRepository<Voucher, String> {
     
     // Tìm voucher theo type
     List<Voucher> findByType(String type);
+
+    // Tìm voucher theo code
+    Voucher findByCode(String code);
     
     // Tìm voucher theo nhà hàng
     List<Voucher> findByRestaurantId(String restaurantId);
@@ -20,9 +22,6 @@ public interface VoucherRepository extends MongoRepository<Voucher, String> {
     // Tìm voucher hợp lệ cho user
     @Query("{ 'isActive': true, 'remainingValue': { $gt: 0 }, 'validity.expiresAt': { $gt: ?0 }, $or: [ { 'type': 'GLOBAL' }, { 'restaurantId': ?1 } ] }")
     List<Voucher> findValidVouchersForUser(LocalDateTime now, String restaurantId);
-    
-    // Tìm voucher theo code
-    Optional<Voucher> findByCode(String code);
     
     // Tìm voucher theo type và restaurantId
     List<Voucher> findByTypeAndRestaurantId(String type, String restaurantId);
