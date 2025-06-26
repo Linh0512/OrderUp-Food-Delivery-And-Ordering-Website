@@ -1,7 +1,9 @@
 package com.example.orderup.module.voucher.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.example.orderup.config.JacksonConfig;
 import lombok.Data;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 public class VoucherThumbDTO {
@@ -11,7 +13,10 @@ public class VoucherThumbDTO {
     private String type;
     private String restaurantId;
     private double minimumOrderAmount;
-    private LocalDateTime expiresAt;
+    
+    @JsonSerialize(using = JacksonConfig.LocalDateSerializer.class)
+    private LocalDate expiresAt;
+    
     private int remainingValue;
     private boolean isActive;
 } 

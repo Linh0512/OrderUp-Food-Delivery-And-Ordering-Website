@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -87,8 +88,8 @@ public class VoucherService {
     }
 
     @Transactional
-    public VoucherDetailDTO updateVoucher(String code, CreateVoucherDTO dto, String token) {
-        Voucher voucher = voucherRepository.findByCode(code);
+    public VoucherDetailDTO updateVoucher(String voucherId, CreateVoucherDTO dto, String token) {
+        Voucher voucher = voucherRepository.findById(voucherId).orElse(null);
         if (voucher == null) {
             throw new RuntimeException("Voucher not found");
         }
@@ -100,8 +101,8 @@ public class VoucherService {
     }
 
     @Transactional
-    public boolean deleteVoucher(String code, String token) {
-        Voucher voucher = voucherRepository.findByCode(code);
+    public boolean deleteVoucher(String voucherId, String token) {
+        Voucher voucher = voucherRepository.findById(voucherId).orElse(null);
         if (voucher == null) {
             throw new IllegalArgumentException("Không tìm thấy voucher");
         }
@@ -125,7 +126,7 @@ public class VoucherService {
                 vouchers = voucherRepository.findByTypeAndRestaurantId("LOCAL", restaurantId);
                 break;
             case "USER":
-                vouchers = voucherRepository.findValidVouchersForUser(LocalDateTime.now(), restaurantId);
+                vouchers = voucherRepository.findValidVouchersForUser(LocalDate.now(), restaurantId);
                 break;
             default:
                 return List.of();

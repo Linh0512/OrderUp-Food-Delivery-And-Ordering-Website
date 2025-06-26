@@ -58,33 +58,33 @@ public class AdminVoucherViewController {
         return ResponseEntity.ok(voucherService.createVoucher(dto, token));
     }
 
-    @PatchMapping("/api/vouchers/{code}")
+    @PatchMapping("/api/vouchers/{voucherId}")
     @ResponseBody
     public ResponseEntity<VoucherDetailDTO> updateVoucher(
-            @PathVariable String code,
+            @PathVariable String voucherId,
             @RequestBody CreateVoucherDTO dto,
             @RequestHeader(value = "Authorization", required = false) String token) {
         try {
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            return ResponseEntity.ok(voucherService.updateVoucher(code, dto, token));
+            return ResponseEntity.ok(voucherService.updateVoucher(voucherId, dto, token));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @DeleteMapping("/api/vouchers/{code}")
+    @DeleteMapping("/api/vouchers/{voucherId}")
     @ResponseBody
     public ResponseEntity<Void> deleteVoucher(
-            @PathVariable String code,
+            @PathVariable String voucherId,
             @RequestHeader(value = "Authorization", required = false) String token) {
         try {
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            voucherService.deleteVoucher(code, token);
+            voucherService.deleteVoucher(voucherId, token);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();
