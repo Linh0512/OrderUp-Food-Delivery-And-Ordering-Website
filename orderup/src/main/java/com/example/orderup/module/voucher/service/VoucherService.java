@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,8 +39,10 @@ public class VoucherService {
     }
 
     public VoucherDetailDTO getVoucherDetail(String code) {
-        Voucher voucher = voucherRepository.findByCode(code)
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+        Voucher voucher = voucherRepository.findByCode(code);
+        if (voucher == null) {
+            throw new RuntimeException("Voucher not found");
+        }
         voucher.updateActiveStatus();
         voucherRepository.save(voucher);
         return voucherMapper.toDetailDTO(voucher);
@@ -53,6 +54,30 @@ public class VoucherService {
         if (voucherRepository.existsByCode(dto.getCode())) {
             throw new RuntimeException("Voucher code already exists");
         }
+
+        String role = jwtTokenProvider.getRoleFromToken(token);
+        if (role == null) {
+            throw new RuntimeException("Invalid token");
+        }
+
+        // Set type based on role
+        switch (role.toUpperCase()) {
+            case "ADMIN":
+                // Admin can create both GLOBAL and LOCAL vouchers
+                if (dto.getType() == null) {
+                    dto.setType("GLOBAL"); // Default to GLOBAL for admin
+                }
+                break;
+            case "RESTAURANTHOST":
+                // RestaurantHost can only create LOCAL vouchers
+                dto.setType("LOCAL");
+                if (dto.getRestaurantId() == null) {
+                    throw new RuntimeException("RestaurantId is required for LOCAL vouchers");
+                }
+                break;
+            default:
+                throw new RuntimeException("Unauthorized to create vouchers");
+        }
         
         Voucher voucher = voucherMapper.toEntity(dto);
         voucher.setActive(true);
@@ -63,8 +88,10 @@ public class VoucherService {
 
     @Transactional
     public VoucherDetailDTO updateVoucher(String code, CreateVoucherDTO dto, String token) {
-        Voucher voucher = voucherRepository.findByCode(code)
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
+        Voucher voucher = voucherRepository.findByCode(code);
+        if (voucher == null) {
+            throw new RuntimeException("Voucher not found");
+        }
         
         voucherMapper.updateFromDTO(voucher, dto);
         voucher.updateActiveStatus();
@@ -74,12 +101,12 @@ public class VoucherService {
 
     @Transactional
     public boolean deleteVoucher(String code, String token) {
-        Optional<Voucher> voucherOpt = voucherRepository.findByCode(code);
-        if (voucherOpt.isPresent()) {
-            voucherRepository.delete(voucherOpt.get());
-            return true;
+        Voucher voucher = voucherRepository.findByCode(code);
+        if (voucher == null) {
+            throw new IllegalArgumentException("Không tìm thấy voucher");
         }
-        return false;
+        voucherRepository.delete(voucher);
+        return true;
     }
 
     // Restaurant methods
@@ -114,40 +141,48 @@ public class VoucherService {
             .collect(Collectors.toList());
     }
 
-    // User methods
-    @Transactional
-    public boolean useVoucher(String code, String token) {
-        String userId = jwtTokenProvider.getUserIdFromToken(token);
-        if (userId == null) {
-            throw new RuntimeException("Invalid token");
+    public Voucher getVoucherByCode(String code) {
+        Voucher voucher = voucherRepository.findByCode(code);
+        if (voucher == null) {
+            throw new IllegalArgumentException("Không tìm thấy voucher");
+        }
+        voucher.updateActiveStatus();
+        return voucher;
+    }
+
+    public void useVoucher(String code, String userId) {
+        Voucher voucher = voucherRepository.findByCode(code);
+        if (voucher == null) {
+            throw new IllegalArgumentException("Không tìm thấy voucher");
         }
 
-        Voucher voucher = voucherRepository.findByCode(code)
-                .orElseThrow(() -> new RuntimeException("Voucher not found"));
-
+        // Kiểm tra trạng thái voucher
+        voucher.updateActiveStatus();
         if (!voucher.isActive()) {
-            throw new RuntimeException("Voucher is not active");
+            throw new IllegalArgumentException("Voucher không còn hiệu lực");
         }
 
+        // Kiểm tra số lượng còn lại
         if (voucher.getRemainingValue() <= 0) {
-            throw new RuntimeException("Voucher is out of stock");
+            throw new IllegalArgumentException("Voucher đã hết lượt sử dụng");
         }
 
-        // Add usage record
-        Voucher.VoucherUsage usage = new Voucher.VoucherUsage();
-        usage.setUserId(userId);
-        usage.setUsedAt(LocalDateTime.now());
-        
+        // Thêm lịch sử sử dụng
         if (voucher.getUsage() == null) {
             voucher.setUsage(new ArrayList<>());
         }
+        Voucher.VoucherUsage usage = new Voucher.VoucherUsage();
+        usage.setUserId(userId);
+        usage.setUsedAt(LocalDateTime.now());
         voucher.getUsage().add(usage);
-        
-        // Update remaining value
+
+        // Giảm số lượng còn lại
         voucher.setRemainingValue(voucher.getRemainingValue() - 1);
+
+        // Cập nhật trạng thái
         voucher.updateActiveStatus();
-        
+
+        // Lưu voucher
         voucherRepository.save(voucher);
-        return true;
     }
 } 

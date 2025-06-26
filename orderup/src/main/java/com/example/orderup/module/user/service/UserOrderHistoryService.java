@@ -117,16 +117,16 @@ public class UserOrderHistoryService {
         UserOrderHistoryDetailDTO dto = orderMapper.toUserOrderHistoryDetailDTO(order);
         
         if (user != null && user.getProfile() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
             UserOrderHistoryDetailDTO.UserProfile userProfile = UserOrderHistoryDetailDTO.UserProfile.builder()
-                .firstName(user.getProfile().getFirstName())
-                .lastName(user.getProfile().getLastName())
                 .fullName(user.getProfile().getName())
-                .phone(user.getProfile().getPhone())
                 .avatar(user.getProfile().getAvatar())
                 .dateOfBirth(user.getProfile().getDateOfBirth() != null ? 
-                    user.getProfile().getDateOfBirth().toString() : null)
+                    formatter.format(user.getProfile().getDateOfBirth().toInstant()
+                        .atZone(java.time.ZoneId.systemDefault())
+                        .toLocalDate()) : null)
                 .gender(user.getProfile().getGender())
+                .address(order.getDeliveryInfo().getAddress().getFullAddress())
                 .build();
             dto.setUserProfile(userProfile);
         }

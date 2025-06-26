@@ -63,7 +63,7 @@ public class Order {
         private String customerPhone;
         private String deliveryInstructions;
         private String deliveryType;
-        private LocalDateTime estimatedDeliveryTime;
+        private int estimatedDeliveryTime;
         private LocalDateTime actualDeliveryTime;
     }
     
