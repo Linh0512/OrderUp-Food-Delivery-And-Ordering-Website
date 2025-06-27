@@ -145,13 +145,13 @@ export default function TrackingPage() {
             </div>
             <div className="flex justify-between">
               <p>Giảm giá</p>
-              <p>- {formatCurrencyVN(discount)}</p>
+              <p>- {formatCurrencyVN(discount.value)}</p>
             </div>
             <div className="flex justify-between">
               <p>Phí vận chuyển</p>
               <p>{formatCurrencyVN(30000)}</p>
             </div>
-            <p className="text-end mt-7 text-2xl font-semibold">{formatCurrencyVN(subtotal-discount+30000)}</p>
+            <p className="text-end mt-7 text-2xl font-semibold">{formatCurrencyVN(subtotal-(discount.value||0)+30000)}</p>
           </div>
         </div>
       </div>

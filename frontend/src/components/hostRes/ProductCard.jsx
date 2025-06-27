@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import product from "../../assets/product.jpg";
 import { formatCurrencyVN } from "../../utils/Format";
 
 export default function ProductCard({ item, Loading }) {
@@ -8,13 +7,13 @@ export default function ProductCard({ item, Loading }) {
     return <div className="w-120 animate-pulse bg-gray-300 h-30"></div>;
   return (
     <div
-      className="flex w-full shadow rounded caret-transparent bg-white p-3"
+      className="flex w-full h-30 items-center shadow rounded caret-transparent bg-white p-3"
       onClick={() => nav(`/Product/${item.id}`)}
     >
       <img
-        src={product}
+        src={item.image}
         alt=""
-        className="w-[20%] h-auto object-contain shadow"
+        className="w-[20%] h-fit object-contain shadow"
       />
       <div className="flex flex-col justify-between ml-5 py-3 w-full">
         <div className="space-y-1">

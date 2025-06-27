@@ -11,6 +11,21 @@ export const AddDish = async (id, dish) => {
   }
 };
 
+export const updateDish = async (id, dish,token) => {
+  try {
+    const response = await api.put(`/api/dishes/update/${id}`, dish, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log(response.data);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
 export const uploadImage = async (selectedFile, token) => {
   if (!selectedFile) {
     console.log("Vui lòng chọn file");
@@ -32,7 +47,7 @@ export const uploadImage = async (selectedFile, token) => {
   }
 };
 
-export const getAllDish=async(id,token)=>{
+export const getAllDish = async (id, token) => {
   try {
     const response = await api.get(`/api/dishes/restaurant/${id}`, {
       headers: {
@@ -42,22 +57,27 @@ export const getAllDish=async(id,token)=>{
     if (response.data) return response.data;
     else return {};
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {};
   }
-}
+};
 
-export const getDishbyId=async(id)=>{
+export const getDishbyId = async (id) => {
   try {
     const response = await api.get(`/api/dishes/${id}`);
     if (response.data) return response.data;
     else return {};
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return {};
   }
-}
+};
 
-export const updateDish=async(id)=>{
-  
-}
+export const deleteDish = async (id) => {
+  try {
+    await api.delete(`/api/dishes/delete/${id}`);
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};

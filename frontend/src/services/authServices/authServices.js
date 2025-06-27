@@ -47,7 +47,7 @@ export const getUserResId = async (id, token) => {
         Authorization: `Bearer ${token}`,
       },
     });
-    if(res.data)
+    if(res.data.restaurantInfo)
         return res.data.restaurantInfo.id
     else
         return ""

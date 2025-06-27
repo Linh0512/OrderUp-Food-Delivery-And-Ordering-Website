@@ -1,6 +1,7 @@
 import {
   faBowlRice,
   faChartPie,
+  faHouseUser,
   faTicket,
   faTruck
 } from "@fortawesome/free-solid-svg-icons";
@@ -15,6 +16,7 @@ export default function SideBar() {
     { icon: faTruck, name: "Order" },
     { icon: faBowlRice, name: "Product" },
     { icon: faTicket, name: "Voucher" },
+    { icon: faHouseUser, name: "ResProfile" },
   ];
   
   const nav = useNavigate();

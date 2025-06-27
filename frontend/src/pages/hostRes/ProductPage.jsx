@@ -14,32 +14,31 @@ import { getAllDish } from "../../services/hosResServices/Product";
 export default function ProductPage() {
   const LIMIT = 12;
   const [priceSort, setPriceSort] = useState(0);
-  const [search,setSearch]=useState("")
+  const [search, setSearch] = useState("");
   const nav = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [dish, setDish] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
-  const { user } = useAuth();
+  const { user, resId } = useAuth();
 
   useEffect(() => {
-    getAllDish("684844b61a05cf815c50eb74", user.token).then((res) => {
-      console.log(res);
-      setDish(res.data);
-      setCount(res.count);
-    });
-    setTimeout(() => setIsLoading(false), 1000);
-  }, [user]);
+    if (resId) {
+      getAllDish(resId, user.token).then((res) => {
+        console.log(res.data)
+        setDish(res.data);
+        setCount(res.count);
+      });
+      setTimeout(() => setIsLoading(false), 1000);
+    }
+  }, [user,resId]);
 
-  let sortedDish=[...dish]
+  let sortedDish = [...dish];
 
-  if(priceSort===1)
-  {
-    sortedDish.sort((a,b)=>a.basePrice-b.basePrice)
-  }
-  else if(priceSort===-1)
-  {
-    sortedDish.sort((a,b)=>b.basePrice-a.basePrice)
+  if (priceSort === 1) {
+    sortedDish.sort((a, b) => a.basePrice - b.basePrice);
+  } else if (priceSort === -1) {
+    sortedDish.sort((a, b) => b.basePrice - a.basePrice);
   }
 
   return (
@@ -64,7 +63,7 @@ export default function ProductPage() {
             className="w-full focus:outline-none"
             placeholder="Tìm kiếm..."
             value={search}
-            onChange={(e)=>setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </div>
@@ -90,7 +89,11 @@ export default function ProductPage() {
           ? Array.from({ length: 10 }).map((_, index) => (
               <ProductCard key={index} Loading={true} />
             ))
-          : sortedDish.filter((item)=>item.name.toLowerCase().includes(search.toLowerCase())).map((item, index) => <ProductCard key={index} item={item} />)}
+          : sortedDish
+              .filter((item) =>
+                item.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((item, index) => <ProductCard key={index} item={item} />)}
       </div>
       <Pagination
         limit={LIMIT}

@@ -5,7 +5,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
 import { formatCurrencyVN } from "../../utils/Format";
-import { getAddress } from "../../services/userServices/Service";
+import { createOrder, getAddress } from "../../services/userServices/Service";
 import { useAuth } from "../../components/common/AuthContext";
 
 export default function PaymentPage() {
@@ -26,7 +26,7 @@ export default function PaymentPage() {
   const location = useLocation();
   const cart = location.state?.cart || [];
   const subtotal = location.state?.subtotal;
-  const discount = location.state?.discount || 0;
+  const discount = location.state?.discount || {};
 
   useEffect(() => {
     getAddress(user.userId, user.token).then((res) => {
@@ -59,8 +59,52 @@ export default function PaymentPage() {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
+
+    let orderData={}
+
+    if (discount.value) {
+      orderData = {
+        cartId: cart.id,
+        deliveryInfo: {
+          fullAddress: addressDetail.address,
+          district: "Quận 3",
+          city: "TP.HCM",
+          customerName: addressDetail.name,
+          customerPhone: addressDetail.phone,
+          deliveryInstructions: addressDetail.note,
+        },
+        paymentInfo: {
+          method: paymentMethod,
+        },
+        promoInfo: {
+          code: discount.code || "",
+        },
+      };
+    }
+    else
+    {
+      orderData = {
+        cartId: cart.id,
+        deliveryInfo: {
+          fullAddress: addressDetail.address,
+          district: "Quận 3",
+          city: "TP.HCM",
+          customerName: addressDetail.name,
+          customerPhone: addressDetail.phone,
+          deliveryInstructions: addressDetail.note,
+        },
+        paymentInfo: {
+          method: paymentMethod,
+        }
+      };
+    }
+
+    console.log(orderData);
+
+    createOrder(user.token, orderData);
+
     navigate("/tracking", {
-      state: { cart, addressDetail, subtotal, discount },
+      state: { cart: cart.items, addressDetail, subtotal, discount },
     });
   };
   return (
@@ -239,7 +283,9 @@ export default function PaymentPage() {
             </div>
             <div className="flex justify-between">
               <p>Giảm giá</p>
-              <p className="text-red-500">-{formatCurrencyVN(discount)}</p>
+              <p className="text-red-500">
+                -{formatCurrencyVN(discount.value)}
+              </p>
             </div>
             <div className="flex justify-between">
               <p>Phí giao hàng</p>
@@ -249,7 +295,7 @@ export default function PaymentPage() {
             <div className="flex justify-between text-xl">
               <p>Tổng cộng</p>
               <p className="text-green-500 ">
-                {formatCurrencyVN(subtotal + 30000 - discount)}
+                {formatCurrencyVN(subtotal + 30000 - (discount.value || 0))}
               </p>
             </div>
           </div>
