@@ -2,9 +2,13 @@ package com.example.orderup.module.user.dto;
 
 import lombok.Data;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CheckoutDTO {
     private String cartId;
     
@@ -19,6 +23,8 @@ public class CheckoutDTO {
     
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DeliveryInfo {
         private String fullAddress;
         private String district;
@@ -30,12 +36,16 @@ public class CheckoutDTO {
     
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PaymentInfo {
         private String method; // CASH, MOMO, ZALOPAY, etc.
     }
     
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PromoInfo {
         private String code;
     }
