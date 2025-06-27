@@ -28,6 +28,7 @@ import CategoryPage from "./pages/hostRes/CategoryPage";
 import AddProduct from "./pages/hostRes/AddProduct";
 import HistoryDetailPage from "./pages/user/HistoryDetailPage";
 import AddressPage from "./pages/user/AddressPage";
+import RestaurantProfile from "./pages/hostRes/ResProfile";
 
 export default function App() {
   return (
@@ -69,6 +70,7 @@ export default function App() {
           <Route path="Product/add" element={<AddProduct />} />
           <Route path="Product/:id" element={<ProductDetailPage />} />
           <Route path="Voucher" element={<CategoryPage />} />
+          <Route path="ResProfile" element={<RestaurantProfile />} />
         </Route>
       </Route>
     </Routes>

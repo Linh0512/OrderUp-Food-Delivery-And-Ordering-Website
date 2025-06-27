@@ -8,7 +8,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { formatCurrencyVN, formatDateVN1 } from "../../utils/Format";
 
-export default function CategoryItem({ voucher, handleDelete, edit }) {
+export default function CategoryItem({ voucher, handleDelete, edit}) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
       <div className="p-4">
@@ -34,13 +34,13 @@ export default function CategoryItem({ voucher, handleDelete, edit }) {
 
             <div className="flex items-center space-x-5 text-sm">
               <div className="text-center">
-                <div className="flex flex-col items-center  text-gray-600 mb-1">
-                  <div className="space-x-2">
-                    <FontAwesomeIcon icon={faCalendar} />
-                    <span>Hết hạn </span>
-                  </div>
-                  <span>{formatDateVN1(voucher.expiresAt)}</span>
+                <div className="flex items-center text-gray-600 mb-1">
+                  <FontAwesomeIcon icon={faCalendar} />
+                  <span>Hết hạn </span>
                 </div>
+                <p className="font-medium">
+                  {formatDateVN1(voucher.expiresAt)}
+                </p>
               </div>
 
               <div className="text-center">
@@ -60,7 +60,7 @@ export default function CategoryItem({ voucher, handleDelete, edit }) {
           </button>
           <button
             className=" hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors opacity-0 group-hover:opacity-100"
-            onClick={() => handleDelete(voucher.code)}
+            onClick={() => handleDelete(voucher.id)}
           >
             <FontAwesomeIcon icon={faTrash} />
           </button>

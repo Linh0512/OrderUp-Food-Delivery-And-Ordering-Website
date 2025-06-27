@@ -64,13 +64,32 @@ export const addVoucher = async (id, token, voucher) => {
   }
 };
 
-export const deleteVoucher = async (id, token, code) => {
+export const deleteVoucher = async (id, token, voucherId) => {
   try {
-    await api.delete(`/api/restaurants/${id}/vouchers/${code}`, {
+    await api.delete(`/api/restaurants/${id}/vouchers/${voucherId}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const updateVoucher = async (id, token, voucher,voucherId) => {
+  try {
+    const response = await api.put(
+      `/api/restaurants/${id}/vouchers/${voucherId}`,
+      voucher,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return [];
   } catch (error) {
     console.log(error);
     return {};

@@ -7,12 +7,13 @@ import {
   addVoucher,
   deleteVoucher,
   getVoucher,
+  updateVoucher,
 } from "../../services/hosResServices/service";
-import { formatDateVN2 } from "../../utils/Format";
 
 export default function CategoryPage() {
   const [isAdd, setIsAdd] = useState("");
   const [voucherData, setVoucherData] = useState({
+    id: "",
     code: "",
     value: "",
     minimumOrderAmount: "",
@@ -20,6 +21,7 @@ export default function CategoryPage() {
     remainingValue: "",
   });
   const [vouchers, setVouchers] = useState([]);
+  const [search,setSearch]=useState("");
   const { user, resId } = useAuth();
 
   const load = () => {
@@ -31,42 +33,43 @@ export default function CategoryPage() {
   useEffect(() => {
     if (resId) {
       getVoucher(resId, user.token).then((res) => {
-        console.log(res)
+        console.log(res);
         setVouchers(res);
       });
     }
   }, [user, resId]);
 
-  const handleAdd = async () => {
-    const isFilled = Object.values(voucherData).every(
+  const handleSave = async () => {
+    const tmp = {
+      code: voucherData.code,
+      value: voucherData.value,
+      minimumOrderAmount: voucherData.minimumOrderAmount,
+      expiresAt: voucherData.expiresAt,
+      remainingValue: voucherData.remainingValue,
+    };
+    const isFilled = Object.values(tmp).every(
       (item) => item && item.toString().trim() !== ""
     );
-    if(!isFilled)
-    {
-      alert("nhập đủ thông tin của voucher")
-      return
+    if (!isFilled) {
+      alert("nhập đủ thông tin của voucher");
+      return;
     }
-    await addVoucher(resId, user.token, voucherData);
-    setVoucherData({
-      code: "",
-      value: "",
-      minimumOrderAmount: "",
-      expiresAt: "",
-      remainingValue: "",
-    });
+    if (isAdd === "add") await addVoucher(resId, user.token, tmp);
+    else if (isAdd === "edit")
+      await updateVoucher(resId, user.token, tmp, voucherData.id);
     setIsAdd("");
     load();
   };
 
-  const handleDelete = async (code) => {
-    await deleteVoucher(resId, user.token, code);
+  const handleDelete = async (id) => {
+    await deleteVoucher(resId, user.token, id);
     load();
   };
 
-  const handleOpenEdit=(item)=>{
-    setVoucherData(item)
-    setIsAdd("edit")
-  }
+  const handleOpenEdit = (item) => {
+    setVoucherData(item);
+    setIsAdd("edit");
+  };
 
   return (
     <div className="w-full p-3 space-y-5">
@@ -78,7 +81,17 @@ export default function CategoryPage() {
         <p>{vouchers.length} Voucher</p>
         <button
           className="text-white bg-green-500 text-lg p-2 rounded-lg"
-          onClick={() => setIsAdd("add")}
+          onClick={() => {
+            setIsAdd("add");
+            setVoucherData({
+              id: "",
+              code: "",
+              value: "",
+              minimumOrderAmount: "",
+              expiresAt: "",
+              remainingValue: "",
+            });
+          }}
         >
           Thêm +
         </button>
@@ -87,16 +100,18 @@ export default function CategoryPage() {
         <div className="w-full bg-white rounded-xl p-1.5 px-3 flex items-center">
           <input
             type="text"
+            value={search}
+            onChange={(e)=>setSearch(e.target.value)}
             className="w-full focus:outline-none"
             placeholder="Tìm kiếm..."
           />
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </div>
       </div>
-      <div className="flex space-x-5 ">
+      <div className="flex space-x-5">
         <div className="p-2 w-[50%] bg-gray-200 space-y-5 rounded-2xl ease-in-out h-fit">
           <p className="font-semibold text-xl p-2">Danh Sách Voucher</p>
-          {vouchers.map((item, index) => (
+          {vouchers.filter((item)=>item.code.toLowerCase().includes(search.toLowerCase())).map((item, index) => (
             <CategoryItem
               key={index}
               voucher={item}
@@ -105,9 +120,11 @@ export default function CategoryPage() {
             />
           ))}
         </div>
-        {isAdd==="add"||isAdd==="edit" ? (
+        {isAdd === "add" || isAdd === "edit" ? (
           <div className="bg-gray-100 w-[48%] shadow p-4 rounded-2xl border-l-4 border-green-500 h-fit space-y-3">
-            <p className="font-semibold text-xl mb-4 ">{isAdd==="add"?"Thêm Voucher":"Sửa voucher"}</p>
+            <p className="font-semibold text-xl mb-4 ">
+              {isAdd === "add" ? "Thêm Voucher" : "Sửa voucher"}
+            </p>
             <p className="font-semibold">Mã Voucher</p>
             <input
               type="text"
@@ -145,11 +162,11 @@ export default function CategoryPage() {
             <input
               type="Date"
               min={new Date().toISOString().slice(0, 10)}
-              value={formatDateVN2(voucherData.expiresAt)}
+              value={voucherData.expiresAt}
               onChange={(e) =>
                 setVoucherData({
                   ...voucherData,
-                  expiresAt: new Date(e.target.value),
+                  expiresAt: e.target.value,
                 })
               }
               className="p-2 px-4 border rounded-2xl focus:outline-green-300 "
@@ -170,9 +187,9 @@ export default function CategoryPage() {
             <div className="space-x-4">
               <button
                 className="p-2 bg-green-500 text-white rounded-xl"
-                onClick={handleAdd}
+                onClick={handleSave}
               >
-                {isAdd==="add"?"Thêm":"Sửa"}
+                {isAdd === "add" ? "Thêm" : "Sửa"}
               </button>
               <button
                 className="p-2 bg-gray-500 text-white rounded-xl"

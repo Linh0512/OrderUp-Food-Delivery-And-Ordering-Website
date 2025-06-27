@@ -2,6 +2,7 @@ import {
   faArrowLeft,
   faFloppyDisk,
   faPlus,
+  faSpinner,
   faTrash,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
@@ -9,21 +10,21 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";
-import { uploadImage } from "../../services/hosResServices/Product";
+import { AddDish, uploadImage } from "../../services/hosResServices/Product";
 
 export default function AddProduct() {
   const nav = useNavigate();
   const [fileSelected, setFileSelected] = useState(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [isUpLoading, setIsUpLoading] = useState(false);
   const [dishData, setDishData] = useState({
-    name: "Phở bò tái nạm",
-    description:
-      "Phở bò truyền thống Hà Nội với thịt bò tái và nạm, nước dùng đậm đà, bánh phở mềm dẻo",
-    basePrice: 65000,
+    name: "",
+    description: "",
+    basePrice: 0,
     images: [],
     options: [],
   });
-  const { user } = useAuth();
+  const { user, resId } = useAuth();
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -52,12 +53,27 @@ export default function AddProduct() {
     }
   };
 
-  const handleAdd = async () => {
-    try {
-      const image = await uploadImage(fileSelected, user.token);
+  const isDishDataValid = () => {
+    return (
+      dishData.name.trim() !== "" &&
+      dishData.basePrice !== "" &&
+      dishData.description.trim() !== "" &&
+      fileSelected
+    );
+  };
 
-      console.log(dish);
-      // await AddDish("684844b61a05cf815c50eb70",dish)
+  const handleAdd = async () => {
+    if (!isDishDataValid()) {
+      alert("vui lòng điền đủ thông tin ngoại trừ lựa chọn");
+      console.log(dishData);
+      return;
+    }
+    try {
+      setIsUpLoading(true);
+      const image = await uploadImage(fileSelected, user.token);
+      const tmp = { ...dishData, images: [image.data.url] };
+      await AddDish(resId, tmp);
+      setIsUpLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -113,7 +129,43 @@ export default function AddProduct() {
           : item
       ),
     });
-    console.log(dishData)
+  };
+
+  const handleUpdateChoicePrice = (optIndex, choiceIndex, newPrice) => {
+    setDishData({
+      ...dishData,
+      options: dishData.options.map((item, i) =>
+        i === optIndex
+          ? {
+              ...item,
+              choices: item.choices.map((item1, i1) =>
+                i1 === choiceIndex ? { ...item1, price: newPrice } : item1
+              ),
+            }
+          : item
+      ),
+    });
+  };
+
+  const handleDeleteOption = (optIndex) => {
+    setDishData({
+      ...dishData,
+      options: dishData.options.filter((_, i) => i !== optIndex),
+    });
+  };
+
+  const handleDeleteChoice = (optIndex, choiceIndex) => {
+    setDishData({
+      ...dishData,
+      options: dishData.options.map((item, i) =>
+        i === optIndex
+          ? {
+              ...item,
+              choices: item.choices.filter((_, i1) => i1 !== choiceIndex),
+            }
+          : item
+      ),
+    });
   };
 
   return (
@@ -130,16 +182,24 @@ export default function AddProduct() {
             <h1 className="text-2xl font-bold text-gray-800">
               Chi tiết món ăn
             </h1>
-            <p className="text-gray-600">#123567</p>
           </div>
         </div>
         <div className="p-2 space-x-3 flex">
           <button
-            className="bg-green-600 p-2 text-white rounded-xl"
+            className={`${isUpLoading?"bg-gray-500":"bg-green-600"} p-2 text-white rounded-xl`}
             onClick={handleAdd}
           >
-            <FontAwesomeIcon icon={faFloppyDisk} className="mr-2" />
-            Thêm
+            {isUpLoading ? (
+              <>
+                <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
+                Đang tạo 
+              </>
+            ) : (
+              <>
+                <FontAwesomeIcon icon={faFloppyDisk} className="mr-2" />
+                Thêm
+              </>
+            )}
           </button>
         </div>
       </div>
@@ -167,6 +227,9 @@ export default function AddProduct() {
               </label>
               <input
                 type="text"
+                onChange={(e) =>
+                  setDishData({ ...dishData, name: e.target.value })
+                }
                 className="w-[80%] p-3 border border-gray-300 rounded-lg focus:outline-none"
               />
             </div>
@@ -175,6 +238,10 @@ export default function AddProduct() {
               <div className="relative">
                 <input
                   type="number"
+                  min={0}
+                  onChange={(e) =>
+                    setDishData({ ...dishData, basePrice: e.target.value })
+                  }
                   className="w-full pl-5 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none"
                 />
               </div>
@@ -183,6 +250,9 @@ export default function AddProduct() {
               <label className=" font-medium text-gray-700 w-30">Mô tả:</label>
               <textarea
                 rows={4}
+                onChange={(e) =>
+                  setDishData({ ...dishData, description: e.target.value })
+                }
                 className="w-[80%] p-3 border border-gray-300 rounded-lg focus:outline-none"
               />
             </div>
@@ -208,6 +278,7 @@ export default function AddProduct() {
                         />
                         <FontAwesomeIcon
                           icon={faTrash}
+                          onClick={() => handleDeleteOption(optionIndex)}
                           className="text-red-500 hover:bg-red-100 p-2 transition rounded"
                         />
                       </div>
@@ -221,16 +292,32 @@ export default function AddProduct() {
                             <input
                               type="text"
                               placeholder="lựa chọn"
-                              onChange={(e)=>handleUpdateChoiceName(optionIndex,choiceIndex,e.target.value)}
+                              onChange={(e) =>
+                                handleUpdateChoiceName(
+                                  optionIndex,
+                                  choiceIndex,
+                                  e.target.value
+                                )
+                              }
                               className="border-gray-400 border p-2 rounded-xl bg-white focus:outline-none"
                             />
                             <input
                               type="number"
                               placeholder="giá tiền"
+                              onChange={(e) =>
+                                handleUpdateChoicePrice(
+                                  optionIndex,
+                                  choiceIndex,
+                                  e.target.value
+                                )
+                              }
                               className="border-gray-400 border p-2 rounded-xl bg-white focus:outline-none"
                             />
                             <FontAwesomeIcon
                               icon={faX}
+                              onClick={() =>
+                                handleDeleteChoice(optionIndex, choiceIndex)
+                              }
                               className="text-red-500 hover:bg-red-100 p-2 transition rounded"
                             />
                           </div>
