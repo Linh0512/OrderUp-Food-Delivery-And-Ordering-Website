@@ -190,6 +190,21 @@ export const getReview = async (id) => {
   }
 };
 
+export const addReview=async(resId,token,review)=>{
+  try {
+    const response=await api.post(`/api/reviews/${resId}/reviews`,review,{
+      headers:{
+        Authorization:`Bearer ${token}`
+      }
+    })
+    if(response.data)
+      console.log("thành công")
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}
+
 export const getVoucher = async (id, token) => {
   try {
     const response = await api.get(`/api/user/vouchers/restaurant/${id}`, {
@@ -300,3 +315,4 @@ export const createOrder=async(token,order)=>{
     return {};
   }
 }
+

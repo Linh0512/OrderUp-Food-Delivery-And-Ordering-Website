@@ -12,10 +12,10 @@ export default function ProductPopUp({
   handleClose,
   token,
   index,
-  reloadCart
+  reloadCart,
 }) {
   const productRef = useRef(null);
-  const [showError,setShowError]=useState(false)
+  const [showError, setShowError] = useState(false);
   const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
   const [dish, setDish] = useState({});
   const [specialInstructions, setSpecialInstructions] = useState(
@@ -64,27 +64,30 @@ export default function ProductPopUp({
   };
 
   const handleSave = async (index) => {
-    if (!orderId)
-    {
-      if(dish.options.length===selectedOptions.length)
-      {
+    if (!orderId) {
+      if (dish.options.length === selectedOptions.length) {
         addCart(token, data);
         handleClose(false);
-      }
-      else
-        setShowError(true)
-    }
-    else {
-      const {dishId,...exceptId}=data
-      await updateCart(orderId,token,exceptId,index);
-      reloadCart()
+      } else setShowError(true);
+    } else {
+      const { dishId, ...exceptId } = data;
+      const cleanedSelectedOptions = exceptId.selectedOptions.map(
+        ({ additionalPrice, ...rest }) => rest
+      );
+      const cleanedExceptId = {
+        ...exceptId,
+        selectedOptions: cleanedSelectedOptions,
+      };
+      console.log(cleanedExceptId);
+      await updateCart(orderId, token, cleanedExceptId, index);
+      reloadCart();
       handleClose(false);
     }
   };
 
   useEffect(() => {
     getDishbyId(cartItem.dishId || cartItem.id).then((res) => {
-      console.log(res)
+      console.log(res);
       setDish(res);
     });
   }, [cartItem]);
@@ -119,7 +122,11 @@ export default function ProductPopUp({
             </div>
             <p className="text-gray-400 text-sm">{dish.description}</p>
           </div>
-          {showError&&<div className="text-red-500 bg-red-100 p-2 font-semibold text-center">Lựa chọn đủ các option</div>}
+          {showError && (
+            <div className="text-red-500 bg-red-100 p-2 font-semibold text-center">
+              Lựa chọn đủ các option
+            </div>
+          )}
           <div className="mb-4 ">
             {dish?.options?.map((item, index) => (
               <div key={index}>
