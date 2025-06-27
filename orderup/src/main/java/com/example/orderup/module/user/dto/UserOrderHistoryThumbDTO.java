@@ -20,6 +20,7 @@ public class UserOrderHistoryThumbDTO {
     private String restaurantImage;
     private String restaurantAddress;
     private int orderTotalQuantity;
+    private boolean isReview; // Trường để kiểm tra order đã được review chưa
     private UserProfile userProfile;
 
     @Data

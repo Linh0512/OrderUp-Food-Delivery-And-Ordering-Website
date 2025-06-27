@@ -21,17 +21,17 @@ public class ReviewController {
         return reviewService.getReviewsByRestaurantId(restaurantId);
     }
 
-    @PostMapping("/{restaurantId}/reviews")
+    @PostMapping("/order/{orderId}")
     public ResponseEntity<?> createReview(
-            @PathVariable String restaurantId,
+            @PathVariable String orderId,
             @RequestBody ReviewDTO.CreateReviewRequest request,
             @RequestHeader("Authorization") String token) {
         try {
-            ReviewDTO review = reviewService.createReview(restaurantId, request, token);
+            ReviewDTO review = reviewService.createReviewForOrder(orderId, request, token);
             if (review != null) {
                 return new ResponseEntity<>(review, HttpStatus.CREATED);
             } else {
-                return new ResponseEntity<>("User has not ordered from this restaurant", HttpStatus.FORBIDDEN);
+                return new ResponseEntity<>("Order not found or already reviewed", HttpStatus.FORBIDDEN);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -39,14 +39,13 @@ public class ReviewController {
         }
     }
 
-    @PutMapping("/{restaurantId}/reviews/{reviewId}")
+    @PutMapping("/{reviewId}")
     public ResponseEntity<?> updateReview(
-            @PathVariable String restaurantId,
             @PathVariable String reviewId,
             @RequestBody ReviewDTO.CreateReviewRequest request,
             @RequestHeader("Authorization") String token) {
         try {
-            ReviewDTO review = reviewService.updateReview(restaurantId, reviewId, request, token);
+            ReviewDTO review = reviewService.updateReview(reviewId, request, token);
             return new ResponseEntity<>(review, HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();

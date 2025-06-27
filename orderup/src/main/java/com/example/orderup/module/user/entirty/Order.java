@@ -25,6 +25,7 @@ public class Order {
     private OrderStatus status;
     private Timing timing;
     private ObjectId assignedDriver;
+    private boolean isReview = false; // Trường để kiểm tra order đã được review chưa
     @Field("createdAt")
     private Date createdAt;
     @Field("updatedAt")
