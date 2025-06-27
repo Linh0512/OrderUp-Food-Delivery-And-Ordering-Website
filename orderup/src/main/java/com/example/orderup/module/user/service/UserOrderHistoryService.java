@@ -31,6 +31,9 @@ public class UserOrderHistoryService {
     
     @Autowired
     private UserOrderHistoryRepository orderRepository;
+
+    @Autowired
+    private UserService userService;
     
     @Autowired
     private UserRepository userRepository;
@@ -48,7 +51,7 @@ public class UserOrderHistoryService {
         ObjectId userIdObject = new ObjectId(userId);
         Page<Order> orders = orderRepository.findByCustomerId(userIdObject, pageable);
         logger.debug("Found {} orders for userId: {}", orders.getTotalElements(), userId);
-        return orders.map(orderMapper::toUserOrderHistoryThumbDTO);
+        return orders.map(order -> orderMapper.toUserOrderHistoryThumbDTO(order, userService.getUserById(userId)));
     }
 
     public Page<UserOrderHistoryThumbDTO> getRestaurantOrderHistory(String restaurantId, Pageable pageable) {
@@ -56,7 +59,7 @@ public class UserOrderHistoryService {
         ObjectId restaurantObjectId = new ObjectId(restaurantId);
         Page<Order> orders = orderRepository.findByRestaurantId(restaurantObjectId, pageable);
         logger.debug("Found {} orders for restaurantId: {}", orders.getTotalElements(), restaurantId);
-        return orders.map(orderMapper::toUserOrderHistoryThumbDTO);
+        return orders.map(order -> orderMapper.toUserOrderHistoryThumbDTO(order, userService.getUserById(order.getCustomerId().toString())));
     }
 
     public Page<UserOrderHistoryThumbDTO> filterUserOrderByDate(
@@ -88,7 +91,7 @@ public class UserOrderHistoryService {
         }
         
         logger.debug("Found {} orders for userId: {}", orders.getTotalElements(), userId);
-        return orders.map(orderMapper::toUserOrderHistoryThumbDTO);
+        return orders.map(order -> orderMapper.toUserOrderHistoryThumbDTO(order, userService.getUserById(userId)));
     }
 
     public Page<UserOrderHistoryThumbDTO> filterRestaurantOrderByDate(
@@ -118,7 +121,7 @@ public class UserOrderHistoryService {
         }
         
         logger.debug("Found {} orders for restaurantId: {}", orders.getTotalElements(), restaurantId);
-        return orders.map(orderMapper::toUserOrderHistoryThumbDTO);
+        return orders.map(order -> orderMapper.toUserOrderHistoryThumbDTO(order, userService.getUserById(order.getCustomerId().toString())));
     }
 
     public UserOrderHistoryDetailDTO getOrderDetail(String orderId) {
@@ -131,7 +134,7 @@ public class UserOrderHistoryService {
         
         // Lấy thông tin user profile
         User user = userRepository.findById(order.getCustomerId().toString()).orElse(null);
-        UserOrderHistoryDetailDTO dto = orderMapper.toUserOrderHistoryDetailDTO(order);
+        UserOrderHistoryDetailDTO dto = orderMapper.toUserOrderHistoryDetailDTO(order, userService.getUserById(order.getCustomerId().toString()));
         
         if (user != null && user.getProfile() != null) {
             SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");

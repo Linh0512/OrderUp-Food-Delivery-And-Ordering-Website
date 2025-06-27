@@ -12,8 +12,10 @@ import org.springframework.stereotype.Component;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.service.RestaurantService;
 import com.example.orderup.module.user.entirty.Order;
+import com.example.orderup.module.user.entirty.Order.OrderItem;
 import com.example.orderup.module.user.dto.UserOrderHistoryDetailDTO;
 import com.example.orderup.module.user.dto.UserOrderHistoryThumbDTO;
+import com.example.orderup.module.user.entirty.User;
 
 @Component
 public class UserOrderHistoryMapper {
@@ -21,7 +23,7 @@ public class UserOrderHistoryMapper {
     @Autowired
     private RestaurantService restaurantService;
 
-    public UserOrderHistoryThumbDTO toUserOrderHistoryThumbDTO(Order order) {
+    public UserOrderHistoryThumbDTO toUserOrderHistoryThumbDTO(Order order, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(order.getRestaurantId().toString());
         
         // Format date using SimpleDateFormat for Date objects
@@ -39,12 +41,27 @@ public class UserOrderHistoryMapper {
                 .restaurantImage(restaurant != null && restaurant.getBasicInfo().getImages() != null && !restaurant.getBasicInfo().getImages().isEmpty() 
                     ? restaurant.getBasicInfo().getImages().get(0) : "")
                 .restaurantAddress(restaurant != null ? restaurant.getAddress().getFullAddress() : "N/A")
+                .orderTotalQuantity(order.getOrderDetails() != null && order.getOrderDetails().getItems() != null ? 
+                    order.getOrderDetails().getItems().stream().map(OrderItem::getQuantity).reduce(0, Integer::sum) : 0)
+                .userProfile(UserOrderHistoryThumbDTO.UserProfile.builder()
+                    .fullName(user.getFullName() != null ? user.getFullName() : "N/A")
+                    .avatar(user.getProfile().getAvatar() != null ? user.getProfile().getAvatar() : "")
+                    .build())
                 .build();
     }
 
-    public UserOrderHistoryDetailDTO toUserOrderHistoryDetailDTO(Order order) {
+    public UserOrderHistoryDetailDTO toUserOrderHistoryDetailDTO(Order order, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(order.getRestaurantId().toString());
-        
+
+        UserOrderHistoryDetailDTO.RestaurantInfo restaurantInfo = UserOrderHistoryDetailDTO.RestaurantInfo.builder()
+                .restaurantId(restaurant.getId())
+                .restaurantName(restaurant.getBasicInfo().getName())
+                .restaurantImage(restaurant.getBasicInfo().getImages().get(0))
+                .restaurantAddress(restaurant.getAddress().getFullAddress() != null ? restaurant.getAddress().getFullAddress() : "N/A")
+                .restaurantPhone(restaurant.getBasicInfo().getPhone() != null ? restaurant.getBasicInfo().getPhone() : "N/A")
+                .restaurantEmail(restaurant.getBasicInfo().getEmail() != null ? restaurant.getBasicInfo().getEmail() : "N/A")
+                .restaurantWebsite(restaurant.getBasicInfo().getWebsite() != null ? restaurant.getBasicInfo().getWebsite() : "N/A")
+                .build();
         // Map delivery info
         UserOrderHistoryDetailDTO.DeliveryInfo deliveryInfo = null;
         if (order.getDeliveryInfo() != null) {
@@ -120,6 +137,11 @@ public class UserOrderHistoryMapper {
                 .promoInfo(promoInfo)
                 .orderSummary(orderSummary)
                 .orderItems(orderItems)
+                .restaurantInfo(restaurantInfo)
+                .userProfile(UserOrderHistoryDetailDTO.UserProfile.builder()
+                    .fullName(user.getFullName() != null ? user.getFullName() : "N/A")
+                    .avatar(user.getProfile().getAvatar() != null ? user.getProfile().getAvatar() : "")
+                    .build())
                 .build();
     }
 }
