@@ -1,8 +1,10 @@
 package com.example.orderup.module.user.entirty;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.bson.types.ObjectId;
+import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -23,8 +25,10 @@ public class Order {
     private OrderStatus status;
     private Timing timing;
     private ObjectId assignedDriver;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    @Field("createdAt")
+    private Date createdAt;
+    @Field("updatedAt")
+    private Date updatedAt;
     
     @Data
     public static class OrderDetails {
@@ -63,8 +67,11 @@ public class Order {
         private String customerPhone;
         private String deliveryInstructions;
         private String deliveryType;
-        private int estimatedDeliveryTime;
-        private LocalDateTime actualDeliveryTime;
+
+        @Field("estimatedDeliveryTime")
+        private Date estimatedDeliveryTime;
+        @Field("actualDeliveryTime")
+        private Date actualDeliveryTime;
     }
     
     @Data
@@ -86,7 +93,7 @@ public class Order {
         private String method;
         private String status;
         private String transactionId;
-        private LocalDateTime paidAt;
+        private Date paidAt;
     }
     
     @Data
@@ -99,7 +106,7 @@ public class Order {
     @Data
     public static class StatusHistory {
         private String status;
-        private LocalDateTime timestamp;
+        private Date timestamp;
         private String note;
     }
     
@@ -111,11 +118,17 @@ public class Order {
     
     @Data
     public static class Timing {
-        private LocalDateTime placedAt;
-        private LocalDateTime confirmedAt;
-        private LocalDateTime preparingAt;
-        private LocalDateTime readyAt;
-        private LocalDateTime pickedUpAt;
-        private LocalDateTime deliveredAt;
+        @Field("placedAt")
+        private Date placedAt;
+        @Field("confirmedAt")
+        private Date confirmedAt;
+        @Field("preparingAt")
+        private Date preparingAt;
+        @Field("readyAt")
+        private Date readyAt;
+        @Field("pickedUpAt")
+        private Date pickedUpAt;
+        @Field("deliveredAt")
+        private Date deliveredAt;
     }
 }

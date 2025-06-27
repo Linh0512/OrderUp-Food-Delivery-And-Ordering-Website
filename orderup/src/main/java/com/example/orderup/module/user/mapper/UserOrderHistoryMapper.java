@@ -4,6 +4,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
+import java.text.SimpleDateFormat;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -23,10 +24,14 @@ public class UserOrderHistoryMapper {
     public UserOrderHistoryThumbDTO toUserOrderHistoryThumbDTO(Order order) {
         Restaurant restaurant = restaurantService.getRestaurantById(order.getRestaurantId().toString());
         
+        // Format date using SimpleDateFormat for Date objects
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        String formattedDate = order.getCreatedAt() != null ? dateFormatter.format(order.getCreatedAt()) : "";
+        
         return UserOrderHistoryThumbDTO.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
-                .orderDate(order.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                .orderDate(formattedDate)
                 .orderTotalAmount(String.format("%,.0f", order.getOrderDetails().getTotalAmount()))
                 .userId(order.getCustomerId().toString())
                 .restaurantId(order.getRestaurantId().toString())
@@ -71,13 +76,14 @@ public class UserOrderHistoryMapper {
         }
 
         // Map order summary
+        double discountAmount = order.getPromocode() != null ? order.getPromocode().getDiscountAmount() : 0;
         UserOrderHistoryDetailDTO.OrderSummary orderSummary = UserOrderHistoryDetailDTO.OrderSummary.builder()
                 .subtotal(order.getOrderDetails().getSubtotal())
                 .deliveryFee(order.getOrderDetails().getDeliveryFee())
                 .serviceFee(order.getOrderDetails().getServiceFee())
-                .discount(order.getPromocode() != null ? order.getPromocode().getDiscountAmount() : 0)
+                .discount(discountAmount)
                 .total(order.getOrderDetails().getTotalAmount())
-                .finalTotal(order.getOrderDetails().getTotalAmount() - order.getPromocode().getDiscountAmount())
+                .finalTotal(order.getOrderDetails().getTotalAmount() - discountAmount)
                 .build();
 
         // Map order items
@@ -108,7 +114,7 @@ public class UserOrderHistoryMapper {
         return UserOrderHistoryDetailDTO.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
-                .orderDate(order.getCreatedAt().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                .orderDate(order.getCreatedAt() != null ? new SimpleDateFormat("dd/MM/yyyy").format(order.getCreatedAt()) : "")
                 .deliveryInfo(deliveryInfo)
                 .paymentInfo(paymentInfo)
                 .promoInfo(promoInfo)

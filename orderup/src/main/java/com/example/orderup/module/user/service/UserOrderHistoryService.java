@@ -15,10 +15,14 @@ import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.mapper.UserOrderHistoryMapper;
 import com.example.orderup.module.user.repository.UserOrderHistoryRepository;
 import com.example.orderup.module.user.repository.UserRepository;
+import com.example.orderup.config.security.JwtTokenProvider;
 
 import java.util.Comparator;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
+import java.time.LocalDate;
+import java.text.SimpleDateFormat;
 
 
 @Service
@@ -34,10 +38,15 @@ public class UserOrderHistoryService {
     @Autowired
     private UserOrderHistoryMapper orderMapper;
     
-    public Page<UserOrderHistoryThumbDTO> getUserOrderHistory(String userId, Pageable pageable) {
-        logger.debug("Finding orders for userId: {} with pageable: {}", userId, pageable);
-        ObjectId userObjectId = new ObjectId(userId);
-        Page<Order> orders = orderRepository.findByCustomerId(userObjectId, pageable);
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
+    
+    public Page<UserOrderHistoryThumbDTO> getUserOrderHistory(String token, Pageable pageable) {
+        logger.debug("Finding orders for userId: {} with pageable: {}", token, pageable);
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
+
+        ObjectId userIdObject = new ObjectId(userId);
+        Page<Order> orders = orderRepository.findByCustomerId(userIdObject, pageable);
         logger.debug("Found {} orders for userId: {}", orders.getTotalElements(), userId);
         return orders.map(orderMapper::toUserOrderHistoryThumbDTO);
     }
@@ -51,26 +60,31 @@ public class UserOrderHistoryService {
     }
 
     public Page<UserOrderHistoryThumbDTO> filterUserOrderByDate(
-            String userId, 
+            String token, 
             LocalDateTime orderDate, 
             Pageable pageable) {
-        logger.debug("Filtering orders for userId: {} and date: {}", userId, orderDate);
-        ObjectId userObjectId = new ObjectId(userId);
+        logger.debug("Filtering orders for userId: {} and date: {}", token, orderDate);
+        String userId = jwtTokenProvider.getUserIdFromToken(token);
         
+        ObjectId userIdObject = new ObjectId(userId);
+
         Page<Order> orders;
         if (orderDate != null) {
-            // Nếu có orderDate, lấy đơn hàng trong ngày đó
-            LocalDateTime startOfDay = orderDate.toLocalDate().atStartOfDay();
-            LocalDateTime endOfDay = startOfDay.plusDays(1);
+            // Convert LocalDateTime to Date for MongoDB query
+            Date startOfDay = Date.from(orderDate.toLocalDate().atStartOfDay()
+                .atZone(java.time.ZoneId.systemDefault()).toInstant());
+            Date endOfDay = Date.from(orderDate.toLocalDate().atStartOfDay().plusDays(1)
+                .atZone(java.time.ZoneId.systemDefault()).toInstant());
+            
             orders = orderRepository.findByCustomerIdAndDateRange(
-                userObjectId, 
+                userIdObject, 
                 startOfDay,
                 endOfDay,
                 pageable
             );
         } else {
             // Nếu không có orderDate, lấy tất cả
-            orders = orderRepository.findByCustomerId(userObjectId, pageable);
+            orders = orderRepository.findByCustomerId(userIdObject, pageable);
         }
         
         logger.debug("Found {} orders for userId: {}", orders.getTotalElements(), userId);
@@ -86,9 +100,12 @@ public class UserOrderHistoryService {
         
         Page<Order> orders;
         if (orderDate != null) {
-            // Nếu có orderDate, lấy đơn hàng trong ngày đó
-            LocalDateTime startOfDay = orderDate.toLocalDate().atStartOfDay();
-            LocalDateTime endOfDay = startOfDay.plusDays(1);
+            // Convert LocalDateTime to Date for MongoDB query
+            Date startOfDay = Date.from(orderDate.toLocalDate().atStartOfDay()
+                .atZone(java.time.ZoneId.systemDefault()).toInstant());
+            Date endOfDay = Date.from(orderDate.toLocalDate().atStartOfDay().plusDays(1)
+                .atZone(java.time.ZoneId.systemDefault()).toInstant());
+            
             orders = orderRepository.findByRestaurantIdAndDateRange(
                 restaurantObjectId, 
                 startOfDay,
@@ -117,14 +134,13 @@ public class UserOrderHistoryService {
         UserOrderHistoryDetailDTO dto = orderMapper.toUserOrderHistoryDetailDTO(order);
         
         if (user != null && user.getProfile() != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+            Date dateOfBirth = user.getProfile().getDateOfBirth() != null ? 
+                user.getProfile().getDateOfBirth() : null;
             UserOrderHistoryDetailDTO.UserProfile userProfile = UserOrderHistoryDetailDTO.UserProfile.builder()
                 .fullName(user.getProfile().getName())
                 .avatar(user.getProfile().getAvatar())
-                .dateOfBirth(user.getProfile().getDateOfBirth() != null ? 
-                    formatter.format(user.getProfile().getDateOfBirth().toInstant()
-                        .atZone(java.time.ZoneId.systemDefault())
-                        .toLocalDate()) : null)
+                .dateOfBirth(dateOfBirth != null ? dateFormatter.format(dateOfBirth) : null)
                 .gender(user.getProfile().getGender())
                 .address(order.getDeliveryInfo().getAddress().getFullAddress())
                 .build();

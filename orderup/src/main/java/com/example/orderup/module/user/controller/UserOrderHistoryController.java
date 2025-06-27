@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,16 +34,16 @@ public class UserOrderHistoryController {
     private UserOrderHistoryService orderHistoryService;
 
     // Endpoint để lấy lịch sử đơn hàng theo userId
-    @GetMapping("/userId/{userId}")
+    @GetMapping("/userId")
     public ResponseEntity<Map<String, Object>> getUserOrderHistory(
-            @PathVariable("userId") String userId,
+            @RequestHeader("Authorization") String token,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(required = false) String orderDate,
             @RequestParam(defaultValue = "createdAt") String sortBy,
             @RequestParam(defaultValue = "DESC") String sortDirection) {
         try {
-            logger.debug("Fetching order history for userId: {}", userId);
+            logger.debug("Fetching order history for userId: {}", token);
             
             Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(sortDirection), sortBy));
 
@@ -56,9 +57,9 @@ public class UserOrderHistoryController {
                 }
             }
             
-            Page<UserOrderHistoryThumbDTO> ordersPage = orderHistoryService.filterUserOrderByDate(userId, date, pageable);
+            Page<UserOrderHistoryThumbDTO> ordersPage = orderHistoryService.filterUserOrderByDate(token, date, pageable);
 
-            logger.debug("Found {} orders for userId: {}", ordersPage.getTotalElements(), userId);
+            logger.debug("Found {} orders for userId: {}", ordersPage.getTotalElements(), token);
 
             Map<String, Object> response = new HashMap<>();
             response.put("orders", ordersPage.getContent());
@@ -68,7 +69,7 @@ public class UserOrderHistoryController {
 
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error fetching order history for userId: " + userId, e);
+            logger.error("Error fetching order history for userId: " + token, e);
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
