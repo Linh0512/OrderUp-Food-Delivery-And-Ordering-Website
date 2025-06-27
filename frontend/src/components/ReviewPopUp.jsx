@@ -69,7 +69,7 @@ export default function ReviewPopUp({
         </div>
         <div className="bg-[rgba(192,192,192,1)] h-full">
           <div className="p-5 space-y-5">
-            {review&&review.map((review, index) => (
+            {review&&review.length>0?(review.map((review, index) => (
               <div
                 key={index}
                 className="text-start bg-white p-5 border rounded-2xl space-y-2"
@@ -94,7 +94,9 @@ export default function ReviewPopUp({
                 </div>
                 <p>{review.comment}</p>
               </div>
-            ))}
+            ))):(
+              <p className="mt-10 text-2xl font-semibold text-gray-600">Hiện tại chưa có bình luận nào </p>
+            )}
           </div>
         </div>
       </div>

@@ -95,3 +95,21 @@ export const updateVoucher = async (id, token, voucher,voucherId) => {
     return {};
   }
 };
+
+export const getResData=async(id,token)=>{
+  try {
+    const response = await api.get(
+      `/api/restaurant-detail/${id}/profile`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return [];
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}

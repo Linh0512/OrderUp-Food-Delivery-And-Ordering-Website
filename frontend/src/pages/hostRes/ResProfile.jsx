@@ -7,31 +7,28 @@ import {
   faMoneyBill,
   faPenToSquare,
   faPhone,
-  faPlus,
-  faTrash,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { getResData } from "../../services/hosResServices/service";
+import { useAuth } from "../../components/common/AuthContext";
 
 const RestaurantProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [restaurantData, setRestaurantData] = useState({
-    restaurantName: "Nhà Hàng Sài Gòn",
-    restaurantImages: [
-      "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800",
-    ],
-    restaurantDescription:
-      "Nhà hàng phục vụ các món ăn truyền thống Việt Nam với không gian ấm cúng và phong cách hiện đại. Chúng tôi tự hào mang đến cho khách hàng những trải nghiệm ẩm thực tuyệt vời với nguyên liệu tươi ngon và đầu bếp có kinh nghiệm lâu năm.",
-    restaurantEmail: "contact@saigonrestaurant.com",
-    restaurantAddress: "123 Nguyễn Huệ, Quận 1, TP.HCM",
-    restaurantPhone: "028-3822-1234",
-    restaurantIsActive: true,
-    restaurantTimeRange: "08:00 - 22:00",
-    restaurantPriceRange: "200,000 - 500,000 VNĐ",
-  });
-
+  const [restaurantData, setRestaurantData] = useState({});
+  const {user,resId}=useAuth()
   const [editForm, setEditForm] = useState({});
+
+  useEffect(()=>{
+    if(resId)
+    {
+      getResData(resId,user.token).then((res)=>{
+        console.log(res.data)
+        setRestaurantData(res.data)
+      })
+    }
+  },[user,resId])
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -59,13 +56,6 @@ const RestaurantProfile = () => {
     }
   };
 
-  const handleImageRemove = (index) => {
-    setEditForm({
-      ...editForm,
-      restaurantImages: editForm.restaurantImages.filter((_, i) => i !== index),
-    });
-  };
-
   const data = isEditing ? editForm : restaurantData;
 
   return (
@@ -78,9 +68,7 @@ const RestaurantProfile = () => {
               <h1 className="text-3xl font-bold text-gray-800">
                 Profile Nhà Hàng
               </h1>
-              <p className="text-gray-600">
-                Quản lý thông tin nhà hàng
-              </p>
+              <p className="text-gray-600">Quản lý thông tin nhà hàng</p>
             </div>
           </div>
 
@@ -181,7 +169,7 @@ const RestaurantProfile = () => {
             Hình ảnh nhà hàng
           </h3>
 
-          {data.restaurantImages.length > 0 ? (
+          {data.restaurantImages?.length > 0 ? (
             <div className="flex items-center space-x-3">
               <img
                 src={data.restaurantImages[0]}
