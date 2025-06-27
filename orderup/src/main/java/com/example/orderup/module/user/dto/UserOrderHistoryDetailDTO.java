@@ -3,9 +3,13 @@ package com.example.orderup.module.user.dto;
 import java.util.List;
 import lombok.Data;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserOrderHistoryDetailDTO {
     private String id;
     private String orderNumber;
@@ -26,6 +30,8 @@ public class UserOrderHistoryDetailDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UserProfile {
         private String fullName;
         private String avatar;
@@ -36,6 +42,8 @@ public class UserOrderHistoryDetailDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DeliveryInfo {
         private String fullAddress;
         private String district;
@@ -47,12 +55,16 @@ public class UserOrderHistoryDetailDTO {
     
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PaymentInfo {
         private String method; // CASH, MOMO, ZALOPAY, etc.
     }
     
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class PromoInfo {
         private String code;
         private double discountAmount;
@@ -60,6 +72,8 @@ public class UserOrderHistoryDetailDTO {
     
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class OrderSummary {
         private double subtotal;
         private double deliveryFee;
@@ -75,6 +89,8 @@ public class UserOrderHistoryDetailDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class OrderItem {
         private String dishId;
         private String dishName;
@@ -88,6 +104,8 @@ public class UserOrderHistoryDetailDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class OrderItemOption {
         private String optionName;
         private String choiceName;

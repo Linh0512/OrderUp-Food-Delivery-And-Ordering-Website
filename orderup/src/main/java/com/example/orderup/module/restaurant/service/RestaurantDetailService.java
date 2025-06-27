@@ -125,6 +125,11 @@ public class RestaurantDetailService {
             // Cập nhật trạng thái hoạt động
             restaurant.setActive(restaurantProfileDTO.isRestaurantIsActive());
 
+            // Cập nhật giờ làm việc
+            if (restaurantProfileDTO.getOperatingHours() != null && !restaurantProfileDTO.getOperatingHours().isEmpty()) {
+                restaurant.setOperatingHours(restaurantProfileDTO.getOperatingHours());
+            }
+
             // Lưu vào database
             restaurant = restaurantDetailRepository.save(restaurant);
     

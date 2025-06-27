@@ -4,9 +4,13 @@ import java.util.List;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RestaurantDetailDTO {
     // Restaurant information
     private String restaurantId;

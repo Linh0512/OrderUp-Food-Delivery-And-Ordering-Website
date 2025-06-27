@@ -4,6 +4,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.bson.types.ObjectId;
+
+import java.util.Date;
+import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -355,7 +358,7 @@ public class ShoppingCartService {
             deliveryInfo.setCustomerName(checkoutDTO.getDeliveryInfo().getCustomerName());
             deliveryInfo.setCustomerPhone(checkoutDTO.getDeliveryInfo().getCustomerPhone());
             deliveryInfo.setDeliveryInstructions(checkoutDTO.getDeliveryInfo().getDeliveryInstructions());
-            deliveryInfo.setEstimatedDeliveryTime(restaurant.getDelivery().getEstimatedDeliveryTime());
+            deliveryInfo.setEstimatedDeliveryTime(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
             order.setDeliveryInfo(deliveryInfo);
         }
 
@@ -395,18 +398,18 @@ public class ShoppingCartService {
         status.setHistory(new ArrayList<>());
         Order.StatusHistory statusHistory = new Order.StatusHistory();
         statusHistory.setStatus("PENDING");
-        statusHistory.setTimestamp(LocalDateTime.now());
+        statusHistory.setTimestamp(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         status.getHistory().add(statusHistory);
         order.setStatus(status);
 
         // Set thời gian
         Order.Timing timing = new Order.Timing();
-        timing.setPlacedAt(LocalDateTime.now());
+        timing.setPlacedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
         order.setTiming(timing);
         
         // Set thời gian tạo và cập nhật
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
+        order.setCreatedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        order.setUpdatedAt(Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
 
         // Lưu order và xóa cart
         order = orderRepository.save(order);

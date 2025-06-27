@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Date;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @Document(collection = "restaurants")
@@ -124,6 +125,7 @@ public class Restaurant {
         private int dayOfWeek;
 
         @Field("isOpen")
+        @JsonProperty("isOpen")
         private boolean open;
         
         private String openTime;

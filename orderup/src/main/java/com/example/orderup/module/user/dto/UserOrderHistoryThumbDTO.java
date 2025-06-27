@@ -2,9 +2,13 @@ package com.example.orderup.module.user.dto;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserOrderHistoryThumbDTO {
     private String id;
     private String orderNumber;

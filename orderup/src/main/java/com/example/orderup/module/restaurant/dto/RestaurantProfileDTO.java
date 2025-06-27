@@ -5,9 +5,14 @@ import java.util.Map;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import com.example.orderup.module.restaurant.entity.Restaurant;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RestaurantProfileDTO {
     // Restaurant information
     private String restaurantId;
@@ -27,7 +32,8 @@ public class RestaurantProfileDTO {
 
     // Restaurant operating hours and price range
     private boolean restaurantIsActive;
-    private String restaurantTimeRange;
+    private List<String> restaurantTimeRange;
+    private List<Restaurant.OperatingHour> operatingHours;
     private String restaurantPriceRange;
 
     // Restaurant delivery information

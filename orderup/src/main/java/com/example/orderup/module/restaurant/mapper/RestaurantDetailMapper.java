@@ -97,7 +97,8 @@ public class RestaurantDetailMapper {
             .ratingBreakdown(restaurant.getRatings() != null ? 
                 restaurant.getRatings().getRatingBreakdown() : null)
             .restaurantIsActive(restaurant.isActive())
-            .restaurantTimeRange(generateTimeRange(restaurant))
+            .restaurantTimeRange(generateTimeRangeList(restaurant))
+            .operatingHours(restaurant.getOperatingHours())
             .restaurantPriceRange(getPriceRange(restaurant))
             .restaurantDeliveryRadius(restaurant.getDelivery() != null ? 
                 restaurant.getDelivery().getDeliveryRadius() + " km" : "Chưa cập nhật")
@@ -132,6 +133,47 @@ public class RestaurantDetailMapper {
         }
 
         return "Đóng cửa";
+    }
+
+    private List<String> generateTimeRangeList(Restaurant restaurant) {
+        List<String> timeRanges = new ArrayList<>();
+        String[] dayNames = {"Chủ nhật", "Thứ hai", "Thứ ba", "Thứ tư", "Thứ năm", "Thứ sáu", "Thứ bảy"};
+        
+        if (restaurant == null || restaurant.getOperatingHours() == null || 
+            restaurant.getOperatingHours().isEmpty()) {
+            // Trả về 7 ngày với trạng thái "Chưa cập nhật"
+            for (int i = 0; i < 7; i++) {
+                timeRanges.add(dayNames[i] + ": Chưa cập nhật");
+            }
+            return timeRanges;
+        }
+
+        // Tạo map để dễ dàng truy cập theo dayOfWeek
+        Map<Integer, Restaurant.OperatingHour> hourMap = restaurant.getOperatingHours().stream()
+                .collect(Collectors.toMap(
+                    Restaurant.OperatingHour::getDayOfWeek, 
+                    oh -> oh,
+                    (existing, replacement) -> existing
+                ));
+
+        // Tạo time range cho từng ngày trong tuần (0-6)
+        for (int dayOfWeek = 0; dayOfWeek < 7; dayOfWeek++) {
+            Restaurant.OperatingHour operatingHour = hourMap.get(dayOfWeek);
+            String dayName = dayNames[dayOfWeek];
+            
+            if (operatingHour == null) {
+                timeRanges.add(dayName + ": Chưa cập nhật");
+            } else if (!operatingHour.isOpen()) {
+                timeRanges.add(dayName + ": Đóng cửa");
+            } else if (operatingHour.getOpenTime() == null || operatingHour.getOpenTime().isEmpty() ||
+                       operatingHour.getCloseTime() == null || operatingHour.getCloseTime().isEmpty()) {
+                timeRanges.add(dayName + ": Chưa cập nhật");
+            } else {
+                timeRanges.add(dayName + ": " + operatingHour.getOpenTime() + " - " + operatingHour.getCloseTime());
+            }
+        }
+
+        return timeRanges;
     }
 
     private String getPriceRange(Restaurant restaurant) {
