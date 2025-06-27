@@ -19,4 +19,15 @@ public class UserOrderHistoryThumbDTO {
     private String restaurantName;
     private String restaurantImage;
     private String restaurantAddress;
+    private int orderTotalQuantity;
+    private UserProfile userProfile;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UserProfile {
+        private String fullName;
+        private String avatar;
+    }
 }

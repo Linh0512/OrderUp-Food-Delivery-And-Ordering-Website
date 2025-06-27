@@ -14,7 +14,7 @@ public class UserOrderHistoryDetailDTO {
     private String id;
     private String orderNumber;
     private String orderDate;
-    
+    private RestaurantInfo restaurantInfo;
     // Thông tin đặt hàng từ CheckoutDTO
     private DeliveryInfo deliveryInfo;
     private PaymentInfo paymentInfo;
@@ -27,6 +27,20 @@ public class UserOrderHistoryDetailDTO {
     private List<OrderItem> orderItems;
 
     private UserProfile userProfile;
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class RestaurantInfo {
+        private String restaurantId;
+        private String restaurantName;
+        private String restaurantImage;
+        private String restaurantAddress;
+        private String restaurantPhone;
+        private String restaurantEmail;
+        private String restaurantWebsite;
+    }
 
     @Data
     @Builder
