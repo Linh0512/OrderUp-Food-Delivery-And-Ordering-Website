@@ -531,7 +531,7 @@ public class ShoppingCartService {
         cart.getSummary().setTotal(total);
     }
 
-    public ShoppingCartDTO.CartItem getItemInRestaurantCart(String token, String restaurantId, String dishId) {
+    public List<ShoppingCartDTO.CartItem> getItemInRestaurantCart(String token, String restaurantId) {
         String userId = jwtService.getUserIdFromToken(token);
         
         // Tìm giỏ hàng của nhà hàng này
@@ -539,35 +539,35 @@ public class ShoppingCartService {
             new ObjectId(userId), 
             new ObjectId(restaurantId));
         if (cart == null) {
-            return null;
+            return new ArrayList<>();
         }
 
-        // Tìm món ăn trong giỏ hàng
-        ShoppingCart.CartItem item = cart.getItems().stream()
-            .filter(i -> i.getDishId().toString().equals(dishId))
-            .findFirst()
-            .orElse(null);
+        // Tìm tất cả món ăn của nhà hàng trong giỏ hàng
+        List<ShoppingCart.CartItem> items = cart.getItems();
 
-        if (item == null) {
-            return null;
+        if (items == null || items.isEmpty()) {
+            return new ArrayList<>();
         }
 
         // Chuyển đổi sang DTO và trả về
-        return ShoppingCartDTO.CartItem.builder()
-            .dishId(item.getDishId().toString())
-            .dishName(item.getDishName())
-            .dishImage(item.getDishImage())
-            .quantity(item.getQuantity())
-            .unitPrice(item.getUnitPrice())
-            .selectedOptions(item.getSelectedOptions().stream()
-                .map(opt -> ShoppingCartDTO.SelectedOption.builder()
-                    .optionName(opt.getOptionName())
-                    .choiceName(opt.getChoiceName())
-                    .additionalPrice(opt.getAdditionalPrice())
-                    .build())
-                .collect(Collectors.toList()))
-            .subtotal(item.getSubtotal())
-            .specialInstructions(item.getSpecialInstructions())
-            .build();
+        return items.stream()
+            .map(item -> ShoppingCartDTO.CartItem.builder()
+                .dishId(item.getDishId().toString())
+                .dishName(item.getDishName())
+                .dishImage(item.getDishImage())
+                .quantity(item.getQuantity())
+                .unitPrice(item.getUnitPrice())
+                .selectedOptions(item.getSelectedOptions() != null ? 
+                    item.getSelectedOptions().stream()
+                    .map(opt -> ShoppingCartDTO.SelectedOption.builder()
+                        .optionName(opt.getOptionName())
+                        .choiceName(opt.getChoiceName())
+                        .additionalPrice(opt.getAdditionalPrice())
+                        .build())
+                    .collect(Collectors.toList()) : new ArrayList<>())
+                .subtotal(item.getSubtotal())
+                .specialInstructions(item.getSpecialInstructions())
+                .build())
+            .collect(Collectors.toList());
     }
 } 

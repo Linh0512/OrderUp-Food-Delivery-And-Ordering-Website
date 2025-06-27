@@ -23,17 +23,16 @@ public class ShoppingCartController {
     private ShoppingCartService cartService;
 
     // Lấy thông tin món ăn trong giỏ hàng của nhà hàng
-    @GetMapping("/restaurant/{restaurantId}/dish/{dishId}")
+    @GetMapping("/restaurant/{restaurantId}")
     public ResponseEntity<?> getItemInRestaurantCart(
             @RequestHeader(value = "Authorization", required = false) String token,
-            @PathVariable String restaurantId,
-            @PathVariable String dishId) {
+            @PathVariable String restaurantId) {
         try {
             if (token == null) {
                 return ResponseEntity.ok(null);
             }
-            ShoppingCartDTO.CartItem cartItem = cartService.getItemInRestaurantCart(token, restaurantId, dishId);
-            return ResponseEntity.ok(cartItem);
+            List<ShoppingCartDTO.CartItem> cartItems = cartService.getItemInRestaurantCart(token, restaurantId);
+            return ResponseEntity.ok(cartItems);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
