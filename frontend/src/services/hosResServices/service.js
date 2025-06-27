@@ -113,3 +113,22 @@ export const getResData=async(id,token)=>{
     return {};
   }
 }
+
+export const updateResData=async(id,token,data)=>{
+  try {
+    const response = await api.put(
+      `/api/restaurant-detail/${id}/profile`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return [];
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+}

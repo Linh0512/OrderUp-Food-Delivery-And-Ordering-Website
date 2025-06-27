@@ -12,17 +12,18 @@ export default function HistoryPage() {
   const [page, setPage] = useState(1);
   const { user } = useAuth();
   useEffect(() => {
-    getHistotyData(user.userId, user.token).then((res) => {
+    getHistotyData(user.token,page-1,LIMIT).then((res) => {
+      console.log(res)
       setCount(res.totalItems);
       setHistory(res.orders);
     });
-  }, [user]);
+  }, [user,page]);
   return (
     <div className="w-[60vw] mx-auto">
       <p className="dancing-script-700 text-7xl ">History</p>
       <hr className="mb-10" />
       {history && (
-        <div className="space-y-7 mb-10">
+        <div className="space-y-7 mb-10 ">
           {history.map((item, index) => (
             <HistotyItem key={index} item={item} />
           ))}

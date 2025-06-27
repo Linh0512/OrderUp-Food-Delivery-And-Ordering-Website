@@ -7,13 +7,14 @@ export default function OrderItem({ orderItem }) {
       <img
         src={product||orderItem.dishImage}
         alt={orderItem?.dishName}
-        className="w-[8%] h-auto object-contain shadow"
+        className="w-[10%] h-auto object-contain shadow"
       />
       <div className="flex justify-between w-full ml-5">
         <div className="space-y-2">
           <p className="font-bold">{orderItem?.dishName}</p>
+          <p className="text-sm text-gray-500">{orderItem.selectedOptions.map((item)=>(item.optionName+": "+item.choiceName+", "))}</p>
           <p className="text-sm text-gray-500">
-            {orderItem?.specialInstructions}
+            Ghi chú: {orderItem?.specialInstructions}
           </p>
         </div>
         <p className="font-semibold">Số lượng: {orderItem?.quantity}</p>

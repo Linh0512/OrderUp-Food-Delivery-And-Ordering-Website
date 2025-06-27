@@ -55,7 +55,7 @@ const OrderCard = ({ loading,item }) => {
       </div>
     );
   return (
-    <Link to={'/Order/1234'} className="flex flex-col rounded-xl bg-surface/60 hover:bg-surface shadow-md p-2 gap-4 bg-white">
+    <Link to={`/Order/${item.id}`} className="flex flex-col rounded-xl bg-surface/60 hover:bg-surface shadow-md p-2 gap-4 bg-white">
       <div className="flex gap-2 items-center">
         <div className="size-28 rounded-full overflow-hidden bg-gray-100">
           <img
@@ -67,7 +67,7 @@ const OrderCard = ({ loading,item }) => {
         <div className="grow flex justify-between items-center">
           <div className="font-bold">VÔ DANH</div>
           <div className="text-end text-sm opacity-70 space-y-2">
-            <div>123456789</div>
+            <div>{item.orderNumber}</div>
             <div>
               <FontAwesomeIcon icon={faCalendar} /> {item.orderDate}
             </div>

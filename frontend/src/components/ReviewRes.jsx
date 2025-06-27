@@ -28,7 +28,7 @@ export default function ReviewRes({ handleClose, resDetail }) {
       return
     }
     console.log(reviewData)
-    addReview(resDetail.id, user.token,reviewData);
+    addReview(resDetail.restaurantId, user.token,reviewData);
     handleClose(false);
   };
 

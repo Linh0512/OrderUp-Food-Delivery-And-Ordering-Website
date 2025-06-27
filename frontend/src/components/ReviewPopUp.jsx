@@ -89,10 +89,10 @@ export default function ReviewPopUp({
                     />
                   ))}
                   <span className="ml-3 text-black/50 text-sm">
-                    {formatDateVN(review.createdAt)}
+                    {review.createdAt}
                   </span>
                 </div>
-                <p>{review.comment}</p>
+                <p>{review.userComment}</p>
               </div>
             ))):(
               <p className="mt-10 text-2xl font-semibold text-gray-600">Hiện tại chưa có bình luận nào </p>

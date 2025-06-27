@@ -17,8 +17,8 @@ export default function HomePage() {
 
   const categories = [
     { name: "Tất cả", color: "bg-green-500" },
-    { name: "Cơm", color: "bg-orange-400" },
-    { name: "Bún", color: "bg-red-400" },
+    { name: "Taco", color: "bg-orange-400" },
+    { name: "Phở", color: "bg-red-400" },
     { name: "Cháo", color: "bg-blue-300" },
     { name: "Bánh mì", color: "bg-pink-400" },
     { name: "Pizza", color: "bg-blue-400" },

@@ -149,9 +149,9 @@ export const updatedUser = async (id, user, token) => {
   }
 };
 
-export const getHistotyData = async (id, token) => {
+export const getHistotyData = async (token,page,size) => {
   try {
-    const response = await api.get(`/api/orders/userId/${id}`, {
+    const response = await api.get(`/api/orders/userId?page=${page}&size=${size}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
