@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Configuration
 public class MongoConfig {
@@ -17,6 +19,9 @@ public class MongoConfig {
         List<Converter<?, ?>> converters = new ArrayList<>();
         converters.add(new IntegerToDateConverter());
         converters.add(new LongToDateConverter());
+        converters.add(new DateToLocalDateTimeConverter());
+        converters.add(new LocalDateTimeToDateConverter());
+        converters.add(new DateToIntegerConverter());
         return new MongoCustomConversions(converters);
     }
     
@@ -44,6 +49,34 @@ public class MongoConfig {
                 // Milliseconds since epoch
                 return new Date(source);
             }
+        }
+    }
+    
+    // Converter từ Date sang LocalDateTime
+    static class DateToLocalDateTimeConverter implements Converter<Date, LocalDateTime> {
+        @Override
+        public LocalDateTime convert(Date source) {
+            if (source == null) return null;
+            return source.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        }
+    }
+    
+    // Converter từ LocalDateTime sang Date
+    static class LocalDateTimeToDateConverter implements Converter<LocalDateTime, Date> {
+        @Override
+        public Date convert(LocalDateTime source) {
+            if (source == null) return null;
+            return Date.from(source.atZone(ZoneId.systemDefault()).toInstant());
+        }
+    }
+    
+    // Converter từ Date sang Integer (for timestamp fields)
+    static class DateToIntegerConverter implements Converter<Date, Integer> {
+        @Override
+        public Integer convert(Date source) {
+            if (source == null) return null;
+            // Convert to Unix timestamp in seconds
+            return (int) (source.getTime() / 1000L);
         }
     }
 } 
