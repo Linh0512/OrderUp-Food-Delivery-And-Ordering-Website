@@ -54,7 +54,7 @@ export default function OrderDetailPage() {
         <div className="space-y-3">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <img src={avatar} alt="" />
+              <img src={order.userProfile?.avatar} alt="" className="rounded-full object-cover"/>
             </div>
             <div>
               <p className="font-semibold text-gray-800">
@@ -119,9 +119,6 @@ export default function OrderDetailPage() {
           </div>
         )}
       </div>
-      <button className="block w-[90%] mx-auto bg-green-500 p-2 text-2xl text-white font-semibold rounded-xl">
-        Xác nhận đơn hàng
-      </button>
     </div>
   );
 }

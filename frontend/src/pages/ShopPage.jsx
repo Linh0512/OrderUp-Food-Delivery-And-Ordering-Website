@@ -8,7 +8,10 @@ import Pagination from "../components/Pagination";
 import ProductCard from "../components/ProductCard";
 import ProductCategory from "../components/ProductCategory";
 import ReviewBox from "../components/ReviewBox";
-import { getShopDetail } from "../services/userServices/Service";
+import {
+  getCartForCheck,
+  getShopDetail,
+} from "../services/userServices/Service";
 import { useAuth } from "../components/common/AuthContext";
 
 export default function ShopPage() {
@@ -16,6 +19,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [cart, setCart] = useState([]);
   const [review, setReview] = useState();
   const { id } = useParams();
   const { user } = useAuth();
@@ -30,13 +34,13 @@ export default function ShopPage() {
 
   let sortedProduct = [...products];
 
+  const idList = cart && cart.map((item) => item.dishId);
+
   if (priceSort === 1) {
     sortedProduct.sort((a, b) => a.basePrice - b.basePrice);
   } else if (priceSort === -1) {
     sortedProduct.sort((a, b) => b.basePrice - a.basePrice);
   }
-
-
 
   useEffect(() => {
     getShopDetail(id, user.token).then((res) => {
@@ -57,6 +61,10 @@ export default function ShopPage() {
         total: res.data.restaurantReviewCount,
         star: res.data.restaurantStar,
       });
+    });
+    getCartForCheck(id, user.token).then((res) => {
+      console.log(res);
+      setCart(res);
     });
   }, [id, user.token]);
   return (
@@ -82,22 +90,34 @@ export default function ShopPage() {
               name=""
               id=""
               value={search}
-              onChange={(e)=>setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm món"
               className="w-full focus:outline-none focus:ring-0 focus:border-none "
             />
           </div>
           <div className="grid grid-cols-3 gap-7 ">
             {Array.isArray(products) &&
-              sortedProduct.filter((item)=>item.name.toLowerCase().includes(search.toLowerCase()))
+              sortedProduct
+                .filter((item) =>
+                  item.name.toLowerCase().includes(search.toLowerCase())
+                )
                 .slice((page - 1) * PRODUCT_LIMIT, page * PRODUCT_LIMIT)
-                .map((item, index) => (
-                  <ProductCard
-                    key={index}
-                    productDetail={item}
-                    token={user.token}
-                  />
-                ))}
+                .map((item, index) =>
+                  idList.includes(item.id) ? (
+                    <ProductCard
+                      key={index}
+                      productDetail={item}
+                      token={user.token}
+                      quantity={cart[index].quantity}
+                    />
+                  ) : (
+                    <ProductCard
+                      key={index}
+                      productDetail={item}
+                      token={user.token}
+                    />
+                  )
+                )}
           </div>
           <Pagination
             limit={PRODUCT_LIMIT}

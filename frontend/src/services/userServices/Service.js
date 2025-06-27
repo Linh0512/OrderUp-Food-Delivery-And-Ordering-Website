@@ -74,9 +74,9 @@ export const getCart = async (token) => {
   }
 };
 
-export const addCart=async(token,item)=>{
+export const addCart = async (token, item) => {
   try {
-    const response = await api.post(`/api/cart/add`,item ,{
+    const response = await api.post(`/api/cart/add`, item, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -87,11 +87,11 @@ export const addCart=async(token,item)=>{
     console.log(error);
     return {};
   }
-}
+};
 
-export const updateCart=async(id,token,item,index)=>{
+export const updateCart = async (id, token, item, index) => {
   try {
-    const response = await api.put(`/api/cart/${id}/item/${index}`,item ,{
+    const response = await api.put(`/api/cart/${id}/item/${index}`, item, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -102,11 +102,11 @@ export const updateCart=async(id,token,item,index)=>{
     console.log(error);
     return {};
   }
-}
+};
 
-export const deleteCart=async(id,token,index)=>{
+export const deleteCart = async (id, token, index) => {
   try {
-    const response = await api.delete(`/api/cart/${id}/item/${index}`,{
+    const response = await api.delete(`/api/cart/${id}/item/${index}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -117,7 +117,7 @@ export const deleteCart=async(id,token,index)=>{
     console.log(error);
     return {};
   }
-}
+};
 
 export const getUserProfile = async (id, token) => {
   try {
@@ -149,13 +149,16 @@ export const updatedUser = async (id, user, token) => {
   }
 };
 
-export const getHistotyData = async (token,page,size) => {
+export const getHistotyData = async (token, page, size) => {
   try {
-    const response = await api.get(`/api/orders/userId?page=${page}&size=${size}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    const response = await api.get(
+      `/api/orders/userId?page=${page}&size=${size}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
     if (response.data) return response.data;
     else return {};
   } catch (error) {
@@ -190,20 +193,19 @@ export const getReview = async (id) => {
   }
 };
 
-export const addReview=async(resId,token,review)=>{
+export const addReview = async (resId, token, review) => {
   try {
-    const response=await api.post(`/api/reviews/${resId}/reviews`,review,{
-      headers:{
-        Authorization:`Bearer ${token}`
-      }
-    })
-    if(response.data)
-      console.log("thành công")
+    const response = await api.post(`/api/reviews/${resId}/reviews`, review, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.data) console.log("thành công");
   } catch (error) {
     console.log(error);
     return {};
   }
-}
+};
 
 export const getVoucher = async (id, token) => {
   try {
@@ -241,8 +243,8 @@ export const changePassword = async (token, oldPass, newPass, newPass1) => {
   }
 };
 
-export const getAddress=async(id, token)=>{
-   try {
+export const getAddress = async (id, token) => {
+  try {
     const response = await api.get(`/api/users/profile/id/${id}/address`, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -254,11 +256,67 @@ export const getAddress=async(id, token)=>{
     console.log(error);
     return {};
   }
-}
+};
 
-export const addAddress=async(id, token,address)=>{
+export const addAddress = async (id, token, address) => {
   try {
-    const response = await api.post(`/api/users/profile/id/${id}/address`, address,{
+    const response = await api.post(
+      `/api/users/profile/id/${id}/address`,
+      address,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const deleteAddress = async (id, token, index) => {
+  try {
+    const response = await api.delete(
+      `/api/users/profile/id/${id}/address/${index}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const updateAddress = async (id, token, address, index) => {
+  try {
+    const response = await api.put(
+      `/api/users/profile/id/${id}/address/${index}`,
+      address,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+    if (response.data) return response.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+    return {};
+  }
+};
+
+export const createOrder = async (token, order) => {
+  try {
+    const response = await api.post(`/api/cart/checkout`, order, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -269,50 +327,18 @@ export const addAddress=async(id, token,address)=>{
     console.log(error);
     return {};
   }
-}
+};
 
-export const deleteAddress=async(id,token,index)=>{
+export const getCartForCheck = async (id, token) => {
   try {
-    const response = await api.delete(`/api/users/profile/id/${id}/address/${index}`,{
+    const response = await api.get(`/api/cart/restaurant/${id}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
     if (response.data) return response.data;
-    else return {};
+    else return [];
   } catch (error) {
     console.log(error);
-    return {};
   }
-}
-
-export const updateAddress=async(id,token,address,index)=>{
-  try {
-    const response = await api.put(`/api/users/profile/id/${id}/address/${index}`,address,{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (response.data) return response.data;
-    else return {};
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
-}
-
-export const createOrder=async(token,order)=>{
-  try {
-    const response = await api.post(`/api/cart/checkout`,order,{
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    if (response.data) return response.data;
-    else return {};
-  } catch (error) {
-    console.log(error);
-    return {};
-  }
-}
-
+};

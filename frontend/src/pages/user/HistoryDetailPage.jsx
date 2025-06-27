@@ -11,6 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";
 import OrderItem from "../../components/hostRes/OrderItem";
 import { getHistotyDetail } from "../../services/userServices/Service";
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function HistoryDetailPage() {
   const nav = useNavigate();
@@ -49,22 +50,22 @@ export default function HistoryDetailPage() {
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                  <img src={detail.restaurantImage} alt="" />
+                  <img src={detail.restaurantInfo.restaurantImage} alt="" />
                 </div>
                 <div>
                   <p className="font-semibold text-gray-800">
-                    {detail.restaurantName}
+                    {detail.restaurantInfo.restaurantName}
                   </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 text-gray-600">
                 <FontAwesomeIcon icon={faPhone} className="w-6" />
-                <span>{detail.restaurantPhone}</span>
+                <span>{detail.restaurantInfo.restaurantPhone}</span>
               </div>
               <div className="flex items-center gap-3 text-gray-600">
                 <FontAwesomeIcon icon={faLocationDot} className="w-6" />
                 <span className="leading-relaxed">
-                  {detail.restaurantAddress}
+                  {detail.restaurantInfo.restaurantAddress}
                 </span>
               </div>
               <div className="flex items-center gap-3 text-gray-600">
@@ -94,19 +95,19 @@ export default function HistoryDetailPage() {
               <div className="flex justify-between text-gray-400">
                 Tạm tính:
                 <span className="text-black">
-                  {detail.orderSummary.subtotal}
+                  {formatCurrencyVN(detail.orderSummary.subtotal)}
                 </span>
               </div>
               <div className="flex justify-between text-gray-400">
                 Giảm giá :
                 <span className="text-black">
-                  {detail.orderSummary.discount}
+                  {formatCurrencyVN(detail.orderSummary.discount)}
                 </span>
               </div>
               <div className="flex justify-between text-gray-400">
                 Phí vận chuyển:
                 <span className="text-black">
-                  {detail.orderSummary.deliveryFee}
+                  {formatCurrencyVN(detail.orderSummary.deliveryFee)}
                 </span>
               </div>
               <div className="flex justify-between text-lg font-bold text-gray-800">
@@ -114,7 +115,7 @@ export default function HistoryDetailPage() {
                   <FontAwesomeIcon icon={faReceipt} /> Tổng cộng:
                 </p>
                 <span className="text-green-600 text-lg font-semibold">
-                  {detail.orderSummary.total}
+                  {formatCurrencyVN(detail.orderSummary.total)}
                 </span>
               </div>
             </div>

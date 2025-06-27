@@ -59,19 +59,19 @@ const OrderCard = ({ loading,item }) => {
       <div className="flex gap-2 items-center">
         <div className="size-28 rounded-full overflow-hidden bg-gray-100">
           <img
-            src={avatar}
+            src={item.userProfile.avatar}
             alt="Avatar"
             className="w-full h-full object-cover"
           />
         </div>
         <div className="grow flex justify-between items-center">
-          <div className="font-bold">VÔ DANH</div>
+          <div className="font-bold">{item.userProfile.fullName}</div>
           <div className="text-end text-sm opacity-70 space-y-2">
             <div>{item.orderNumber}</div>
             <div>
               <FontAwesomeIcon icon={faCalendar} /> {item.orderDate}
             </div>
-            <div>10 items</div>
+            <div>{item.orderTotalQuantity} items</div>
           </div>
         </div>
       </div>

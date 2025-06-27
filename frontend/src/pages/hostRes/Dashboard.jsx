@@ -45,7 +45,7 @@ export default function Dashboard() {
           </div>
           <div className="p-3 font-semibold text-xl bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white grow">
             <FontAwesomeIcon icon={faArrowTrendUp} className="mr-2" />
-            Doanh thu tháng này: {formatCurrencyVN(data?.currentMonthRevenue)}
+            Doanh thu tháng này: {formatCurrencyVN(data?.totalRevenue)}
           </div>
         </div>
       </div>
@@ -65,7 +65,7 @@ export default function Dashboard() {
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl text-white ">
               <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
               Số lượng đơn tháng này
-              <p className="mt-2">{data?.currentMonthOrders}</p>
+              <p className="mt-2">{data?.totalOrders}</p>
             </div>
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl text-white ">
               <FontAwesomeIcon icon={faGlobe} className="mr-2" />

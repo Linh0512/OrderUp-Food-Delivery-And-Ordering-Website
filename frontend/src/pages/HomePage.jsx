@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import Category from "../components/Category";
 import Pagination from "../components/Pagination";
 import ShopCard from "../components/ShopCard";
 import {
   getAllShops,
-  getShopsByCuisine,
+  getShopsByCuisine
 } from "../services/userServices/Service";
-import { useOutletContext } from "react-router-dom";
 
 export default function HomePage() {
   const { search } = useOutletContext();
@@ -14,6 +14,7 @@ export default function HomePage() {
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
   const [category, setcategory] = useState("Tất cả");
+
 
   const categories = [
     { name: "Tất cả", color: "bg-green-500" },
