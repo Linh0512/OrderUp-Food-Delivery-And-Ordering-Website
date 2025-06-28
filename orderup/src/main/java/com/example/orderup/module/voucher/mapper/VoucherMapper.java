@@ -13,6 +13,8 @@ import java.util.stream.Collectors;
 public class VoucherMapper {
     
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    private static final DateTimeFormatter HTML_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter HTML_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
     
     public VoucherThumbDTO toThumbDTO(Voucher voucher) {
         if (voucher == null) return null;
@@ -25,7 +27,7 @@ public class VoucherMapper {
         if (voucher.getConditions() != null) {
             dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
         }
-        dto.setRemainingValue(voucher.getRemainingValue());
+        dto.setRemainingValue(voucher.getRemainingValue() != null ? voucher.getRemainingValue().intValue() : null);
         if (voucher.getValidity() != null) {
             dto.setExpiresAt(voucher.getValidity().getExpiresAt());
         }
@@ -45,7 +47,7 @@ public class VoucherMapper {
         if (voucher.getConditions() != null) {
             dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
         }
-        dto.setRemainingValue(voucher.getRemainingValue());
+        dto.setRemainingValue(voucher.getRemainingValue() != null ? voucher.getRemainingValue().intValue() : null);
         if (voucher.getValidity() != null) {
             dto.setExpiresAt(voucher.getValidity().getExpiresAt());
         }
@@ -84,11 +86,30 @@ public class VoucherMapper {
         voucher.setConditions(conditions);
         
         Voucher.VoucherValidity validity = new Voucher.VoucherValidity();
-        validity.setIssuedAt(LocalDateTime.now());
-        validity.setExpiresAt(dto.getExpiresAt());
+        
+        if (dto.getIssuedAt() != null && !dto.getIssuedAt().isEmpty()) {
+            try {
+                validity.setIssuedAt(LocalDateTime.parse(dto.getIssuedAt(), HTML_DATETIME_FORMATTER));
+            } catch (Exception e) {
+                validity.setIssuedAt(LocalDateTime.now());
+            }
+        } else {
+            validity.setIssuedAt(LocalDateTime.now());
+        }
+        
+        if (dto.getExpiresAt() != null && !dto.getExpiresAt().isEmpty()) {
+            try {
+                validity.setExpiresAt(LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER));
+            } catch (Exception e) {
+                validity.setExpiresAt(LocalDate.now().plusDays(30));
+            }
+        } else {
+            validity.setExpiresAt(LocalDate.now().plusDays(30));
+        }
+        
         voucher.setValidity(validity);
         
-        voucher.setRemainingValue(dto.getRemainingValue());
+        voucher.setRemainingValue(dto.getRemainingValue() != null ? dto.getRemainingValue().longValue() : null);
         voucher.setRestaurantId(dto.getRestaurantId());
         voucher.setUsage(new ArrayList<>());
         voucher.setCreatedAt(LocalDateTime.now());
@@ -116,9 +137,16 @@ public class VoucherMapper {
             validity = new Voucher.VoucherValidity();
             voucher.setValidity(validity);
         }
-        validity.setExpiresAt(dto.getExpiresAt());
         
-        voucher.setRemainingValue(dto.getRemainingValue());
+        if (dto.getExpiresAt() != null && !dto.getExpiresAt().isEmpty()) {
+            try {
+                validity.setExpiresAt(LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER));
+            } catch (Exception e) {
+                // Keep existing value if parsing fails
+            }
+        }
+        
+        voucher.setRemainingValue(dto.getRemainingValue() != null ? dto.getRemainingValue().longValue() : null);
         if (dto.getRestaurantId() != null) {
             voucher.setRestaurantId(dto.getRestaurantId());
         }

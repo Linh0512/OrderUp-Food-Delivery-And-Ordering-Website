@@ -19,6 +19,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -103,7 +104,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);
@@ -151,7 +152,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);
@@ -189,7 +190,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);
@@ -231,7 +232,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);

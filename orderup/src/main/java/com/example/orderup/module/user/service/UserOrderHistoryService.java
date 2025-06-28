@@ -20,9 +20,9 @@ import com.example.orderup.config.security.JwtTokenProvider;
 import java.util.Comparator;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 import java.time.LocalDate;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 
 
 @Service
@@ -73,11 +73,9 @@ public class UserOrderHistoryService {
 
         Page<Order> orders;
         if (orderDate != null) {
-            // Convert LocalDateTime to Date for MongoDB query
-            Date startOfDay = Date.from(orderDate.toLocalDate().atStartOfDay()
-                .atZone(java.time.ZoneId.systemDefault()).toInstant());
-            Date endOfDay = Date.from(orderDate.toLocalDate().atStartOfDay().plusDays(1)
-                .atZone(java.time.ZoneId.systemDefault()).toInstant());
+            // Convert LocalDateTime for MongoDB query
+            LocalDateTime startOfDay = orderDate.toLocalDate().atStartOfDay();
+            LocalDateTime endOfDay = orderDate.toLocalDate().atStartOfDay().plusDays(1);
             
             orders = orderRepository.findByCustomerIdAndDateRange(
                 userIdObject, 
@@ -103,11 +101,9 @@ public class UserOrderHistoryService {
         
         Page<Order> orders;
         if (orderDate != null) {
-            // Convert LocalDateTime to Date for MongoDB query
-            Date startOfDay = Date.from(orderDate.toLocalDate().atStartOfDay()
-                .atZone(java.time.ZoneId.systemDefault()).toInstant());
-            Date endOfDay = Date.from(orderDate.toLocalDate().atStartOfDay().plusDays(1)
-                .atZone(java.time.ZoneId.systemDefault()).toInstant());
+            // Convert LocalDateTime for MongoDB query
+            LocalDateTime startOfDay = orderDate.toLocalDate().atStartOfDay();
+            LocalDateTime endOfDay = orderDate.toLocalDate().atStartOfDay().plusDays(1);
             
             orders = orderRepository.findByRestaurantIdAndDateRange(
                 restaurantObjectId, 

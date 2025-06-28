@@ -4,7 +4,6 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.bson.types.ObjectId;
-import java.util.Date;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
@@ -27,9 +26,9 @@ public class Order {
     private ObjectId assignedDriver;
     private boolean isReview = false; // Trường để kiểm tra order đã được review chưa
     @Field("createdAt")
-    private Date createdAt;
+    private LocalDateTime createdAt;
     @Field("updatedAt")
-    private Date updatedAt;
+    private LocalDateTime updatedAt;
     
     @Data
     public static class OrderDetails {
@@ -70,9 +69,9 @@ public class Order {
         private String deliveryType;
 
         @Field("estimatedDeliveryTime")
-        private Date estimatedDeliveryTime;
+        private LocalDateTime estimatedDeliveryTime;
         @Field("actualDeliveryTime")
-        private Date actualDeliveryTime;
+        private LocalDateTime actualDeliveryTime;
     }
     
     @Data
@@ -94,7 +93,7 @@ public class Order {
         private String method;
         private String status;
         private String transactionId;
-        private Date paidAt;
+        private LocalDateTime paidAt;
     }
     
     @Data
@@ -107,7 +106,7 @@ public class Order {
     @Data
     public static class StatusHistory {
         private String status;
-        private Date timestamp;
+        private LocalDateTime timestamp;
         private String note;
     }
     
@@ -120,16 +119,16 @@ public class Order {
     @Data
     public static class Timing {
         @Field("placedAt")
-        private Date placedAt;
+        private LocalDateTime placedAt;
         @Field("confirmedAt")
-        private Date confirmedAt;
+        private LocalDateTime confirmedAt;
         @Field("preparingAt")
-        private Date preparingAt;
+        private LocalDateTime preparingAt;
         @Field("readyAt")
-        private Date readyAt;
+        private LocalDateTime readyAt;
         @Field("pickedUpAt")
-        private Date pickedUpAt;
+        private LocalDateTime pickedUpAt;
         @Field("deliveredAt")
-        private Date deliveredAt;
+        private LocalDateTime deliveredAt;
     }
 }
