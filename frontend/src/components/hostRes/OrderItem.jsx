@@ -1,11 +1,11 @@
-import product from '../../assets/product.jpg'
+
 import { formatCurrencyVN } from '../../utils/Format';
 
 export default function OrderItem({ orderItem }) {
   return (
     <div className="flex w-full shadow rounded caret-transparent bg-gray-50 p-3">
       <img
-        src={product||orderItem.dishImage}
+        src={orderItem.dishImage}
         alt={orderItem?.dishName}
         className="w-[10%] h-auto object-contain shadow"
       />

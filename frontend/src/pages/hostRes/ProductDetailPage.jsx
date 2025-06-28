@@ -5,16 +5,14 @@ import {
   faFloppyDisk,
   faPenToSquare,
   faPlus,
-  faSpider,
   faSpinner,
   faTrash,
   faX,
-  faXmark,
+  faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import product from "../../assets/product.jpg";
 import { useAuth } from "../../components/common/AuthContext";
 import {
   deleteDish,

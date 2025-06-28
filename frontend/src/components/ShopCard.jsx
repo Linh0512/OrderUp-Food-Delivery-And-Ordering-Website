@@ -1,7 +1,6 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useNavigate } from "react-router-dom";
-import shop from "../assets/food1.jpg";
 
 export default function ShopCard({ shopDetail }) {
   const navigate = useNavigate();

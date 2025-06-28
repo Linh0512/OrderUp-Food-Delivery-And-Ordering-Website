@@ -1,7 +1,7 @@
 import { useState } from "react";
 import ProductPopUp from "./ProductPopUp";
 import { formatCurrencyVN } from "../utils/Format";
-import product from "../assets/product.jpg";
+
 
 export default function ProductCard({
   productDetail,

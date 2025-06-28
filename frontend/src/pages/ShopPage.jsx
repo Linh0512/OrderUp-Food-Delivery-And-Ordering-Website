@@ -57,6 +57,7 @@ export default function ShopPage() {
         address: res.data.restaurantAddress,
         timeRange: res.data.restaurantTimeRange,
         isActive: res.data.restaurantIsActive,
+        image:res.data.restaurantImage
       });
       setProducts(res.data.dishes);
       setCount(res.data.dishes.length);

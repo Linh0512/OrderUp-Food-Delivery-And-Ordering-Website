@@ -1,10 +1,9 @@
 import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import product from "../assets/product.jpg";
-import ReviewRes from "./ReviewRes";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { formatCurrencyVN } from "../utils/Format";
+import ReviewRes from "./ReviewRes";
 
 export default function HistotyItem({ item }) {
   const [showPopUp, setShowPopup] = useState(false);
@@ -18,7 +17,9 @@ export default function HistotyItem({ item }) {
 
   return (
     <div className="flex w-full shadow bg-white">
-      <img src={product} alt="" className="w-[12%] h-auto object-contain" />
+      <div className="w-36 h-32">
+        <img src={item.restaurantImage} alt="" className="w-36 h-32 object-cover " />
+      </div>
       <div className="w-full flex flex-col justify-around px-9">
         <div className="flex justify-between w-full p-3 ">
           <div className="space-y-10">

@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import product from "../assets/product.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect, useRef, useState } from "react";
 import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { formatCurrencyVN } from "../utils/Format";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getDishbyId } from "../services/hosResServices/Product";
 import { addCart, updateCart } from "../services/userServices/Service";
+import { formatCurrencyVN } from "../utils/Format";
 
 export default function ProductPopUp({
   orderId,
@@ -110,7 +109,7 @@ export default function ProductPopUp({
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 ">
       <div className="bg-white shadow-lg w-100 rounded-4xl" ref={productRef}>
         <img
-          src={product || cartItem.dishImage}
+          src={cartItem.dishImage}
           alt={cartItem.dishName || cartItem.name}
           className="rounded-t-4xl shadow"
         />
