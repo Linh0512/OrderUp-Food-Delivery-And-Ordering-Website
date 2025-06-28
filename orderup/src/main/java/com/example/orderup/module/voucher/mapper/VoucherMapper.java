@@ -5,11 +5,14 @@ import com.example.orderup.module.voucher.entity.Voucher;
 import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Component
 public class VoucherMapper {
+    
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     
     public VoucherThumbDTO toThumbDTO(Voucher voucher) {
         if (voucher == null) return null;
@@ -19,9 +22,13 @@ public class VoucherMapper {
         dto.setCode(voucher.getCode());
         dto.setType(voucher.getType());
         dto.setValue(voucher.getValue());
-        dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
+        if (voucher.getConditions() != null) {
+            dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
+        }
         dto.setRemainingValue(voucher.getRemainingValue());
-        dto.setExpiresAt(voucher.getValidity().getExpiresAt());
+        if (voucher.getValidity() != null) {
+            dto.setExpiresAt(voucher.getValidity().getExpiresAt());
+        }
         dto.setActive(voucher.isActive());
         dto.setRestaurantId(voucher.getRestaurantId());
         return dto;
@@ -35,17 +42,23 @@ public class VoucherMapper {
         dto.setCode(voucher.getCode());
         dto.setType(voucher.getType());
         dto.setValue(voucher.getValue());
-        dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
+        if (voucher.getConditions() != null) {
+            dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
+        }
         dto.setRemainingValue(voucher.getRemainingValue());
-        dto.setExpiresAt(voucher.getValidity().getExpiresAt());
+        if (voucher.getValidity() != null) {
+            dto.setExpiresAt(voucher.getValidity().getExpiresAt());
+        }
         dto.setActive(voucher.isActive());
         dto.setRestaurantId(voucher.getRestaurantId());
         
-        // Thêm các trường chi tiết
-        dto.setCreatedAt(voucher.getCreatedAt());
-        dto.setUpdatedAt(voucher.getUpdatedAt());
+        if (voucher.getCreatedAt() != null) {
+            dto.setCreatedAt(voucher.getCreatedAt().format(DATE_FORMATTER));
+        }
+        if (voucher.getUpdatedAt() != null) {
+            dto.setUpdatedAt(voucher.getUpdatedAt().format(DATE_FORMATTER));
+        }
         
-        // Map usage history
         if (voucher.getUsage() != null) {
             dto.setUsage(voucher.getUsage().stream()
                 .map(usage -> {
@@ -86,7 +99,6 @@ public class VoucherMapper {
 
     public void updateFromDTO(Voucher voucher, CreateVoucherDTO dto) {
         voucher.setCode(dto.getCode());
-        // Chỉ update type nếu không null
         if (dto.getType() != null) {
             voucher.setType(dto.getType());
         }
@@ -107,7 +119,6 @@ public class VoucherMapper {
         validity.setExpiresAt(dto.getExpiresAt());
         
         voucher.setRemainingValue(dto.getRemainingValue());
-        // Chỉ update restaurantId nếu không null
         if (dto.getRestaurantId() != null) {
             voucher.setRestaurantId(dto.getRestaurantId());
         }

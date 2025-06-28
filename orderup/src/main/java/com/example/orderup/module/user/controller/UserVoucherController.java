@@ -16,22 +16,13 @@ public class UserVoucherController {
     
     @GetMapping("/restaurant/{restaurantId}")
     public ResponseEntity<List<VoucherThumbDTO>> getAvailableVouchers(
-            @PathVariable String restaurantId,
-            @RequestHeader("Authorization") String token) {
-        return ResponseEntity.ok(voucherService.getVouchersByUserRole(token, restaurantId));
+            @PathVariable String restaurantId) {
+        return ResponseEntity.ok(voucherService.getAvailableVouchersForUser(restaurantId));
     }
     
     @GetMapping("/{id}")
     public ResponseEntity<VoucherDetailDTO> getVoucherDetail(@PathVariable String id) {
         VoucherDetailDTO voucher = voucherService.getVoucherDetail(id);
         return voucher != null ? ResponseEntity.ok(voucher) : ResponseEntity.notFound().build();
-    }
-    
-    @PostMapping("/{code}/use")
-    public ResponseEntity<Void> useVoucher(
-            @PathVariable String code,
-            @RequestHeader("Authorization") String token) {
-        voucherService.useVoucher(code, token);
-        return ResponseEntity.ok().build();
     }
 } 
