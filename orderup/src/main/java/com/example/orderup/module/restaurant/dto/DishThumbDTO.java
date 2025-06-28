@@ -18,5 +18,12 @@ public class DishThumbDTO {
     private int basePrice;
     private int discountPrice;
     private boolean isDiscounted;
-    private boolean isAvailable;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

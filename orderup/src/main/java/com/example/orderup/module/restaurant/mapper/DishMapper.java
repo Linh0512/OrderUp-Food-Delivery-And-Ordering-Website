@@ -7,8 +7,7 @@ import com.example.orderup.module.restaurant.entity.Dish;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.dto.DishThumbDTO;
 import com.example.orderup.module.restaurant.dto.DishDetailDTO;
-import com.example.orderup.module.restaurant.entity.Dish.Choice;
-import org.bson.types.ObjectId;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,7 +33,7 @@ public class DishMapper {
                 .basePrice(dish.getPricing() != null ? dish.getPricing().getBasePrice() : 0)
                 .discountPrice(dish.getPricing() != null ? dish.getPricing().getDiscountPrice() : 0)
                 .isDiscounted(dish.getPricing() != null && dish.getPricing().isDiscounted())
-                .isAvailable(dish.getAvailability() != null && dish.getAvailability().isAvailable())
+                .active(dish.isActive())
                 .build();
     }
 
@@ -67,27 +66,6 @@ public class DishMapper {
                 .collect(Collectors.toList());
         }
 
-        // Map Availability
-        DishDetailDTO.Availability availability = null;
-        if (dish.getAvailability() != null) {
-            List<DishDetailDTO.TimeRange> timeRanges = null;
-            if (dish.getAvailability().getAvailableTimes() != null) {
-                timeRanges = dish.getAvailability().getAvailableTimes().stream()
-                    .map(tr -> DishDetailDTO.TimeRange.builder()
-                        .start(tr.getStart())
-                        .end(tr.getEnd())
-                        .build())
-                    .collect(Collectors.toList());
-            }
-
-            availability = DishDetailDTO.Availability.builder()
-                .isAvailable(dish.getAvailability().isAvailable())
-                .availableTimes(timeRanges)
-                .stockQuantity(dish.getAvailability().getStockQuantity())
-                .soldOut(dish.getAvailability().isSoldOut())
-                .build();
-        }
-
         // Map RatingInfo
         DishDetailDTO.RatingInfo ratingInfo = null;
         if (dish.getRatings() != null) {
@@ -109,8 +87,8 @@ public class DishMapper {
             .discountPrice(dish.getPricing() != null ? dish.getPricing().getDiscountPrice() : 0)
             .isDiscounted(dish.getPricing() != null && dish.getPricing().isDiscounted())
             .options(options)
-            .availability(availability)
             .ratings(ratingInfo)
+            .active(dish.isActive())
             .preparationTime(dish.getPreparationTime())
             .build();
     }

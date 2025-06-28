@@ -1,6 +1,8 @@
 package com.example.orderup.module.restaurant.dto;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.mongodb.core.mapping.Field;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
@@ -30,9 +32,18 @@ public class DishDetailDTO {
     @JsonProperty("isDiscounted")
     private boolean isDiscounted;
     private List<Option> options;
-    private Availability availability;
     private RatingInfo ratings;
     private int preparationTime;
+
+    @Field("isActive")
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     @Data
     @Builder
@@ -64,17 +75,6 @@ public class DishDetailDTO {
     public static class TimeRange {
         private String start;
         private String end;
-    }
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class Availability {
-        private boolean isAvailable;
-        private List<TimeRange> availableTimes;
-        private Integer stockQuantity;
-        private boolean soldOut;
     }
 
     @Data
