@@ -34,13 +34,17 @@ export default function ShopPage() {
 
   let sortedProduct = [...products];
 
-  const idList = cart && cart.map((item) => item.dishId);
-
   if (priceSort === 1) {
     sortedProduct.sort((a, b) => a.basePrice - b.basePrice);
   } else if (priceSort === -1) {
     sortedProduct.sort((a, b) => b.basePrice - a.basePrice);
   }
+
+  const reloadShop = () => {
+    getCartForCheck(id, user.token).then((res) => {
+      setCart(res);
+    });
+  };
 
   useEffect(() => {
     getShopDetail(id, user.token).then((res) => {
@@ -63,7 +67,6 @@ export default function ShopPage() {
       });
     });
     getCartForCheck(id, user.token).then((res) => {
-      console.log(res);
       setCart(res);
     });
   }, [id, user.token]);
@@ -102,22 +105,16 @@ export default function ShopPage() {
                   item.name.toLowerCase().includes(search.toLowerCase())
                 )
                 .slice((page - 1) * PRODUCT_LIMIT, page * PRODUCT_LIMIT)
-                .map((item, index) =>
-                  idList.includes(item.id) ? (
-                    <ProductCard
-                      key={index}
-                      productDetail={item}
-                      token={user.token}
-                      quantity={cart[index]?.quantity}
-                    />
-                  ) : (
-                    <ProductCard
-                      key={index}
-                      productDetail={item}
-                      token={user.token}
-                    />
-                  )
-                )}
+                .map((item, index) => (
+                  <ProductCard
+                    key={index}
+                    productDetail={item}
+                    token={user.token}
+                    quantity={cart.find((c) => c.dishId === item.id)?.quantity}
+                    reloadShop={reloadShop}
+                    shopActive={shopDetail.isActive}
+                  />
+                ))}
           </div>
           <Pagination
             limit={PRODUCT_LIMIT}

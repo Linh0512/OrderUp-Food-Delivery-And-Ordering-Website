@@ -19,15 +19,15 @@ export default function BigShopCard({ shop }) {
           <div className="flex w-full justify-between items-center ">
             <p
               className={`${
-                shop.active ? "text-[rgba(109,213,29,1)]" : "text-red-600"
+                shop.isActive ? "text-[rgba(109,213,29,1)]" : "text-red-600"
               } flex items-center`}
             >
               <span
                 className={`size-3 rounded-full mr-2 ${
-                  shop.active ? "bg-[rgba(109,213,29,1)]" : "bg-red-600"
+                  shop.isActive ? "bg-[rgba(109,213,29,1)]" : "bg-red-600"
                 }`}
               ></span>
-              {shop.active ? "Mở cửa" : "Đóng cửa"}
+              {shop.isActive ? "Mở cửa" : "Đóng cửa"}
             </p>
             <div className="space-x-2 flex items-center">
               <FontAwesomeIcon icon={faClock} />

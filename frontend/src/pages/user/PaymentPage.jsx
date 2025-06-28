@@ -4,9 +4,13 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
-import { formatCurrencyVN } from "../../utils/Format";
-import { createOrder, getAddress } from "../../services/userServices/Service";
 import { useAuth } from "../../components/common/AuthContext";
+import {
+  createOrder,
+  getAddress,
+  UseVoucher
+} from "../../services/userServices/Service";
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
@@ -50,7 +54,7 @@ export default function PaymentPage() {
     setAddressDetail({ ...addressDetail, method: event.target.value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const { note, ...fieldsToCheck } = addressDetail;
     const isFilled = Object.values(fieldsToCheck).every(
       (value) => value && value.trim() !== ""
@@ -60,7 +64,7 @@ export default function PaymentPage() {
       return;
     }
 
-    let orderData={}
+    let orderData = {};
 
     if (discount.value) {
       orderData = {
@@ -77,12 +81,10 @@ export default function PaymentPage() {
           method: paymentMethod,
         },
         promoInfo: {
-          code: discount.code || "",
+          code: discount.id || "",
         },
       };
-    }
-    else
-    {
+    } else {
       orderData = {
         cartId: cart.id,
         deliveryInfo: {
@@ -95,13 +97,15 @@ export default function PaymentPage() {
         },
         paymentInfo: {
           method: paymentMethod,
-        }
+        },
       };
     }
 
     console.log(orderData);
 
-    createOrder(user.token, orderData);
+    await createOrder(user.token, orderData); 
+
+    (discount.id&& await UseVoucher(discount.id, user.token))
 
     navigate("/tracking", {
       state: { cart: cart.items, addressDetail, subtotal, discount },
@@ -276,7 +280,7 @@ export default function PaymentPage() {
         </div>
         <div className=" w-[30%]">
           <div className="space-y-7 p-4 shadow h-fit rounded-4xl font-semibold bg-white">
-            <p>chi tiết thanh toán</p>
+            <p>Chi tiết thanh toán</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
               <p>{formatCurrencyVN(subtotal)}</p>

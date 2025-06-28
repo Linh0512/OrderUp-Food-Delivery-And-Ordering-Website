@@ -1,18 +1,27 @@
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClock, faMoneyBill } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
-import shop from '../assets/food1.jpg'
+import shop from "../assets/food1.jpg";
 
 export default function ShopCard({ shopDetail }) {
   const navigate = useNavigate();
 
   function handleMove() {
-    navigate(`shop/${shopDetail.id}`);
+      navigate(`shop/${shopDetail.id}`);
   }
   return (
-    <div className="flex flex-col rounded-2xl shadow-xl bg-white">  
-      <img src={shop||shopDetail.image} alt={shopDetail.name} className="rounded-t-2xl" />
+    <div
+      className={`flex flex-col rounded-2xl shadow-xl bg-white transition-all duration-300 ${
+        !shopDetail.active
+          ? "opacity-60"
+          : "hover:shadow-2xl hover:-translate-y-1"
+      }`}
+    >
+      <img
+        src={shopDetail.image}
+        alt={shopDetail.name}
+        className="rounded-t-2xl w-full h-60 object-cover"
+      />
       <div className="p-2 space-y-1 flex flex-col justify-center">
         <h3 className="font-bold text-xl py-2 truncate">{shopDetail.name}</h3>
         <p className="text-sm">{shopDetail.address}</p>
@@ -23,7 +32,7 @@ export default function ShopCard({ shopDetail }) {
             <p> {shopDetail.star} ★ </p>
           </div>
           <button
-            className="bg-[rgba(60,152,80,1)] border text-white p-1 px-2 rounded-2xl hover:opacity-80"
+            className="bg-[rgba(60,152,80,1)] hover:bg-green-800 transition border text-white p-1 px-2 rounded-2xl "
             onClick={handleMove}
           >
             Đặt món
@@ -48,7 +57,8 @@ export default function ShopCard({ shopDetail }) {
           </div>
         </div>
         <p className="text-xl py-2">
-          <FontAwesomeIcon icon={faMoneyBill} className="mr-2"/>{shopDetail.priceRange} VNĐ
+          <FontAwesomeIcon icon={faMoneyBill} className="mr-2" />
+          {shopDetail.priceRange} VNĐ
         </p>
       </div>
     </div>

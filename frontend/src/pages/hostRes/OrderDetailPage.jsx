@@ -53,8 +53,8 @@ export default function OrderDetailPage() {
         </h2>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <img src={order.userProfile?.avatar} alt="" className="rounded-full object-cover"/>
+            <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <img src={order.userProfile?.avatar} alt="" className="size-12 rounded-full object-cover"/>
             </div>
             <div>
               <p className="font-semibold text-gray-800">

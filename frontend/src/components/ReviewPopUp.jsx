@@ -37,7 +37,7 @@ export default function ReviewPopUp({
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div
-        className="bg-white w-[40vw] mx-auto border-2 shadow rounded-2xl overflow-scroll h-[80%] overflow-y-hidden overflow-x-hidden"
+        className="bg-white w-[40vw] mx-auto border-2 shadow rounded-2xl overflow-scroll h-[80%] overflow-x-hidden"
         ref={selectRef}
       >
         <h2 className="w-full shadow py-5 font-bold text-2xl">

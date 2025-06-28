@@ -222,6 +222,20 @@ export const getVoucher = async (id, token) => {
   }
 };
 
+export const UseVoucher = async (code, token) => {
+  try {
+    const res = await api.post(`/api/user/vouchers/${code}/use`,{}, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.data) return res.data;
+    else return {};
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 export const changePassword = async (token, oldPass, newPass, newPass1) => {
   console.log(token);
   const pass = {

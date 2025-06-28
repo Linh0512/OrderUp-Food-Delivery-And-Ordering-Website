@@ -13,6 +13,7 @@ export default function ProductPopUp({
   token,
   index,
   reloadCart,
+  reloadShop,
 }) {
   const productRef = useRef(null);
   const [showError, setShowError] = useState(false);
@@ -66,7 +67,8 @@ export default function ProductPopUp({
   const handleSave = async (index) => {
     if (!orderId) {
       if (dish.options.length === selectedOptions.length) {
-        addCart(token, data);
+        await addCart(token, data);
+        reloadShop();
         handleClose(false);
       } else setShowError(true);
     } else {

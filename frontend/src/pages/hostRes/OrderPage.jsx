@@ -41,7 +41,7 @@ export default function OrderPage() {
         setData(res);
       });
     }
-    setTimeout(() => setIsLoading(false), 1000);
+    setTimeout(() => setIsLoading(false), 500);
   }, [user, resId]);
   return (
     <div className="w-full p-3 space-y-5">
