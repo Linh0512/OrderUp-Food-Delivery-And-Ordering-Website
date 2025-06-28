@@ -193,9 +193,9 @@ export const getReview = async (id) => {
   }
 };
 
-export const addReview = async (resId, token, review) => {
+export const addReview = async (orderId, token, review) => {
   try {
-    const response = await api.post(`/api/reviews/${resId}/reviews`, review, {
+    const response = await api.post(`/api/reviews/order/${orderId}`, review, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

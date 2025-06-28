@@ -1,7 +1,6 @@
 import { faStar, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
-import avatar from "../assets/banner.jpg";
 import { addReview } from "../services/userServices/Service";
 import { useAuth } from "./common/AuthContext";
 
@@ -11,7 +10,6 @@ export default function ReviewRes({ handleClose, resDetail }) {
   const [review, setReview] = useState("");
   const selectRef = useRef(null);
   const { user } = useAuth();
-
   const handle = () => {
     handleClose(false);
   };
@@ -28,7 +26,7 @@ export default function ReviewRes({ handleClose, resDetail }) {
       return
     }
     console.log(reviewData)
-    addReview(resDetail.restaurantId, user.token,reviewData);
+    addReview(resDetail.id, user.token,reviewData);
     handleClose(false);
   };
 

@@ -24,10 +24,16 @@ export default function HistotyItem({ item }) {
           <div className="space-y-10">
             <p className="font-bold text-xl">{item.restaurantName}</p>
             <div className="space-x-5">
-              <button onClick={handleReview} className="font-semibold">
-                Đánh giá
-                <FontAwesomeIcon icon={faArrowRight} className="ml-3" />
-              </button>
+              {item.review ? (
+                <span className="font-semibold text-red-600">
+                  Đã đánh giá
+                </span>
+              ) : (
+                <button onClick={handleReview} className="font-semibold">
+                  Đánh giá
+                  <FontAwesomeIcon icon={faArrowRight} className="ml-3" />
+                </button>
+              )}
               <button
                 onClick={() => nav(`/history/${item.id}`)}
                 className="font-semibold"
@@ -39,7 +45,7 @@ export default function HistotyItem({ item }) {
           </div>
           <div className="space-y-10">
             <p className="italic text-gray-400">{item.orderDate}</p>
-            <p className="font-semibold">
+            <p className="font-semibold text-lg  text-red-500">
               {formatCurrencyVN(item.orderTotalAmount)}
             </p>
           </div>

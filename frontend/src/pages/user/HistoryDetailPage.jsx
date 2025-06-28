@@ -83,7 +83,7 @@ export default function HistoryDetailPage() {
           </div>
           <div className="bg-white rounded-xl shadow-md p-6">
             <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              Món ăn đã đặt (2 món)
+              Món ăn đã đặt {detail.orderItems.length}
             </h2>
             <div className="space-y-4">
               {detail.orderItems &&

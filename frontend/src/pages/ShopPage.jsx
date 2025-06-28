@@ -108,7 +108,7 @@ export default function ShopPage() {
                       key={index}
                       productDetail={item}
                       token={user.token}
-                      quantity={cart[index].quantity}
+                      quantity={cart[index]?.quantity}
                     />
                   ) : (
                     <ProductCard
