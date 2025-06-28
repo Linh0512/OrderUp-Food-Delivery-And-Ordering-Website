@@ -1,7 +1,7 @@
 import { faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import product from "../assets/product.jpg";
+
 import { formatCurrencyVN } from "../utils/Format";
 import ProductPopUp from "./ProductPopUp";
 
@@ -27,7 +27,7 @@ export default function CartItem({
         <FontAwesomeIcon icon={faX} />
       </button>
       <img
-        src={product || cartItem.dishImage}
+        src={ cartItem.dishImage}
         alt={cartItem.dishName}
         className="w-[15%] h-auto object-contain shadow"
       />

@@ -10,7 +10,6 @@ import io.github.cdimascio.dotenv.Dotenv;
 
 @SpringBootApplication
 public class OrderupApplication {
-
 	public static void main(String[] args) {
 		try {
             Dotenv dotenv = Dotenv.load();

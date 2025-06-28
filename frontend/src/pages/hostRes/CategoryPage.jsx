@@ -111,7 +111,7 @@ export default function CategoryPage() {
       <div className="flex space-x-5">
         <div className="p-2 w-[50%] bg-gray-200 space-y-5 rounded-2xl ease-in-out h-fit">
           <p className="font-semibold text-xl p-2">Danh Sách Voucher</p>
-          {vouchers.filter((item)=>item.code.toLowerCase().includes(search.toLowerCase())).map((item, index) => (
+          {vouchers?.filter((item)=>item.code.toLowerCase().includes(search.toLowerCase())).map((item, index) => (
             <CategoryItem
               key={index}
               voucher={item}

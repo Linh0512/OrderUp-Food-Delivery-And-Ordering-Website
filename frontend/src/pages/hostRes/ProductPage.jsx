@@ -29,7 +29,7 @@ export default function ProductPage() {
         setDish(res.data);
         setCount(res.count);
       });
-      setTimeout(() => setIsLoading(false), 1000);
+      setTimeout(() => setIsLoading(false), 500);
     }
   }, [user,resId]);
 

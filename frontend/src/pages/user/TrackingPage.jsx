@@ -33,7 +33,7 @@ export default function TrackingPage() {
       <div className="flex items-center">
         <button
           className="flex items-center justify-start"
-          onClick={() => navigate("/payment", { state: { cart } })}
+          onClick={() => navigate("/cart")}
         >
           <FontAwesomeIcon icon={faAngleLeft} className="text-xl mr-1" />
           trở lại

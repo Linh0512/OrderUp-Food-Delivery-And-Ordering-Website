@@ -5,16 +5,14 @@ import {
   faFloppyDisk,
   faPenToSquare,
   faPlus,
-  faSpider,
   faSpinner,
   faTrash,
   faX,
-  faXmark,
+  faXmark
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import product from "../../assets/product.jpg";
 import { useAuth } from "../../components/common/AuthContext";
 import {
   deleteDish,
@@ -123,6 +121,19 @@ export default function ProductDetailPage() {
     });
   };
 
+  const handleUpdateActive = async () => {
+    let tmp = {
+      name: dish.name,
+      basePrice: dish.basePrice,
+      description: dish.description,
+      images: dish.images,
+      options: dish.options,
+      active: !isSale,
+    };
+    await updateDish(id, tmp);
+    setIsSale(!isSale);
+  };
+
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -151,13 +162,14 @@ export default function ProductDetailPage() {
   };
 
   const handleUpdate = async () => {
-    let tmp={
-      name:dish.name,
-      basePrice:dish.basePrice,
-      description:dish.description,
-      images:dish.images,
-      options:dish.options
-    }
+    let tmp = {
+      name: dish.name,
+      basePrice: dish.basePrice,
+      description: dish.description,
+      images: dish.images,
+      options: dish.options,
+      active: dish.active,
+    };
     setIsUpLoading(true);
     if (fileSelected) {
       const image = await uploadImage(fileSelected, user.token);
@@ -165,7 +177,7 @@ export default function ProductDetailPage() {
     }
     await updateDish(id, tmp);
     setIsUpLoading(false);
-    setFileSelected(null)
+    setFileSelected(null);
     setIsEditing(!isEditing);
   };
 
@@ -178,6 +190,7 @@ export default function ProductDetailPage() {
     getDishbyId(id, user.token).then((res) => {
       console.log(res);
       setDish(res);
+      setIsSale(res.active);
     });
   }, [user, id]);
   const nav = useNavigate();
@@ -200,33 +213,39 @@ export default function ProductDetailPage() {
         </div>
         <div className="p-2 space-x-3 flex">
           <div className="py-2 transition">
-            {isSale ? (
-              <button
-                className="bg-green-500 text-white p-2 rounded-xl"
-                onClick={() => setIsSale(!isSale)}
-              >
-                <FontAwesomeIcon icon={faEye} className="mr-2" />
-                Đang bán
-              </button>
-            ) : (
-              <button
-                className="bg-red-500 text-white p-2 rounded-xl"
-                onClick={() => setIsSale(!isSale)}
-              >
-                <FontAwesomeIcon icon={faEyeSlash} className="mr-2" />
-                Dừng bán
-              </button>
-            )}
+            <button
+              className={`${
+                isSale ? "bg-green-500" : "bg-red-500"
+              } text-white p-2 rounded-xl`}
+              onClick={handleUpdateActive}
+            >
+              {isSale ? (
+                <>
+                  <FontAwesomeIcon icon={faEye} className="mr-2" />
+                  Đang bán
+                </>
+              ) : (
+                <>
+                  <FontAwesomeIcon icon={faEyeSlash} className="mr-2" />
+                  Dừng bán
+                </>
+              )}
+            </button>
           </div>
           {isEditing ? (
             <div className="p-2 space-x-3">
               <button
-                className={`${isUpLoading?"bg-gray-500":"bg-green-600"} p-2 text-white rounded-xl`}
+                className={`${
+                  isUpLoading ? "bg-gray-500" : "bg-green-600"
+                } p-2 text-white rounded-xl`}
                 onClick={handleUpdate}
               >
                 {isUpLoading ? (
                   <>
-                  <FontAwesomeIcon icon={faSpinner} className="animate-spin mr-2" />
+                    <FontAwesomeIcon
+                      icon={faSpinner}
+                      className="animate-spin mr-2"
+                    />
                     Đang Lưu...
                   </>
                 ) : (

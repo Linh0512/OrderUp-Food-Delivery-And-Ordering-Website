@@ -31,7 +31,7 @@ export default function VoucherPopUp({ handleClose, vouchers, onSelectVoucher,su
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div
-        className="bg-white p-6 rounded-3xl shadow-lg w-[40vw] "
+        className="bg-white p-6 rounded-3xl shadow-lg w-[40vw] overflow-scroll h-[65%] overflow-x-hidden"
         ref={selectRef}
       >
         <h2 className="text-xl font-bold mb-5 ">Mã khuyến mãi</h2>

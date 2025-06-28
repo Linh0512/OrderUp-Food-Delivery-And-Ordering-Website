@@ -7,36 +7,73 @@ import {
   faMoneyBill,
   faPenToSquare,
   faPhone,
+  faSpinner,
   faX,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
-import { getResData } from "../../services/hosResServices/service";
+import {
+  getResData,
+  updateResData,
+} from "../../services/hosResServices/service";
 import { useAuth } from "../../components/common/AuthContext";
+import { uploadImage } from "../../services/hosResServices/Product";
 
 const RestaurantProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [restaurantData, setRestaurantData] = useState({});
-  const {user,resId}=useAuth()
+  const [fileSelected, setFileSelected] = useState(null);
+  const [previewImage, setPreviewImage] = useState(null);
+  const { user, resId } = useAuth();
   const [editForm, setEditForm] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(()=>{
-    if(resId)
-    {
-      getResData(resId,user.token).then((res)=>{
-        console.log(res.data)
-        setRestaurantData(res.data)
-      })
+  useEffect(() => {
+    if (resId) {
+      getResData(resId, user.token).then((res) => {
+        console.log(res.data);
+        setRestaurantData(res.data);
+      });
     }
-  },[user,resId])
+  }, [user, resId]);
 
   const handleEdit = () => {
     setIsEditing(true);
-    setEditForm({ ...restaurantData });
+    setEditForm({
+      restaurantName: restaurantData.restaurantName,
+      restaurantImages: restaurantData.restaurantImages,
+      restaurantDescription: restaurantData.restaurantDescription,
+      restaurantEmail: restaurantData.restaurantEmail,
+      restaurantAddress: restaurantData.restaurantAddress,
+      restaurantPhone: restaurantData.restaurantPhone,
+      restaurantIsActive: restaurantData.restaurantIsActive,
+      restaurantPriceRange: restaurantData.restaurantPriceRange,
+      restaurantTimeRange: restaurantData.restaurantTimeRange,
+      operatingHours: restaurantData.operatingHours,
+      restaurantDeliveryRadius: restaurantData.restaurantDeliveryRadius,
+      restaurantDeliveryTime: restaurantData.restaurantDeliveryTime,
+      restaurantDeliveryFee: restaurantData.restaurantDeliveryFee,
+    });
   };
 
-  const handleSave = () => {
-    setRestaurantData({ ...editForm });
+  const handleSave = async () => {
+    let tmp;
+    setIsLoading(true);
+    if (fileSelected) {
+      const img = await uploadImage(fileSelected, user.token);
+      tmp = {
+        ...editForm,
+        restaurantImages: [img.data.url],
+      };
+    } else {
+      tmp = {
+        ...editForm,
+      };
+    }
+    console.log(tmp);
+    await updateResData(resId, user.token, tmp);
+    setIsLoading(false);
+    setRestaurantData(tmp);
     setIsEditing(false);
     setEditForm({});
   };
@@ -46,13 +83,30 @@ const RestaurantProfile = () => {
     setEditForm({});
   };
 
-  const handleImageAdd = () => {
-    const url = prompt("Nhập URL hình ảnh:");
-    if (url) {
-      setEditForm({
-        ...editForm,
-        restaurantImages: [url],
-      });
+  const handleFileSelect = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      const allowedTypes = [
+        "image/jpeg",
+        "image/png",
+        "image/gif",
+        "image/webp",
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Chỉ chấp nhận file ảnh (JPEG, PNG, GIF, WebP)");
+        return;
+      }
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        alert("File quá lớn. Vui lòng chọn file nhỏ hơn 5MB");
+        return;
+      }
+      setFileSelected(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setPreviewImage(e.target.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -77,10 +131,26 @@ const RestaurantProfile = () => {
               <>
                 <button
                   onClick={handleSave}
-                  className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center transition-all duration-200 transform hover:scale-105"
+                  className={`${
+                    isLoading
+                      ? "bg-gray-500 hover:bg-gray-600"
+                      : "bg-green-500 hover:bg-green-600 text-white"
+                  } px-4 py-2 rounded-lg flex items-center transition-all duration-200 transform hover:scale-105`}
                 >
-                  <FontAwesomeIcon className="mr-2" icon={faFloppyDisk} />
-                  Lưu
+                  {isLoading ? (
+                    <>
+                      <FontAwesomeIcon
+                        icon={faSpinner}
+                        className="animate-spin"
+                      />
+                      Đang Lưu...
+                    </>
+                  ) : (
+                    <>
+                      <FontAwesomeIcon className="mr-2" icon={faFloppyDisk} />
+                      Lưu
+                    </>
+                  )}
                 </button>
                 <button
                   onClick={handleCancel}
@@ -172,17 +242,20 @@ const RestaurantProfile = () => {
           {data.restaurantImages?.length > 0 ? (
             <div className="flex items-center space-x-3">
               <img
-                src={data.restaurantImages[0]}
+                src={previewImage || data.restaurantImages[0]}
                 alt=""
                 className="w-[30%] object-cover rounded-lg shadow-md transition-transform duration-200"
               />
               {isEditing && (
-                <button
-                  onClick={handleImageAdd}
-                  className="p-2 h-fit bg-blue-500 hover:bg-blue-700 rounded-lg flex items-center space-x-2 text-white transition-all duration-200"
-                >
-                  <span className="text-sm font-medium">Chọn hình ảnh</span>
-                </button>
+                <label className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer text-sm hover:bg-blue-700 transition">
+                  Thay hình ảnh
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </label>
               )}
             </div>
           ) : (
@@ -193,12 +266,15 @@ const RestaurantProfile = () => {
               />
               <p className="text-gray-500">Chưa có hình ảnh nào</p>
               {isEditing && (
-                <button
-                  onClick={handleImageAdd}
-                  className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors"
-                >
+                <label className="bg-blue-500 text-white px-4 py-2 rounded cursor-pointer text-sm hover:bg-blue-700 transition">
                   Thêm hình ảnh đầu tiên
-                </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFileSelect}
+                  />
+                </label>
               )}
             </div>
           )}
@@ -347,11 +423,16 @@ const RestaurantProfile = () => {
               {isEditing ? (
                 <input
                   type="text"
-                  value={data.restaurantTimeRange}
+                  value={
+                    data.restaurantTimeRange && data.restaurantTimeRange[0]
+                  }
                   onChange={(e) =>
                     setEditForm({
                       ...editForm,
-                      restaurantTimeRange: e.target.value,
+                      restaurantTimeRange: [
+                        e.target.value,
+                        ...editForm.restaurantTimeRange.slice(1),
+                      ],
                     })
                   }
                   className="w-full p-3 border bg-white border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
@@ -360,7 +441,9 @@ const RestaurantProfile = () => {
               ) : (
                 <div className="bg-gray-50 p-3 rounded-lg">
                   <p className="text-gray-800">
-                    {data.restaurantTimeRange || "Chưa cập nhật"}
+                    {(data.restaurantTimeRange &&
+                      data.restaurantTimeRange[0]) ||
+                      "Chưa cập nhật"}
                   </p>
                 </div>
               )}
