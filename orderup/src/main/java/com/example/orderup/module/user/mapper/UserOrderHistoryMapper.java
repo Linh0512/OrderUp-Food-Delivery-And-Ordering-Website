@@ -43,6 +43,7 @@ public class UserOrderHistoryMapper {
                 .restaurantAddress(restaurant != null ? restaurant.getAddress().getFullAddress() : "N/A")
                 .orderTotalQuantity(order.getOrderDetails() != null && order.getOrderDetails().getItems() != null ? 
                     order.getOrderDetails().getItems().stream().map(OrderItem::getQuantity).reduce(0, Integer::sum) : 0)
+                .isReview(order.isReview()) // Thêm trường isReview
                 .userProfile(UserOrderHistoryThumbDTO.UserProfile.builder()
                     .fullName(user.getFullName() != null ? user.getFullName() : "N/A")
                     .avatar(user.getProfile().getAvatar() != null ? user.getProfile().getAvatar() : "")
@@ -132,6 +133,7 @@ public class UserOrderHistoryMapper {
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
                 .orderDate(order.getCreatedAt() != null ? new SimpleDateFormat("dd/MM/yyyy").format(order.getCreatedAt()) : "")
+                .isReview(order.isReview()) // Thêm trường isReview
                 .deliveryInfo(deliveryInfo)
                 .paymentInfo(paymentInfo)
                 .promoInfo(promoInfo)

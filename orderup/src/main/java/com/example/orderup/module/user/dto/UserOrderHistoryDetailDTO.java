@@ -14,6 +14,7 @@ public class UserOrderHistoryDetailDTO {
     private String id;
     private String orderNumber;
     private String orderDate;
+    private boolean isReview; // Trường để kiểm tra order đã được review chưa
     private RestaurantInfo restaurantInfo;
     // Thông tin đặt hàng từ CheckoutDTO
     private DeliveryInfo deliveryInfo;

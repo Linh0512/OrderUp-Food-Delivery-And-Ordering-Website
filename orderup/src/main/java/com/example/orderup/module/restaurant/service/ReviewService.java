@@ -43,56 +43,59 @@ public class ReviewService {
     @Autowired
     private JwtTokenProvider jwtTokenProvider;
     
-    public ReviewListResponseDTO getReviewsByRestaurantId(String restaurantId) {
-        Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId);
-        if (restaurant == null) {
-            throw new RuntimeException("Không tìm thấy nhà hàng với id: " + restaurantId);
+        public ReviewListResponseDTO getReviewsByRestaurantId(String restaurantId) {
+            Restaurant restaurant = restaurantRepository.findRestaurantById(restaurantId);
+            if (restaurant == null) {
+                throw new RuntimeException("Không tìm thấy nhà hàng với id: " + restaurantId);
+            }
+            
+            // Lấy order gần nhất từ nhà hàng
+            Order latestOrder = orderRepository.findByRestaurantId(new ObjectId(restaurantId)).get(0);
+            
+            List<Review> reviews = reviewRepository.findByRestaurantId(new ObjectId(restaurantId));
+            List<ReviewDTO> reviewDTOs = reviews.stream()
+                    .map(review -> reviewMapper.toReviewDTO(review, restaurant, latestOrder))
+                    .collect(Collectors.toList());
+                    
+            return ReviewListResponseDTO.builder()
+                    .count(reviewDTOs.size())
+                    .data(reviewDTOs)
+                    .build();
         }
-        
-        // Lấy order gần nhất từ nhà hàng
-        Order latestOrder = orderRepository.findByRestaurantId(new ObjectId(restaurantId)).get(0);
-        
-        List<Review> reviews = reviewRepository.findByRestaurantId(restaurantId);
-        List<ReviewDTO> reviewDTOs = reviews.stream()
-                .map(review -> reviewMapper.toReviewDTO(review, restaurant, latestOrder))
-                .collect(Collectors.toList());
-                
-        return ReviewListResponseDTO.builder()
-                .count(reviewDTOs.size())
-                .data(reviewDTOs)
-                .build();
-    }
 
-    public ReviewDTO createReview(String restaurantId, ReviewDTO.CreateReviewRequest request, String token) {
+    public ReviewDTO createReviewForOrder(String orderId, ReviewDTO.CreateReviewRequest request, String token) {
         String userId = jwtTokenProvider.getUserIdFromToken(token);
         
-        // Kiểm tra xem user đã review nhà hàng này chưa
-        Optional<Review> existingReview = reviewRepository.findByUserIdAndRestaurantId(userId, restaurantId);
-        if (existingReview.isPresent()) {
-            throw new RuntimeException("Bạn đã review nhà hàng này rồi. Vui lòng sử dụng chức năng cập nhật review nếu cần.");
+        // Tìm order cụ thể
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            throw new RuntimeException("Không tìm thấy order với id: " + orderId);
         }
-
-        // Kiểm tra xem user có order từ nhà hàng này không
-        List<Order> userOrders = orderRepository.findByRestaurantId(new ObjectId(restaurantId));
-        if (userOrders == null || userOrders.isEmpty()) {
-            return null;
+        
+        // Kiểm tra order thuộc về user này
+        if (!order.getCustomerId().toString().equals(userId)) {
+            throw new RuntimeException("Bạn không có quyền review order này");
         }
-
+        
+        // Kiểm tra order đã được review chưa
+        if (order.isReview()) {
+            throw new RuntimeException("Order này đã được review rồi");
+        }
+        
         // Lấy thông tin user
         User user = userProfileRepository.findByUserId(userId);
         if (user == null) {
-            return null;
+            throw new RuntimeException("Không tìm thấy thông tin user");
         }
 
         // Lấy thông tin nhà hàng
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        Restaurant restaurant = restaurantRepository.findById(order.getRestaurantId().toString()).orElse(null);
         if (restaurant == null) {
-            return null;
+            throw new RuntimeException("Không tìm thấy thông tin nhà hàng");
         }
 
-        // Lấy danh sách món ăn đã đặt từ order gần nhất
-        Order latestOrder = userOrders.get(userOrders.size() - 1);
-        List<ReviewDTO.OrderItem> orderedItems = latestOrder.getOrderDetails().getItems().stream()
+        // Lấy danh sách món ăn đã đặt từ order
+        List<ReviewDTO.OrderItem> orderedItems = order.getOrderDetails().getItems().stream()
             .map(item -> ReviewDTO.OrderItem.builder()
                 .dishName(item.getDishName())
                 .dishImage(item.getDishImage())
@@ -103,8 +106,9 @@ public class ReviewService {
 
         // Tạo review mới
         Review review = new Review();
-        review.setUserId(userId);
-        review.setRestaurantId(restaurantId);
+        review.setUserId(new ObjectId(userId));
+        review.setRestaurantId(order.getRestaurantId());
+        review.setOrderId(new ObjectId(orderId)); // Liên kết với order cụ thể
         review.setComment(request.getUserComment());
         review.setRating((int) request.getRating());
         review.setImages(request.getImages());
@@ -113,6 +117,10 @@ public class ReviewService {
 
         // Lưu review
         Review savedReview = reviewRepository.save(review);
+
+        // Cập nhật trường isReview của order
+        order.setReview(true);
+        orderRepository.save(order);
 
         // Cập nhật thông tin đánh giá của nhà hàng
         updateRestaurantRatings(restaurant, request.getRating());
@@ -126,15 +134,18 @@ public class ReviewService {
         return reviewDTO;
     }
 
-    public ReviewDTO updateReview(String restaurantId, String reviewId, ReviewDTO.CreateReviewRequest request, String token) {
+    public ReviewDTO updateReview(String reviewId, ReviewDTO.CreateReviewRequest request, String token) {
         String userId = jwtTokenProvider.getUserIdFromToken(token);
         
+        ObjectId userIdObj = new ObjectId(userId);
+        ObjectId restaurantIdObj = reviewRepository.findById(reviewId).get().getRestaurantId();
+
         // Tìm review cần cập nhật
-        Review review = reviewRepository.findById(reviewId)
+        Review review = reviewRepository.findByUserIdAndRestaurantId(userIdObj, restaurantIdObj)
             .orElseThrow(() -> new RuntimeException("Không tìm thấy review với id: " + reviewId));
             
         // Kiểm tra quyền cập nhật
-        if (!review.getUserId().equals(userId)) {
+        if (!review.getUserId().equals(userIdObj)) {
             throw new RuntimeException("Bạn không có quyền cập nhật review này");
         }
         
@@ -151,13 +162,13 @@ public class ReviewService {
         Review savedReview = reviewRepository.save(review);
         
         // Cập nhật thông tin đánh giá của nhà hàng
-        Restaurant restaurant = restaurantRepository.findById(restaurantId).orElse(null);
+        Restaurant restaurant = restaurantRepository.findById(restaurantIdObj.toString()).orElse(null);
         if (restaurant != null) {
             updateRestaurantRatingsForUpdate(restaurant, oldRating, request.getRating());
         }
         
         // Lấy thông tin user
-        User user = userProfileRepository.findByUserId(userId);
+        User user = userProfileRepository.findByUserId(userIdObj.toString());
         
         // Chuyển đổi sang DTO
         ReviewDTO reviewDTO = reviewMapper.toDTO(savedReview);

@@ -20,7 +20,7 @@ public class ReviewMapper {
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     
     public ReviewDTO toReviewDTO(Review review, Restaurant restaurant, Order order) {
-        User customer = userService.getUserById(review.getUserId());
+        User customer = userService.getUserById(review.getUserId().toString());
         
         return ReviewDTO.builder()
                 .id(review.getId())
@@ -36,7 +36,7 @@ public class ReviewMapper {
                         .build())
                     .collect(Collectors.toList()))
                 .restaurantId(restaurant.getId())
-                .userId(review.getUserId())
+                .userId(review.getUserId().toString())
                 .userName(customer != null ? customer.getProfile().getName() : null)
                 .userAvatar(customer != null ? customer.getProfile().getAvatar() : null)
                 .createdAt(review.getCreatedAt().format(formatter))
@@ -49,8 +49,8 @@ public class ReviewMapper {
 
         return ReviewDTO.builder()
             .id(review.getId())
-            .userId(review.getUserId())
-            .restaurantId(review.getRestaurantId())
+            .userId(review.getUserId().toString())
+            .restaurantId(review.getRestaurantId().toString())
             .userComment(review.getComment())
             .rating(review.getRating())
             .images(review.getImages())
