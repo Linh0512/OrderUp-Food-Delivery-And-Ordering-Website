@@ -163,6 +163,8 @@ public class DishService {
             }
             pricing.setDiscounted(dishDTO.isDiscounted());
             existingDish.setPricing(pricing);
+
+            existingDish.setActive(dishDTO.isActive());
             
             // Update options nếu có
             if (dishDTO.getOptions() != null && !dishDTO.getOptions().isEmpty()) {

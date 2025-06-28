@@ -19,9 +19,9 @@ public interface VoucherRepository extends MongoRepository<Voucher, String> {
     // Tìm voucher theo nhà hàng
     List<Voucher> findByRestaurantId(String restaurantId);
     
-    // Tìm voucher hợp lệ cho user
-    @Query("{ 'isActive': true, 'remainingValue': { $gt: 0 }, 'validity.expiresAt': { $gt: ?0 }, $or: [ { 'type': 'GLOBAL' }, { 'restaurantId': ?1 } ] }")
-    List<Voucher> findValidVouchersForUser(LocalDate now, String restaurantId);
+    // Tìm voucher available cho user
+    @Query("{ 'isActive': true, 'remainingValue': { '$gt': 0 }, 'validity.expiresAt': { '$gte': ?0 }, '$or': [ { 'type': 'GLOBAL' }, { 'type': 'LOCAL', 'restaurantId': ?1 } ] }")
+    List<Voucher> findAvailableVouchersForUser(LocalDate currentDate, String restaurantId);
     
     // Tìm voucher theo type và restaurantId
     List<Voucher> findByTypeAndRestaurantId(String type, String restaurantId);

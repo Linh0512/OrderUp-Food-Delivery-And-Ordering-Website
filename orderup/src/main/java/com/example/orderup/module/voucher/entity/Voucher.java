@@ -33,9 +33,13 @@ public class Voucher {
     }
 
     public void updateActiveStatus() {
-        boolean isExpired = this.validity.getExpiresAt().isBefore(LocalDate.now());
-        boolean isOutOfStock = this.remainingValue <= 0;
-        this.isActive = !isExpired && !isOutOfStock;
+        if (this.validity != null && this.validity.getExpiresAt() != null) {
+            boolean isExpired = this.validity.getExpiresAt().isBefore(LocalDate.now());
+            boolean isOutOfStock = this.remainingValue <= 0;
+            this.isActive = !isExpired && !isOutOfStock;
+        } else {
+            this.isActive = false;
+        }
     }
     
     // Nested classes

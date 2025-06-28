@@ -26,13 +26,17 @@ public class RestaurantService {
      */
     public Page<Restaurant> getAllRestaurants(int page, int size) {
         Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-        return restaurantRepository.findByActiveTrue(pageable);
+        return restaurantRepository.findAll(pageable);
     }
     
     /**
      * Get all restaurants with pagination using Pageable
      */
     public Page<Restaurant> getAllRestaurantsPage(Pageable pageable) {
+        return restaurantRepository.findAll(pageable);
+    }
+
+    public Page<Restaurant> getActiveRestaurants(Pageable pageable) {
         return restaurantRepository.findByActiveTrue(pageable);
     }
     
@@ -81,6 +85,8 @@ public class RestaurantService {
                     if (restaurantDetails.getTags() != null) {
                         restaurant.setTags(restaurantDetails.getTags());
                     }
+                    restaurant.setActive(restaurantDetails.isActive());
+
                     
                     restaurant.setUpdatedAt(LocalDateTime.now());
                     
