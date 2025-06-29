@@ -140,27 +140,10 @@ public class ShoppingCartService {
             cart.setRestaurantId(dish.getRestaurantId());
             cart.setItems(new ArrayList<>());
             cart.setSummary(new ShoppingCart.OrderSummary());
-        } else {
-            // Kiểm tra xem món ăn đã tồn tại trong giỏ hàng chưa
-            boolean dishExists = cart.getItems().stream()
-                .anyMatch(item -> item.getDishId().equals(new ObjectId(request.getDishId())));
-            
-            if (dishExists) {
-                throw new IllegalArgumentException("Món ăn này đã có trong giỏ hàng. Vui lòng sử dụng chức năng cập nhật nếu muốn thay đổi.");
-            }
         }
 
-        // Tạo item mới
-        ShoppingCart.CartItem newItem = new ShoppingCart.CartItem();
-        newItem.setDishId(new ObjectId(request.getDishId()));
-        newItem.setDishName(dish.getBasicInfo().getName());
-        newItem.setDishImage(dish.getBasicInfo().getImages().get(0)); // Lấy ảnh đầu tiên
-        newItem.setQuantity(request.getQuantity());
-        newItem.setUnitPrice(dish.getPricing().getBasePrice());
-        newItem.setSpecialInstructions(request.getSpecialInstructions());
-        newItem.setSelectedOptions(new ArrayList<>());
-
-        // Chuyển đổi selected options và tính giá
+        // Tạo selectedOptions trước để có thể so sánh
+        List<ShoppingCart.SelectedOption> selectedOptions = new ArrayList<>();
         if (request.getSelectedOptions() != null && !request.getSelectedOptions().isEmpty()) {
             // Kiểm tra xem món ăn có options không
             if (dish.getOptions() == null || dish.getOptions().isEmpty()) {
@@ -181,21 +164,43 @@ public class ShoppingCartService {
                     .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy choice: " + optionRequest.getChoiceName()));
 
-                // Thêm option vào item
+                // Thêm option vào list
                 ShoppingCart.SelectedOption option = new ShoppingCart.SelectedOption();
                 option.setOptionName(optionRequest.getOptionName());
                 option.setChoiceName(optionRequest.getChoiceName());
                 option.setAdditionalPrice(dishChoice.getPrice());
-                newItem.getSelectedOptions().add(option);
+                selectedOptions.add(option);
             }
         }
 
-        // Tính subtotal cho item
-        double itemSubtotal = calculateItemSubtotal(newItem);
-        newItem.setSubtotal(itemSubtotal);
+        // Kiểm tra xem có item nào trùng hoàn toàn không
+        String specialInstructions = request.getSpecialInstructions() != null ? request.getSpecialInstructions() : "";
+        ShoppingCart.CartItem existingItem = findExactMatchingItem(cart, new ObjectId(request.getDishId()), selectedOptions, specialInstructions);
+        
+        if (existingItem != null) {
+            // Nếu trùng hoàn toàn, tăng quantity
+            existingItem.setQuantity(existingItem.getQuantity() + request.getQuantity());
+            // Tính lại subtotal
+            double itemSubtotal = calculateItemSubtotal(existingItem);
+            existingItem.setSubtotal(itemSubtotal);
+        } else {
+            // Nếu không trùng, tạo item mới
+            ShoppingCart.CartItem newItem = new ShoppingCart.CartItem();
+            newItem.setDishId(new ObjectId(request.getDishId()));
+            newItem.setDishName(dish.getBasicInfo().getName());
+            newItem.setDishImage(dish.getBasicInfo().getImages().get(0)); // Lấy ảnh đầu tiên
+            newItem.setQuantity(request.getQuantity());
+            newItem.setUnitPrice(dish.getPricing().getBasePrice());
+            newItem.setSpecialInstructions(specialInstructions);
+            newItem.setSelectedOptions(selectedOptions);
 
-        // Thêm item vào giỏ
-        cart.getItems().add(newItem);
+            // Tính subtotal cho item mới
+            double itemSubtotal = calculateItemSubtotal(newItem);
+            newItem.setSubtotal(itemSubtotal);
+
+            // Thêm item mới vào giỏ
+            cart.getItems().add(newItem);
+        }
 
         // Cập nhật tổng giá trị
         updateCartSummary(cart, null, cart.getRestaurantId().toString());
@@ -567,5 +572,88 @@ public class ShoppingCartService {
                 .specialInstructions(item.getSpecialInstructions())
                 .build())
             .collect(Collectors.toList());
+    }
+
+    /**
+     * Tìm item trong giỏ hàng trùng hoàn toàn với dish ID, selectedOptions và instructions
+     */
+    private ShoppingCart.CartItem findExactMatchingItem(ShoppingCart cart, ObjectId dishId, 
+                                                       List<ShoppingCart.SelectedOption> selectedOptions, 
+                                                       String specialInstructions) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            return null;
+        }
+
+        for (ShoppingCart.CartItem item : cart.getItems()) {
+            // Kiểm tra dishId
+            if (!item.getDishId().equals(dishId)) {
+                continue;
+            }
+
+            // Kiểm tra specialInstructions
+            String itemInstructions = item.getSpecialInstructions() != null ? item.getSpecialInstructions() : "";
+            if (!itemInstructions.equals(specialInstructions)) {
+                continue;
+            }
+
+            // Kiểm tra selectedOptions
+            if (areSelectedOptionsEqual(item.getSelectedOptions(), selectedOptions)) {
+                return item;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * So sánh 2 list selectedOptions xem có trùng hoàn toàn không
+     */
+    private boolean areSelectedOptionsEqual(List<ShoppingCart.SelectedOption> options1, 
+                                           List<ShoppingCart.SelectedOption> options2) {
+        // Cả 2 đều null hoặc empty
+        if ((options1 == null || options1.isEmpty()) && (options2 == null || options2.isEmpty())) {
+            return true;
+        }
+
+        // Một bên null/empty, một bên có data
+        if ((options1 == null || options1.isEmpty()) || (options2 == null || options2.isEmpty())) {
+            return false;
+        }
+
+        // Khác size
+        if (options1.size() != options2.size()) {
+            return false;
+        }
+
+        // Sort cả 2 list theo optionName và choiceName để so sánh chính xác
+        List<ShoppingCart.SelectedOption> sorted1 = options1.stream()
+            .sorted((o1, o2) -> {
+                int compareOption = o1.getOptionName().compareTo(o2.getOptionName());
+                if (compareOption != 0) return compareOption;
+                return o1.getChoiceName().compareTo(o2.getChoiceName());
+            })
+            .collect(Collectors.toList());
+
+        List<ShoppingCart.SelectedOption> sorted2 = options2.stream()
+            .sorted((o1, o2) -> {
+                int compareOption = o1.getOptionName().compareTo(o2.getOptionName());
+                if (compareOption != 0) return compareOption;
+                return o1.getChoiceName().compareTo(o2.getChoiceName());
+            })
+            .collect(Collectors.toList());
+
+        // So sánh từng option
+        for (int i = 0; i < sorted1.size(); i++) {
+            ShoppingCart.SelectedOption opt1 = sorted1.get(i);
+            ShoppingCart.SelectedOption opt2 = sorted2.get(i);
+
+            if (!opt1.getOptionName().equals(opt2.getOptionName()) ||
+                !opt1.getChoiceName().equals(opt2.getChoiceName()) ||
+                Double.compare(opt1.getAdditionalPrice(), opt2.getAdditionalPrice()) != 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 } 
