@@ -77,13 +77,13 @@ npm run dev
 1. Tài khoản người dùng:
 ```
 Email: 22520779@gm.uit.edu.vn
-Password: Linh12345678#
+Password: Hello1234567*
 ```
 
 2. Tài khoản nhà hàng:
 ```
 Email: host1@pizzahouse.com
-Password: Host123456@
+Password: Hello123456@
 ```
 
 3. Tài khoản admin:
