@@ -14,6 +14,7 @@ import com.example.orderup.module.user.entirty.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -156,7 +157,7 @@ public class VoucherService {
         System.out.println("=== DEBUG: Total vouchers in DB: " + allVouchers.size());
         
         // Filter theo logic business
-        LocalDate now = LocalDate.now();
+        Date now = new Date();
         List<Voucher> filteredVouchers = allVouchers.stream()
                 .filter(voucher -> {
                     // Cập nhật trạng thái in-memory chỉ, KHÔNG save
@@ -180,7 +181,8 @@ public class VoucherService {
                         return false;
                     }
                     
-                    if (voucher.getValidity().getExpiresAt().isBefore(now)) {
+                    // Compare dates properly
+                    if (voucher.getValidity().getExpiresAt().before(now)) {
                         return false;
                     }
                     
@@ -252,11 +254,11 @@ public class VoucherService {
         }
         Voucher.VoucherUsage usage = new Voucher.VoucherUsage();
         usage.setUserId(userId);
-        usage.setUsedAt(LocalDateTime.now());
+        usage.setUsedAt(new Date());
         voucher.getUsage().add(usage);
 
         // Giảm số lượng còn lại
-        voucher.setRemainingValue(voucher.getRemainingValue() - 1L);
+        voucher.setRemainingValue(voucher.getRemainingValue() - 1);
 
         // Cập nhật trạng thái
         voucher.updateActiveStatus();

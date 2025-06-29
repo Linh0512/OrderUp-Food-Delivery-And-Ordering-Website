@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.ZoneId;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -15,6 +18,7 @@ public class VoucherMapper {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter HTML_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter HTML_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+    private static final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("dd/MM/yyyy");
     
     public VoucherThumbDTO toThumbDTO(Voucher voucher) {
         if (voucher == null) return null;
@@ -27,9 +31,12 @@ public class VoucherMapper {
         if (voucher.getConditions() != null) {
             dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
         }
-        dto.setRemainingValue(voucher.getRemainingValue() != null ? voucher.getRemainingValue().intValue() : null);
-        if (voucher.getValidity() != null) {
-            dto.setExpiresAt(voucher.getValidity().getExpiresAt());
+        dto.setRemainingValue(voucher.getRemainingValue());
+        if (voucher.getValidity() != null && voucher.getValidity().getExpiresAt() != null) {
+            // Convert Date to LocalDate for DTO
+            LocalDate expiresAtLocal = voucher.getValidity().getExpiresAt().toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
+            dto.setExpiresAt(expiresAtLocal);
         }
         dto.setActive(voucher.isActive());
         dto.setRestaurantId(voucher.getRestaurantId());
@@ -47,18 +54,21 @@ public class VoucherMapper {
         if (voucher.getConditions() != null) {
             dto.setMinimumOrderAmount(voucher.getConditions().getMinimumOrderAmount());
         }
-        dto.setRemainingValue(voucher.getRemainingValue() != null ? voucher.getRemainingValue().intValue() : null);
-        if (voucher.getValidity() != null) {
-            dto.setExpiresAt(voucher.getValidity().getExpiresAt());
+        dto.setRemainingValue(voucher.getRemainingValue());
+        if (voucher.getValidity() != null && voucher.getValidity().getExpiresAt() != null) {
+            // Convert Date to LocalDate for DTO
+            LocalDate expiresAtLocal = voucher.getValidity().getExpiresAt().toInstant()
+                .atZone(ZoneId.systemDefault()).toLocalDate();
+            dto.setExpiresAt(expiresAtLocal);
         }
         dto.setActive(voucher.isActive());
         dto.setRestaurantId(voucher.getRestaurantId());
         
         if (voucher.getCreatedAt() != null) {
-            dto.setCreatedAt(voucher.getCreatedAt().format(DATE_FORMATTER));
+            dto.setCreatedAt(SIMPLE_DATE_FORMATTER.format(voucher.getCreatedAt()));
         }
         if (voucher.getUpdatedAt() != null) {
-            dto.setUpdatedAt(voucher.getUpdatedAt().format(DATE_FORMATTER));
+            dto.setUpdatedAt(SIMPLE_DATE_FORMATTER.format(voucher.getUpdatedAt()));
         }
         
         if (voucher.getUsage() != null) {
@@ -66,7 +76,13 @@ public class VoucherMapper {
                 .map(usage -> {
                     VoucherUsageDTO usageDTO = new VoucherUsageDTO();
                     usageDTO.setUserId(usage.getUserId());
-                    usageDTO.setUsedAt(usage.getUsedAt());
+                    // Convert Date to LocalDateTime for DTO
+                    if (usage.getUsedAt() != null) {
+                        LocalDateTime localDateTime = usage.getUsedAt().toInstant()
+                            .atZone(ZoneId.systemDefault())
+                            .toLocalDateTime();
+                        usageDTO.setUsedAt(localDateTime);
+                    }
                     return usageDTO;
                 })
                 .collect(Collectors.toList()));
@@ -89,31 +105,38 @@ public class VoucherMapper {
         
         if (dto.getIssuedAt() != null && !dto.getIssuedAt().isEmpty()) {
             try {
-                validity.setIssuedAt(LocalDateTime.parse(dto.getIssuedAt(), HTML_DATETIME_FORMATTER));
+                LocalDateTime localDateTime = LocalDateTime.parse(dto.getIssuedAt(), HTML_DATETIME_FORMATTER);
+                validity.setIssuedAt(Date.from(localDateTime.atZone(java.time.ZoneId.systemDefault()).toInstant()));
             } catch (Exception e) {
-                validity.setIssuedAt(LocalDateTime.now());
+                validity.setIssuedAt(new Date());
             }
         } else {
-            validity.setIssuedAt(LocalDateTime.now());
+            validity.setIssuedAt(new Date());
         }
         
         if (dto.getExpiresAt() != null && !dto.getExpiresAt().isEmpty()) {
             try {
-                validity.setExpiresAt(LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER));
+                LocalDate localDate = LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER);
+                validity.setExpiresAt(Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
             } catch (Exception e) {
-                validity.setExpiresAt(LocalDate.now().plusDays(30));
+                LocalDate defaultDate = LocalDate.now().plusDays(30);
+                validity.setExpiresAt(Date.from(defaultDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
             }
         } else {
-            validity.setExpiresAt(LocalDate.now().plusDays(30));
+            LocalDate defaultDate = LocalDate.now().plusDays(30);
+            validity.setExpiresAt(Date.from(defaultDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
         }
         
         voucher.setValidity(validity);
         
-        voucher.setRemainingValue(dto.getRemainingValue() != null ? dto.getRemainingValue().longValue() : null);
+        voucher.setRemainingValue(dto.getRemainingValue() != null ? dto.getRemainingValue() : null);
         voucher.setRestaurantId(dto.getRestaurantId());
         voucher.setUsage(new ArrayList<>());
-        voucher.setCreatedAt(LocalDateTime.now());
-        voucher.setUpdatedAt(LocalDateTime.now());
+        
+        // Convert LocalDateTime to Date for entity
+        Date now = new Date();
+        voucher.setCreatedAt(now);
+        voucher.setUpdatedAt(now);
         
         return voucher;
     }
@@ -140,24 +163,34 @@ public class VoucherMapper {
         
         if (dto.getExpiresAt() != null && !dto.getExpiresAt().isEmpty()) {
             try {
-                validity.setExpiresAt(LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER));
+                LocalDate localDate = LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER);
+                validity.setExpiresAt(Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
             } catch (Exception e) {
                 // Keep existing value if parsing fails
             }
         }
         
-        voucher.setRemainingValue(dto.getRemainingValue() != null ? dto.getRemainingValue().longValue() : null);
+        voucher.setRemainingValue(dto.getRemainingValue() != null ? dto.getRemainingValue() : null);
         if (dto.getRestaurantId() != null) {
             voucher.setRestaurantId(dto.getRestaurantId());
         }
-        voucher.setUpdatedAt(LocalDateTime.now());
+        // Convert to Date for entity
+        voucher.setUpdatedAt(new Date());
     }
 
     public VoucherUsageDTO toUsageDTO(Voucher.VoucherUsage usage) {
         if (usage == null) return null;
         VoucherUsageDTO dto = new VoucherUsageDTO();
         dto.setUserId(usage.getUserId());
-        dto.setUsedAt(usage.getUsedAt());
+        
+        // Convert Date to LocalDateTime for DTO
+        if (usage.getUsedAt() != null) {
+            LocalDateTime localDateTime = usage.getUsedAt().toInstant()
+                .atZone(ZoneId.systemDefault())
+                .toLocalDateTime();
+            dto.setUsedAt(localDateTime);
+        }
+        
         return dto;
     }
 } 

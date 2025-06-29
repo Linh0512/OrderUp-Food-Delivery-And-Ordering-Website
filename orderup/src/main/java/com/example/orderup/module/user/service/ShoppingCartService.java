@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.bson.types.ObjectId;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -233,7 +233,7 @@ public class ShoppingCartService {
         }
 
         // Cập nhật quantity và specialInstructions
-        item.setQuantity(request.getQuantity());
+                    item.setQuantity(request.getQuantity());
         item.setSpecialInstructions(request.getSpecialInstructions());
         
         // Cập nhật selectedOptions
@@ -356,7 +356,7 @@ public class ShoppingCartService {
             deliveryInfo.setCustomerName(checkoutDTO.getDeliveryInfo().getCustomerName());
             deliveryInfo.setCustomerPhone(checkoutDTO.getDeliveryInfo().getCustomerPhone());
             deliveryInfo.setDeliveryInstructions(checkoutDTO.getDeliveryInfo().getDeliveryInstructions());
-            deliveryInfo.setEstimatedDeliveryTime(LocalDateTime.now());
+            deliveryInfo.setEstimatedDeliveryTime(new Date());
             order.setDeliveryInfo(deliveryInfo);
         }
 
@@ -396,18 +396,18 @@ public class ShoppingCartService {
         status.setHistory(new ArrayList<>());
         Order.StatusHistory statusHistory = new Order.StatusHistory();
         statusHistory.setStatus("PENDING");
-        statusHistory.setTimestamp(LocalDateTime.now());
+        statusHistory.setTimestamp(new Date());
         status.getHistory().add(statusHistory);
         order.setStatus(status);
 
         // Set thời gian
         Order.Timing timing = new Order.Timing();
-        timing.setPlacedAt(LocalDateTime.now());
+        timing.setPlacedAt(new Date());
         order.setTiming(timing);
         
         // Set thời gian tạo và cập nhật
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
+        order.setCreatedAt(new Date());
+        order.setUpdatedAt(new Date());
 
         // Lưu order và xóa cart
         order = orderRepository.save(order);

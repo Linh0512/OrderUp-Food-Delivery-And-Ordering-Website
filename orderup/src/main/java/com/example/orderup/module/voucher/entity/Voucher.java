@@ -6,8 +6,7 @@ import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -23,12 +22,11 @@ public class Voucher {
     private VoucherValidity validity;
     private List<VoucherUsage> usage;
     
-    @Field("remainingValue")
     @JsonProperty("remainingValue")
-    private Long remainingValue;
+    private Integer remainingValue;
     
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
     private boolean isActive;
     
     public boolean isActive() {
@@ -41,7 +39,7 @@ public class Voucher {
 
     public void updateActiveStatus() {
         if (this.validity != null && this.validity.getExpiresAt() != null) {
-            boolean isExpired = this.validity.getExpiresAt().isBefore(LocalDate.now());
+            boolean isExpired = this.validity.getExpiresAt().before(new Date());
             boolean isOutOfStock = this.remainingValue != null && this.remainingValue <= 0;
             this.isActive = !isExpired && !isOutOfStock;
         } else {
@@ -57,13 +55,13 @@ public class Voucher {
 
     @Data
     public static class VoucherValidity {
-        private LocalDateTime issuedAt;
-        private LocalDate expiresAt;
+        private Date issuedAt;
+        private Date expiresAt;
     }
 
     @Data
     public static class VoucherUsage {
         private String userId;
-        private LocalDateTime usedAt;
+        private Date usedAt;
     }
 }

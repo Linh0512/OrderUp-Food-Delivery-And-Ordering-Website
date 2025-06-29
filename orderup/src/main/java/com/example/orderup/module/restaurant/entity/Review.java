@@ -3,7 +3,7 @@ package com.example.orderup.module.restaurant.entity;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import org.bson.types.ObjectId;
 
@@ -18,6 +18,6 @@ public class Review {
     private String comment;
     private int rating;
     private List<String> images;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 }

@@ -1,11 +1,9 @@
 package com.example.orderup.module.user.mapper;
 
-import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -27,9 +25,9 @@ public class UserOrderHistoryMapper {
     public UserOrderHistoryThumbDTO toUserOrderHistoryThumbDTO(Order order, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(order.getRestaurantId().toString());
         
-        // Format date using DateTimeFormatter for LocalDateTime objects
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        String formattedDate = order.getCreatedAt() != null ? order.getCreatedAt().format(dateFormatter) : "";
+        // Format date using SimpleDateFormat for Date objects
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
+        String formattedDate = order.getCreatedAt() != null ? dateFormatter.format(order.getCreatedAt()) : "";
         
         return UserOrderHistoryThumbDTO.builder()
                 .id(order.getId())
@@ -43,7 +41,7 @@ public class UserOrderHistoryMapper {
                     ? restaurant.getBasicInfo().getImages().get(0) : "")
                 .restaurantAddress(restaurant != null ? restaurant.getAddress().getFullAddress() : "N/A")
                 .orderTotalQuantity(order.getOrderDetails() != null && order.getOrderDetails().getItems() != null ? 
-                    order.getOrderDetails().getItems().stream().map(OrderItem::getQuantity).reduce(0, Integer::sum) : 0)
+                    order.getOrderDetails().getItems().stream().mapToInt(item -> item.getQuantity()).sum() : 0)
                 .isReview(order.isReview()) // Thêm trường isReview
                 .userProfile(UserOrderHistoryThumbDTO.UserProfile.builder()
                     .fullName(user.getFullName() != null ? user.getFullName() : "N/A")
@@ -130,10 +128,11 @@ public class UserOrderHistoryMapper {
                 .collect(Collectors.toList());
         }
         
+        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
         return UserOrderHistoryDetailDTO.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
-                .orderDate(order.getCreatedAt() != null ? new SimpleDateFormat("dd/MM/yyyy").format(order.getCreatedAt()) : "")
+                .orderDate(order.getCreatedAt() != null ? dateFormatter.format(order.getCreatedAt()) : "")
                 .isReview(order.isReview()) // Thêm trường isReview
                 .deliveryInfo(deliveryInfo)
                 .paymentInfo(paymentInfo)

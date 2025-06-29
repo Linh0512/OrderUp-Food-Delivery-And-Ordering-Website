@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Date;
 
 @Controller
 @RequestMapping("/admin/restaurants")
@@ -104,7 +105,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);
@@ -140,7 +141,7 @@ public class AdminResViewController {
         try {
             restaurant.setId(null);
             
-            LocalDateTime now = LocalDateTime.now();
+            Date now = new Date();
             restaurant.setCreatedAt(now);
             restaurant.setUpdatedAt(now);
             
@@ -152,7 +153,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);
@@ -190,7 +191,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);
@@ -221,7 +222,7 @@ public class AdminResViewController {
             }
 
             restaurant.setId(id);
-            restaurant.setUpdatedAt(LocalDateTime.now());
+            restaurant.setUpdatedAt(new Date());
             restaurant.setCreatedAt(existingRestaurant.getCreatedAt());
             
             if (restaurant.getHostId() != null) {
@@ -232,7 +233,7 @@ public class AdminResViewController {
                     hostInfo.setLastName(hostUser.get().getProfile().getLastName());
                     hostInfo.setPhone(hostUser.get().getProfile().getPhone());
                     hostInfo.setEmail(hostUser.get().getEmail());
-                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+                    hostInfo.setDateOfBirth(hostUser.get().getProfile().getDateOfBirth());
                     hostInfo.setGender(hostUser.get().getProfile().getGender());
                     hostInfo.setAvatar(hostUser.get().getProfile().getAvatar());
                     restaurant.setHostInfo(hostInfo);
@@ -277,7 +278,7 @@ public class AdminResViewController {
             if (restaurant != null) {
                 restaurant.setVerificationStatus("APPROVED");
                 restaurant.setVerified(true);
-                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurant.setUpdatedAt(new Date());
                 restaurantService.saveRestaurant(restaurant);
                 redirectAttributes.addFlashAttribute("success", "Đã duyệt nhà hàng thành công");
             } else {
@@ -298,7 +299,7 @@ public class AdminResViewController {
             if (restaurant != null) {
                 restaurant.setVerificationStatus("REJECTED");
                 restaurant.setVerified(false);
-                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurant.setUpdatedAt(new Date());
                 restaurantService.saveRestaurant(restaurant);
                 redirectAttributes.addFlashAttribute("success", "Đã từ chối nhà hàng thành công");
             } else {
@@ -319,7 +320,7 @@ public class AdminResViewController {
             if (restaurant != null) {
                 restaurant.setVerificationStatus("PENDING");
                 restaurant.setVerified(false);
-                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurant.setUpdatedAt(new Date());
                 restaurantService.saveRestaurant(restaurant);
                 redirectAttributes.addFlashAttribute("success", "Đã đặt trạng thái chờ duyệt cho nhà hàng thành công");
             } else {

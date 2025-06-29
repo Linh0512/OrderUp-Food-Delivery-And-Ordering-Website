@@ -4,7 +4,7 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
@@ -39,8 +39,8 @@ public class Restaurant {
     
     private String verificationStatus;
     private BankInfo bankInfo;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 
     public boolean isActive() {
         return active;
@@ -205,7 +205,7 @@ public class Restaurant {
         private String lastName;
         private String phone;
         private String email;
-        private LocalDateTime dateOfBirth;
+        private Date dateOfBirth;
         private String gender;
         private String avatar;
 

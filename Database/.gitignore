@@ -1,0 +1,10 @@
+/node_modules/
+/package-lock.json
+/package.json
+/README.md
+/LICENSE
+/CONTRIBUTING.md
+/CODE_OF_CONDUCT.md
+/SECURITY.md
+/CHANGELOG.md
+/PULL_REQUEST_TEMPLATE.md

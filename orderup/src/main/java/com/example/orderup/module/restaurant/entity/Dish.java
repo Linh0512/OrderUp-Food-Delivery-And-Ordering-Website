@@ -2,7 +2,7 @@ package com.example.orderup.module.restaurant.entity;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
@@ -25,8 +25,8 @@ public class Dish {
     private boolean isActive;
     private boolean isFeatured;
     private int preparationTime;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 
 
     public void setActive(boolean isActive) {
@@ -53,6 +53,7 @@ public class Dish {
         private String description;
         private List<String> images;
         private List<String> tags;
+        private String preparationTime; // e.g., "15-20 phút"
     }
 
     @Data
@@ -60,14 +61,6 @@ public class Dish {
         private int basePrice;
         private int discountPrice;
         private boolean isDiscounted;
-
-        public boolean isDiscounted() {
-            return isDiscounted;
-        }
-
-        public void setDiscounted(boolean isDiscounted) {
-            this.isDiscounted = isDiscounted;
-        }
     }
 
     @Data
@@ -100,16 +93,7 @@ public class Dish {
     public static class Choice {
         private String name;
         private int price;
-
         private boolean isDefault;
-
-        public boolean isDefault() {
-            return isDefault;
-        }
-
-        public void setDefault(boolean isDefault) {
-            this.isDefault = isDefault;
-        }
     }
 
     @Data
@@ -144,5 +128,92 @@ public class Dish {
     public static class StatInfo {
         private int totalOrders;
         private int viewCount;
+    }
+
+    // Business methods
+    public void activate() {
+        this.isActive = true;
+        this.updatedAt = new Date();
+    }
+    
+    public void deactivate() {
+        this.isActive = false;
+        this.updatedAt = new Date();
+    }
+    
+    public double getFinalPrice() {
+        if (pricing != null && pricing.isDiscounted && pricing.discountPrice > 0) {
+            return pricing.discountPrice;
+        }
+        return pricing != null ? pricing.basePrice : 0;
+    }
+    
+    public boolean hasValidDiscount() {
+        return pricing != null && pricing.isDiscounted && 
+               pricing.discountPrice > 0 && pricing.discountPrice < pricing.basePrice;
+    }
+    
+    // Additional business logic
+    public void updateBasicInfo(String name, String description, List<String> images) {
+        if (this.basicInfo == null) {
+            this.basicInfo = new BasicInfo();
+        }
+        
+        if (name != null && !name.trim().isEmpty()) {
+            this.basicInfo.name = name;
+        }
+        
+        if (description != null) {
+            this.basicInfo.description = description;
+        }
+        
+        if (images != null && !images.isEmpty()) {
+            this.basicInfo.images = images;
+        }
+        
+        this.updatedAt = new Date();
+    }
+    
+    public void updatePricing(int basePrice, Integer discountPrice) {
+        if (this.pricing == null) {
+            this.pricing = new Pricing();
+        }
+        
+        this.pricing.basePrice = basePrice;
+        
+        if (discountPrice != null && discountPrice > 0 && discountPrice < basePrice) {
+            this.pricing.discountPrice = discountPrice;
+            this.pricing.isDiscounted = true;
+        } else {
+            this.pricing.discountPrice = 0;
+            this.pricing.isDiscounted = false;
+        }
+        
+        this.updatedAt = new Date();
+    }
+    
+    // Stock management (if needed)
+    @Data
+    public static class StockInfo {
+        private Integer stockQuantity;
+        private boolean trackStock;
+        private Integer lowStockThreshold;
+    }
+    
+    private StockInfo stockInfo;
+    
+    public boolean isInStock() {
+        if (stockInfo == null || !stockInfo.trackStock) {
+            return true; // Unlimited stock
+        }
+        return stockInfo.stockQuantity != null && stockInfo.stockQuantity > 0;
+    }
+    
+    public boolean isLowStock() {
+        if (stockInfo == null || !stockInfo.trackStock || stockInfo.lowStockThreshold == null) {
+            return false;
+        }
+        return stockInfo.stockQuantity != null && 
+               stockInfo.stockQuantity <= stockInfo.lowStockThreshold;
     }
 }

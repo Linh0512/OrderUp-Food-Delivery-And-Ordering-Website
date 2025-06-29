@@ -12,7 +12,7 @@ import com.example.orderup.module.restaurant.entity.Restaurant;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
+import java.util.Date;
 import org.bson.types.ObjectId;
 
 import com.example.orderup.module.user.repository.UserProfileRepository;
@@ -112,8 +112,8 @@ public class ReviewService {
         review.setComment(request.getUserComment());
         review.setRating((int) request.getRating());
         review.setImages(request.getImages());
-        review.setCreatedAt(LocalDateTime.now());
-        review.setUpdatedAt(LocalDateTime.now());
+        review.setCreatedAt(new Date());
+        review.setUpdatedAt(new Date());
 
         // Lưu review
         Review savedReview = reviewRepository.save(review);
@@ -156,7 +156,7 @@ public class ReviewService {
         review.setComment(request.getUserComment());
         review.setRating((int) request.getRating());
         review.setImages(request.getImages());
-        review.setUpdatedAt(LocalDateTime.now());
+        review.setUpdatedAt(new Date());
         
         // Lưu review
         Review savedReview = reviewRepository.save(review);
