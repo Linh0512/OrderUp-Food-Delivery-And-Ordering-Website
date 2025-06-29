@@ -34,7 +34,7 @@ export default function OrderPage() {
       getOrderData(resId, user.token).then((res) => {
         console.log(res);
         setOrders(res.orders);
-        setCount(res.totalItems);
+        setCount(res.totalItems || 0);
       });
       getDashboardData(resId, user.token).then((res) => {
         console.log(res);
@@ -43,6 +43,31 @@ export default function OrderPage() {
     }
     setTimeout(() => setIsLoading(false), 500);
   }, [user, resId]);
+
+  const getFilteredOrders = () => {
+    let filtered = [...orders];
+    // Lọc theo trạng thái
+    if (orderStatus !== "all" && orderStatus !== "pending") {
+      filtered = filtered.filter((order) => order.status === orderStatus);
+    }
+
+    // Sắp xếp theo ngày tạo
+    if (dateSort === -1) {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Mới nhất
+    } else if (dateSort === 1) {
+      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // Cũ nhất
+    }
+
+    // Sắp xếp theo giá tiền
+    if (priceSort === 1) {
+      filtered.sort((a, b) => a.totalAmount - b.totalAmount); // Tăng dần
+    } else if (priceSort === -1) {
+      filtered.sort((a, b) => b.totalAmount - a.totalAmount); // Giảm dần
+    }
+
+    return filtered;
+  };
+
   return (
     <div className="w-full p-3 space-y-5">
       <div className="flex items-center space-x-2 font-semibold text-2xl mb-4">
@@ -91,7 +116,7 @@ export default function OrderPage() {
         </div>
       </div>
       <div className="bg-gray-200 p-3 px-5 rounded-xl flex items-center text-sm">
-        <p className="text-xl font-semibold">{orders.length} Đơn hàng</p>
+        <p className="text-xl font-semibold">{orders?.length} Đơn hàng</p>
         <div className="flex items-center ml-auto space-x-4">
           <div className="bg-white flex items-center p-1 space-x-2 rounded">
             <p>Trạng thái:</p>
@@ -135,8 +160,9 @@ export default function OrderPage() {
           ? Array.from({ length: 10 }).map((_, index) => (
               <OrderCard key={index} loading={true} />
             ))
-          : orders &&
-            orders.map((item, index) => <OrderCard key={index} item={item} />)}
+          : getFilteredOrders()
+              .slice((page - 1) * LIMIT, page * LIMIT)
+              .map((item, index) => <OrderCard key={index} item={item} />)}
       </div>
       <Pagination
         limit={LIMIT}

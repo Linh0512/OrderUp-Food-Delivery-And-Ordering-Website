@@ -14,7 +14,7 @@ export default function HistoryPage() {
   useEffect(() => {
     getHistotyData(user.token,page-1,LIMIT).then((res) => {
       console.log(res)
-      setCount(res.totalItems);
+      setCount(res.totalItems||0);
       setHistory(res.orders);
     });
   }, [user,page]);
