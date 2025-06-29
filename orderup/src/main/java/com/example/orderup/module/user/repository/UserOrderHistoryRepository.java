@@ -7,7 +7,6 @@ import org.springframework.data.mongodb.repository.Query;
 import org.bson.types.ObjectId;
 import com.example.orderup.module.user.entirty.Order;
 import java.time.LocalDateTime;
-import java.util.Date;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 
@@ -21,16 +20,16 @@ public interface UserOrderHistoryRepository extends MongoRepository<Order, Strin
     @Query("{ 'customerId': ?0, 'createdAt': { $gte: ?1, $lt: ?2 } }")
     Page<Order> findByCustomerIdAndDateRange(
         ObjectId customerId, 
-        Date startDate, 
-        Date endDate, 
+        LocalDateTime startDate, 
+        LocalDateTime endDate, 
         Pageable pageable
     );
 
     @Query("{ 'restaurantId': ?0, 'createdAt': { $gte: ?1, $lt: ?2 } }")
     Page<Order> findByRestaurantIdAndDateRange(
         ObjectId restaurantId, 
-        Date startDate, 
-        Date endDate, 
+        LocalDateTime startDate, 
+        LocalDateTime endDate, 
         Pageable pageable
     );
 

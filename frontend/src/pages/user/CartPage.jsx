@@ -31,6 +31,16 @@ export default function CartPage() {
     setShowPopup(false);
   };
 
+  const handleSelectRes = (item) => {
+    if (selectedRes?.restaurantId === item.restaurantId) {
+      setSelectedRes(null);
+      setSubtotal(0);
+    } else {
+      setSelectedRes(item);
+      setSubtotal(item.summary.subtotal);
+    }
+  };
+
   const reloadCart = async () => {
     await getCart(user.token).then((res) => {
       setCart(res);
@@ -76,7 +86,7 @@ export default function CartPage() {
       setCart(res);
     });
     getVoucher(user.userId, user.token).then((res) => {
-      console.log(res)
+      console.log(res);
       setVouchers(res);
     });
   }, [user]);
@@ -119,16 +129,9 @@ export default function CartPage() {
                     <input
                       type="checkbox"
                       checked={selectedRes === item}
-                      onChange={() => {
-                        setSelectedRes(
-                          selectedRes?.restaurantId === item.restaurantId
-                            ? null
-                            : item
-                        );
-                        setSubtotal(item.summary.subtotal);
-                      }}
+                      onChange={() => handleSelectRes(item)}
                     />
-                    <p className="font-semibold">{item.restaurant.name}</p>
+                    <p className="font-semibold cursor-pointer" onClick={()=>navigate(`/shop/${item.restaurantId}`)}>{item.restaurant.name}</p>
                     <button
                       className="ml-auto mr-3"
                       onClick={() => handleDeleteResCart(item)}
@@ -155,15 +158,17 @@ export default function CartPage() {
           </div>
         </div>
         <div className=" w-[30%] ">
-          <div className="space-y-7 p-4 px-7 shadow h-fit rounded-4xl bg-white">
-            <div
-              className="flex items-center justify-between font-bold text-xl "
-              onClick={() => setShowPopup(true)}
-            >
+          <div
+            className="space-y-7 p-4 px-7 shadow h-fit rounded-4xl bg-white cursor-pointer"
+            onClick={() => setShowPopup(true)}
+          >
+            <div className="flex items-center justify-between font-bold text-xl ">
               Voucher
               <FontAwesomeIcon icon={faAngleRight} />
             </div>
-            <p className="text-red-700 font-semibold">Chọn voucher</p>
+            <p className="text-red-700 font-semibold">
+              {selectedVoucher ? selectedVoucher.code : "Chọn voucher"}
+            </p>
           </div>
           <div className="space-y-7 p-4 px-7 shadow h-fit rounded-4xl mt-5 font-semibold bg-white">
             <p>Chi tiết thanh toán</p>
@@ -179,15 +184,18 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between">
               <p>Phí giao hàng</p>
-              <p>{formatCurrencyVN(30000)}</p>
+              <p>{subtotal ? formatCurrencyVN(30000) : formatCurrencyVN(0)}</p>
             </div>
             <hr className="w-[90%] mx-auto" />
             <div className="flex justify-between text-xl">
               <p>Tổng cộng</p>
               <p className="text-green-500 ">
-                {formatCurrencyVN(
-                  subtotal + 30000 - selectedVoucher?.value || subtotal + 30000
-                )}
+                {subtotal
+                  ? formatCurrencyVN(
+                      subtotal + 30000 - selectedVoucher?.value ||
+                        subtotal + 30000
+                    )
+                  : formatCurrencyVN(0)}
               </p>
             </div>
           </div>

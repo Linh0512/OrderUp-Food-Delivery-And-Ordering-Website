@@ -109,9 +109,9 @@ export default function ProductPopUp({
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 ">
       <div className="bg-white shadow-lg w-100 rounded-4xl" ref={productRef}>
         <img
-          src={cartItem.dishImage}
+          src={dish.images&&dish.images[0]}
           alt={cartItem.dishName || cartItem.name}
-          className="rounded-t-4xl shadow"
+          className="rounded-t-4xl shadow h-90 w-full object-cover"
         />
         <div className="p-6">
           <div className="pb-3 mb-2 space-y-2">

@@ -33,7 +33,7 @@ export default function ProductCard({
         <img
           src={productDetail.image}
           alt={productDetail.name}
-          className="size-24 shadow-xl"
+          className="size-24 shadow-xl object-cover"
         />
         <div className="flex-1 min-w-0 space-y-3">
           <h3 className="font-bold text-lg">{productDetail.name}</h3>

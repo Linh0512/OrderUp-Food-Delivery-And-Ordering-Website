@@ -17,6 +17,6 @@ public class VoucherThumbDTO {
     @JsonSerialize(using = JacksonConfig.LocalDateSerializer.class)
     private LocalDate expiresAt;
     
-    private int remainingValue;
+    private Integer remainingValue;
     private boolean isActive;
 } 

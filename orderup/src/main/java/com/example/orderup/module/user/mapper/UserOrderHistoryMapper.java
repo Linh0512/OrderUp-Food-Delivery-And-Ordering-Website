@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.List;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -26,9 +27,9 @@ public class UserOrderHistoryMapper {
     public UserOrderHistoryThumbDTO toUserOrderHistoryThumbDTO(Order order, User user) {
         Restaurant restaurant = restaurantService.getRestaurantById(order.getRestaurantId().toString());
         
-        // Format date using SimpleDateFormat for Date objects
-        SimpleDateFormat dateFormatter = new SimpleDateFormat("dd/MM/yyyy");
-        String formattedDate = order.getCreatedAt() != null ? dateFormatter.format(order.getCreatedAt()) : "";
+        // Format date using DateTimeFormatter for LocalDateTime objects
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String formattedDate = order.getCreatedAt() != null ? order.getCreatedAt().format(dateFormatter) : "";
         
         return UserOrderHistoryThumbDTO.builder()
                 .id(order.getId())
