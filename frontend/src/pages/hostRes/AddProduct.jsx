@@ -74,6 +74,7 @@ export default function AddProduct() {
       const tmp = { ...dishData, images: [image.data.url] };
       await AddDish(resId, tmp);
       setIsUpLoading(false);
+      alert("Thêm món thành công")
     } catch (error) {
       console.log(error);
     }
