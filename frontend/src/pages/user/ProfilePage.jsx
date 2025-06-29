@@ -70,6 +70,7 @@ export default function ProfilePage() {
         setUserDetail(tmp);
       });
     }
+    console.log(tmp)
     await updatedUser(user.userId, tmp, user.token);
     setFileSelected(null);
     setPreviewImage(null);
@@ -89,18 +90,18 @@ export default function ProfilePage() {
       <hr className="mb-10" />
       <div className="flex justify-between">
         <div className=" w-[60%] space-y-10 border p-8 rounded-2xl bg-white">
-          <div className="flex space-x-10">
+          <div className="flex justify-between">
             <div className="text-xl w-[70%] text-gray-400 space-y-2">
-              <p className="font-semibold">Tên đầy đủ</p>
+              <p className="font-semibold">Họ</p>
               <div className="border-b space-x-2">
                 <FontAwesomeIcon icon={faCircleUser} />
                 <input
                   type="text"
-                  placeholder="Fullname"
+                  placeholder="firstName"
                   className="w-[90%] focus:outline-none"
-                  defaultValue={userDetail.fullName}
+                  defaultValue={userDetail.firstName}
                   onChange={(e) =>
-                    setUserDetail({ ...userDetail, fullName: e.target.value })
+                    setUserDetail({ ...userDetail, firstName: e.target.value })
                   }
                 />
               </div>
@@ -123,6 +124,21 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
+          <div className="text-xl text-gray-400 space-y-2">
+              <p className="font-semibold">Tên</p>
+              <div className="border-b space-x-2">
+                <FontAwesomeIcon icon={faCircleUser} />
+                <input
+                  type="text"
+                  placeholder="lastName"
+                  className="w-[90%] focus:outline-none"
+                  defaultValue={userDetail.lastName}
+                  onChange={(e) =>
+                    setUserDetail({ ...userDetail, lastName: e.target.value })
+                  }
+                />
+              </div>
+            </div>
           <div className="text-xl text-gray-400 space-y-2">
             <p className="font-semibold">Ngày sinh</p>
             <div className="border-b space-x-2">

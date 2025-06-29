@@ -32,6 +32,8 @@ public class DishController {
             DishListResponseDTO response = dishService.getDishesByRestaurantId(restaurantId);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
+            System.err.println("Error in getDishesByRestaurantId: " + e.getMessage());
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

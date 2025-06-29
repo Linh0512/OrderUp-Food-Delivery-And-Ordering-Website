@@ -8,7 +8,7 @@ import com.example.orderup.module.restaurant.dto.ReviewDTO;
 import com.example.orderup.module.user.service.UserService;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.entirty.Order;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
 import java.util.stream.Collectors;
 
 @Component
@@ -17,10 +17,10 @@ public class ReviewMapper {
     @Autowired
     private UserService userService;
     
-    private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
     
     public ReviewDTO toReviewDTO(Review review, Restaurant restaurant, Order order) {
-        User customer = userService.getUserById(review.getUserId());
+        User customer = userService.getUserById(review.getUserId().toString());
         
         return ReviewDTO.builder()
                 .id(review.getId())
@@ -36,11 +36,11 @@ public class ReviewMapper {
                         .build())
                     .collect(Collectors.toList()))
                 .restaurantId(restaurant.getId())
-                .userId(review.getUserId())
+                .userId(review.getUserId().toString())
                 .userName(customer != null ? customer.getProfile().getName() : null)
                 .userAvatar(customer != null ? customer.getProfile().getAvatar() : null)
-                .createdAt(review.getCreatedAt().format(formatter))
-                .updatedAt(review.getUpdatedAt().format(formatter))
+                .createdAt(review.getCreatedAt() != null ? formatter.format(review.getCreatedAt()) : null)
+                .updatedAt(review.getUpdatedAt() != null ? formatter.format(review.getUpdatedAt()) : null)
                 .build();
     }
 
@@ -49,13 +49,13 @@ public class ReviewMapper {
 
         return ReviewDTO.builder()
             .id(review.getId())
-            .userId(review.getUserId())
-            .restaurantId(review.getRestaurantId())
+            .userId(review.getUserId().toString())
+            .restaurantId(review.getRestaurantId().toString())
             .userComment(review.getComment())
             .rating(review.getRating())
             .images(review.getImages())
-            .createdAt(review.getCreatedAt() != null ? review.getCreatedAt().format(formatter) : null)
-            .updatedAt(review.getUpdatedAt() != null ? review.getUpdatedAt().format(formatter) : null)
+            .createdAt(review.getCreatedAt() != null ? formatter.format(review.getCreatedAt()) : null)
+            .updatedAt(review.getUpdatedAt() != null ? formatter.format(review.getUpdatedAt()) : null)
             .build();
     }
 }

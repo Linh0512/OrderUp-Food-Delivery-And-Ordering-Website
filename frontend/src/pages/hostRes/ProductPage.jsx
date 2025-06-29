@@ -12,24 +12,35 @@ import { useAuth } from "../../components/common/AuthContext";
 import { getAllDish } from "../../services/hosResServices/Product";
 
 export default function ProductPage() {
-  const LIMIT=12
+  const LIMIT = 12;
   const [priceSort, setPriceSort] = useState(0);
-  const [dateSort, setDateSort] = useState(0);
-  const [category, setCategory] = useState("all");
+  const [search, setSearch] = useState("");
   const nav = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [dish, setDish] = useState();
+  const [dish, setDish] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
-  const { user } = useAuth();
+  const { user, resId } = useAuth();
+
   useEffect(() => {
-    getAllDish("684844b61a05cf815c50eb74", user.token).then((res) => {
-      console.log(res);
-      setDish(res.data);
-      setCount(res.count)
-    });
-    setTimeout(() => setIsLoading(false), 1000);
-  }, [user]);
+    if (resId) {
+      getAllDish(resId, user.token).then((res) => {
+        console.log(res.data)
+        setDish(res.data);
+        setCount(res.count);
+      });
+      setTimeout(() => setIsLoading(false), 500);
+    }
+  }, [user,resId]);
+
+  let sortedDish = [...dish];
+
+  if (priceSort === 1) {
+    sortedDish.sort((a, b) => a.basePrice - b.basePrice);
+  } else if (priceSort === -1) {
+    sortedDish.sort((a, b) => b.basePrice - a.basePrice);
+  }
+
   return (
     <div className="w-full p-3 space-y-5">
       <div className="flex items-center space-x-2 font-semibold text-2xl mb-4">
@@ -37,7 +48,7 @@ export default function ProductPage() {
         <p>Món ăn</p>
       </div>
       <div className="bg-gray-200 flex justify-between p-2 px-4 rounded-xl text-xl font-semibold items-center">
-        <p>10 Món ăn</p>
+        <p>{dish.length} Món ăn</p>
         <button
           className="text-white bg-green-500 text-lg p-2 rounded-lg"
           onClick={() => nav("/Product/add")}
@@ -51,37 +62,15 @@ export default function ProductPage() {
             type="text"
             className="w-full focus:outline-none"
             placeholder="Tìm kiếm..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <FontAwesomeIcon icon={faMagnifyingGlass} />
         </div>
       </div>
       <div className="bg-gray-200 p-3 px-5 rounded-xl flex items-center text-sm">
-        <p className="text-xl font-semibold">49 kết quả</p>
+        <p className="text-xl font-semibold">{dish.length} kết quả</p>
         <div className="flex items-center ml-auto space-x-4">
-          <div className="bg-white flex items-center p-1 space-x-2 rounded">
-            <p>Phân lọai:</p>
-            <CustomSelect
-              options={[
-                { name: "Tất cả", value: "all" },
-                { name: "1", value: "pending" },
-                { name: "2", value: "cooking" },
-                { name: "3", value: "shipping" },
-                { name: "4", value: "deliveried" },
-              ]}
-              handleChange={setCategory}
-            />
-          </div>
-          <div className="bg-white flex items-center p-1 space-x-2 rounded">
-            <p>Ngày tạo:</p>
-            <CustomSelect
-              options={[
-                { name: "Tất cả", value: 0 },
-                { name: "Mới nhất", value: -1 },
-                { name: "Cũ nhất", value: 1 },
-              ]}
-              handleChange={setDateSort}
-            />
-          </div>
           <div className="bg-white flex items-center p-1 space-x-2 rounded">
             <p>Giá tiền:</p>
             <CustomSelect
@@ -100,11 +89,18 @@ export default function ProductPage() {
           ? Array.from({ length: 10 }).map((_, index) => (
               <ProductCard key={index} Loading={true} />
             ))
-          : dish.map((item, index) => (
-              <ProductCard key={index} item={item}/>
-            ))}
+          : sortedDish
+              .filter((item) =>
+                item.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((item, index) => <ProductCard key={index} item={item} />)}
       </div>
-      <Pagination />
+      <Pagination
+        limit={LIMIT}
+        count={count}
+        current={page}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

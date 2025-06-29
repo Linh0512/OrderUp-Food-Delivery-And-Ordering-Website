@@ -1,22 +1,25 @@
 import { useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import Category from "../components/Category";
 import Pagination from "../components/Pagination";
 import ShopCard from "../components/ShopCard";
 import {
   getAllShops,
-  getShopsByCuisine,
+  getShopsByCuisine
 } from "../services/userServices/Service";
 
 export default function HomePage() {
+  const { search } = useOutletContext();
   const SHOP_LIMIT = 12;
   const [page, setPage] = useState(1);
   const [count, setCount] = useState(0);
   const [category, setcategory] = useState("Tất cả");
 
+
   const categories = [
     { name: "Tất cả", color: "bg-green-500" },
-    { name: "Cơm", color: "bg-orange-400" },
-    { name: "Bún", color: "bg-red-400" },
+    { name: "Taco", color: "bg-orange-400" },
+    { name: "Phở", color: "bg-red-400" },
     { name: "Cháo", color: "bg-blue-300" },
     { name: "Bánh mì", color: "bg-pink-400" },
     { name: "Pizza", color: "bg-blue-400" },
@@ -42,17 +45,17 @@ export default function HomePage() {
   useEffect(() => {
     if (category === "Tất cả") {
       getAllShops(page - 1, SHOP_LIMIT).then((res) => {
-        console.log(res.data)
+        console.log(res.data);
         setShops(res.data);
         setCount(res.count);
       });
     } else {
-      getShopsByCuisine(category, page-1, SHOP_LIMIT).then((res) => {
+      getShopsByCuisine(category, page - 1, SHOP_LIMIT).then((res) => {
         setShops(res.data);
         setCount(res.count);
       });
     }
-  }, [page,category]);
+  }, [page, category]);
 
   return (
     <div className="w-[80vw] mx-auto flex">
@@ -63,9 +66,11 @@ export default function HomePage() {
         <hr className="w-[90%] mx-auto mb-3" />
         <div className="grid lg:grid-cols-4 md:grid-cols-3 sm:grid-cols-1 gap-10 mb-7">
           {Array.isArray(shops) &&
-            shops.map((item, index) => (
-              <ShopCard key={index} shopDetail={item} />
-            ))}
+            shops
+              .filter((item) =>
+                item.name.toLowerCase().includes(search.toLowerCase())
+              )
+              .map((item, index) => <ShopCard key={index} shopDetail={item} />)}
         </div>
         <Pagination
           limit={SHOP_LIMIT}

@@ -1,10 +1,9 @@
-import React, { useEffect, useRef, useState } from "react";
-import product from "../assets/product.jpg";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect, useRef, useState } from "react";
 import { faMinus, faPlus } from "@fortawesome/free-solid-svg-icons";
-import { formatCurrencyVN } from "../utils/Format";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { getDishbyId } from "../services/hosResServices/Product";
 import { addCart, updateCart } from "../services/userServices/Service";
+import { formatCurrencyVN } from "../utils/Format";
 
 export default function ProductPopUp({
   orderId,
@@ -12,10 +11,11 @@ export default function ProductPopUp({
   handleClose,
   token,
   index,
-  reloadCart
+  reloadCart,
+  reloadShop,
 }) {
   const productRef = useRef(null);
-  const [showError,setShowError]=useState(false)
+  const [showError, setShowError] = useState(false);
   const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
   const [dish, setDish] = useState({});
   const [specialInstructions, setSpecialInstructions] = useState(
@@ -64,27 +64,31 @@ export default function ProductPopUp({
   };
 
   const handleSave = async (index) => {
-    if (!orderId)
-    {
-      if(dish.options.length===selectedOptions.length)
-      {
-        addCart(token, data);
+    if (!orderId) {
+      if (dish.options.length === selectedOptions.length) {
+        await addCart(token, data);
+        reloadShop();
         handleClose(false);
-      }
-      else
-        setShowError(true)
-    }
-    else {
-      const {dishId,...exceptId}=data
-      await updateCart(orderId,token,exceptId,index);
-      reloadCart()
+      } else setShowError(true);
+    } else {
+      const { dishId, ...exceptId } = data;
+      const cleanedSelectedOptions = exceptId.selectedOptions.map(
+        ({ additionalPrice, ...rest }) => rest
+      );
+      const cleanedExceptId = {
+        ...exceptId,
+        selectedOptions: cleanedSelectedOptions,
+      };
+      console.log(cleanedExceptId);
+      await updateCart(orderId, token, cleanedExceptId, index);
+      reloadCart();
       handleClose(false);
     }
   };
 
   useEffect(() => {
     getDishbyId(cartItem.dishId || cartItem.id).then((res) => {
-      console.log(res)
+      console.log(res);
       setDish(res);
     });
   }, [cartItem]);
@@ -105,9 +109,9 @@ export default function ProductPopUp({
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50 ">
       <div className="bg-white shadow-lg w-100 rounded-4xl" ref={productRef}>
         <img
-          src={product || cartItem.dishImage}
+          src={dish.images&&dish.images[0]}
           alt={cartItem.dishName || cartItem.name}
-          className="rounded-t-4xl shadow"
+          className="rounded-t-4xl shadow h-90 w-full object-cover"
         />
         <div className="p-6">
           <div className="pb-3 mb-2 space-y-2">
@@ -119,7 +123,11 @@ export default function ProductPopUp({
             </div>
             <p className="text-gray-400 text-sm">{dish.description}</p>
           </div>
-          {showError&&<div className="text-red-500 bg-red-100 p-2 font-semibold text-center">Lựa chọn đủ các option</div>}
+          {showError && (
+            <div className="text-red-500 bg-red-100 p-2 font-semibold text-center">
+              Lựa chọn đủ các option
+            </div>
+          )}
           <div className="mb-4 ">
             {dish?.options?.map((item, index) => (
               <div key={index}>

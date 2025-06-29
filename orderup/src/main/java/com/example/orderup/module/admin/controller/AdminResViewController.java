@@ -19,11 +19,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.Date;
 
 @Controller
 @RequestMapping("/admin/restaurants")
@@ -139,7 +141,7 @@ public class AdminResViewController {
         try {
             restaurant.setId(null);
             
-            LocalDateTime now = LocalDateTime.now();
+            Date now = new Date();
             restaurant.setCreatedAt(now);
             restaurant.setUpdatedAt(now);
             
@@ -220,7 +222,7 @@ public class AdminResViewController {
             }
 
             restaurant.setId(id);
-            restaurant.setUpdatedAt(LocalDateTime.now());
+            restaurant.setUpdatedAt(new Date());
             restaurant.setCreatedAt(existingRestaurant.getCreatedAt());
             
             if (restaurant.getHostId() != null) {
@@ -251,11 +253,19 @@ public class AdminResViewController {
     @PostMapping("/{id}/delete")
     public String deleteRestaurant(@PathVariable("id") String id, RedirectAttributes redirectAttributes) {
         try {
+            Restaurant restaurant = restaurantService.getRestaurantById(id);
+            if (restaurant == null) {
+                redirectAttributes.addFlashAttribute("error", "Không tìm thấy nhà hàng với ID: " + id);
+                return "redirect:/admin/restaurants";
+            }
+
             restaurantService.deleteRestaurant(id);
             redirectAttributes.addFlashAttribute("success", "Xóa nhà hàng thành công");
             return "redirect:/admin/restaurants";
         } catch (Exception e) {
             e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            e.printStackTrace(new PrintWriter(sw));
             redirectAttributes.addFlashAttribute("error", "Đã xảy ra lỗi khi xóa nhà hàng: " + e.getMessage());
             return "redirect:/admin/restaurants";
         }
@@ -268,7 +278,7 @@ public class AdminResViewController {
             if (restaurant != null) {
                 restaurant.setVerificationStatus("APPROVED");
                 restaurant.setVerified(true);
-                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurant.setUpdatedAt(new Date());
                 restaurantService.saveRestaurant(restaurant);
                 redirectAttributes.addFlashAttribute("success", "Đã duyệt nhà hàng thành công");
             } else {
@@ -289,7 +299,7 @@ public class AdminResViewController {
             if (restaurant != null) {
                 restaurant.setVerificationStatus("REJECTED");
                 restaurant.setVerified(false);
-                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurant.setUpdatedAt(new Date());
                 restaurantService.saveRestaurant(restaurant);
                 redirectAttributes.addFlashAttribute("success", "Đã từ chối nhà hàng thành công");
             } else {
@@ -310,7 +320,7 @@ public class AdminResViewController {
             if (restaurant != null) {
                 restaurant.setVerificationStatus("PENDING");
                 restaurant.setVerified(false);
-                restaurant.setUpdatedAt(LocalDateTime.now());
+                restaurant.setUpdatedAt(new Date());
                 restaurantService.saveRestaurant(restaurant);
                 redirectAttributes.addFlashAttribute("success", "Đã đặt trạng thái chờ duyệt cho nhà hàng thành công");
             } else {
@@ -355,7 +365,7 @@ public class AdminResViewController {
         
         // Đặt các giá trị mặc định cho nhà hàng mới
         if (restaurant.getId() == null) {
-            restaurant.setActive(false);
+            restaurant.setActive(true); // Set active mặc định là true
             restaurant.setVerified(false);
             restaurant.setFeatured(false);
             restaurant.setVerificationStatus("PENDING");

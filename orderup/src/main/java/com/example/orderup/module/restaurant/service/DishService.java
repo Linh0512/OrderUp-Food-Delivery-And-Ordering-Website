@@ -12,7 +12,7 @@ import com.example.orderup.module.restaurant.entity.Dish;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.time.LocalDateTime;
+import java.util.Date;
 import org.bson.types.ObjectId;
 import java.util.ArrayList;
 
@@ -112,8 +112,8 @@ public class DishService {
         dish.setRestaurantId(new ObjectId(dishDTO.getRestaurantId()));
         dish.setPreparationTime(dishDTO.getPreparationTime());
         dish.setActive(true);
-        dish.setCreatedAt(LocalDateTime.now());
-        dish.setUpdatedAt(LocalDateTime.now());
+        dish.setCreatedAt(new Date());
+        dish.setUpdatedAt(new Date());
         
         // Lưu vào dishes collection
         Dish savedDish = dishRepository.addDish(dish);
@@ -163,6 +163,8 @@ public class DishService {
             }
             pricing.setDiscounted(dishDTO.isDiscounted());
             existingDish.setPricing(pricing);
+
+            existingDish.setActive(dishDTO.isActive());
             
             // Update options nếu có
             if (dishDTO.getOptions() != null && !dishDTO.getOptions().isEmpty()) {
@@ -195,7 +197,7 @@ public class DishService {
             if (dishDTO.getPreparationTime() > 0) {
                 existingDish.setPreparationTime(dishDTO.getPreparationTime());
             }
-            existingDish.setUpdatedAt(LocalDateTime.now());
+            existingDish.setUpdatedAt(new Date());
             
             // Lưu thay đổi vào database
             Dish updatedDish = dishRepository.updateDish(existingDish);

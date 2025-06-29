@@ -14,7 +14,6 @@ import {
   getCart,
   getVoucher,
 } from "../../services/userServices/Service";
-import food from "../../assets/food1.jpg";
 import { formatCurrencyVN } from "../../utils/Format";
 
 export default function CartPage() {
@@ -30,6 +29,16 @@ export default function CartPage() {
   const handleSelectVoucher = (voucher) => {
     setSelectedVoucher(voucher);
     setShowPopup(false);
+  };
+
+  const handleSelectRes = (item) => {
+    if (selectedRes?.restaurantId === item.restaurantId) {
+      setSelectedRes(null);
+      setSubtotal(0);
+    } else {
+      setSelectedRes(item);
+      setSubtotal(item.summary.subtotal);
+    }
   };
 
   const reloadCart = async () => {
@@ -63,9 +72,9 @@ export default function CartPage() {
     if (selectedRes) {
       navigate("/payment", {
         state: {
-          cart: selectedRes.items,
+          cart: { id: selectedRes.id, items: selectedRes.items },
           subtotal: subtotal,
-          discount: selectedVoucher?.value,
+          discount: selectedVoucher,
         },
       });
     } else alert("Chưa chọn món ăn");
@@ -77,6 +86,7 @@ export default function CartPage() {
       setCart(res);
     });
     getVoucher(user.userId, user.token).then((res) => {
+      console.log(res);
       setVouchers(res);
     });
   }, [user]);
@@ -97,7 +107,7 @@ export default function CartPage() {
       <div className="flex mt-8 space-x-10">
         <div className="p-7 rounded-3xl w-[65%] bg-white shadow">
           <h3 className="font-bold text-xl mb-4 text-center">
-            Chỉ cho phép chọn 1 nhà hàng cho 1 đơn
+            Chỉ cho phép chọn 1 nhà hàng cho 1 đơn hàng
           </h3>
           <div className="space-y-5 py-5 bg-gray-100 p-5 rounded-2xl">
             {cart.length === 0 ? (
@@ -119,16 +129,9 @@ export default function CartPage() {
                     <input
                       type="checkbox"
                       checked={selectedRes === item}
-                      onChange={() => {
-                        setSelectedRes(
-                          selectedRes?.restaurantId === item.restaurantId
-                            ? null
-                            : item
-                        );
-                        setSubtotal(item.summary.subtotal);
-                      }}
+                      onChange={() => handleSelectRes(item)}
                     />
-                    <p className="font-semibold">{item.restaurant.name}</p>
+                    <p className="font-semibold cursor-pointer" onClick={()=>navigate(`/shop/${item.restaurantId}`)}>{item.restaurant.name}</p>
                     <button
                       className="ml-auto mr-3"
                       onClick={() => handleDeleteResCart(item)}
@@ -155,18 +158,20 @@ export default function CartPage() {
           </div>
         </div>
         <div className=" w-[30%] ">
-          <div className="space-y-7 p-4 px-7 shadow h-fit rounded-4xl bg-white">
-            <div
-              className="flex items-center justify-between font-bold text-xl "
-              onClick={() => setShowPopup(true)}
-            >
+          <div
+            className="space-y-7 p-4 px-7 shadow h-fit rounded-4xl bg-white cursor-pointer"
+            onClick={() => setShowPopup(true)}
+          >
+            <div className="flex items-center justify-between font-bold text-xl ">
               Voucher
               <FontAwesomeIcon icon={faAngleRight} />
             </div>
-            <p className="text-red-700 font-semibold">Chọn voucher</p>
+            <p className="text-red-700 font-semibold">
+              {selectedVoucher ? selectedVoucher.code : "Chọn voucher"}
+            </p>
           </div>
           <div className="space-y-7 p-4 px-7 shadow h-fit rounded-4xl mt-5 font-semibold bg-white">
-            <p>chi tiết thanh toán</p>
+            <p>Chi tiết thanh toán</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
               <p>{formatCurrencyVN(subtotal)}</p>
@@ -179,15 +184,18 @@ export default function CartPage() {
             </div>
             <div className="flex justify-between">
               <p>Phí giao hàng</p>
-              <p>{formatCurrencyVN(30000)}</p>
+              <p>{subtotal ? formatCurrencyVN(30000) : formatCurrencyVN(0)}</p>
             </div>
             <hr className="w-[90%] mx-auto" />
             <div className="flex justify-between text-xl">
               <p>Tổng cộng</p>
               <p className="text-green-500 ">
-                {formatCurrencyVN(
-                  subtotal + 30000 - selectedVoucher?.value || subtotal + 30000
-                )}
+                {subtotal
+                  ? formatCurrencyVN(
+                      subtotal + 30000 - selectedVoucher?.value ||
+                        subtotal + 30000
+                    )
+                  : formatCurrencyVN(0)}
               </p>
             </div>
           </div>

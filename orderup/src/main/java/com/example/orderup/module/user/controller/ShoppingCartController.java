@@ -11,6 +11,8 @@ import com.example.orderup.module.user.dto.ShoppingCartDTO;
 import com.example.orderup.module.user.dto.ShoppingCartDTO.*;
 import com.example.orderup.module.user.service.ShoppingCartService;
 import com.example.orderup.module.user.entirty.Order;
+import com.example.orderup.module.user.dto.CheckoutDTO;
+import com.example.orderup.module.user.dto.ErrorResponse;
 import lombok.Data;
 
 @RestController
@@ -19,6 +21,26 @@ public class ShoppingCartController {
     
     @Autowired
     private ShoppingCartService cartService;
+
+    // Lấy thông tin món ăn trong giỏ hàng của nhà hàng
+    @GetMapping("/restaurant/{restaurantId}")
+    public ResponseEntity<?> getItemInRestaurantCart(
+            @RequestHeader(value = "Authorization", required = false) String token,
+            @PathVariable String restaurantId) {
+        try {
+            if (token == null) {
+                return ResponseEntity.ok(null);
+            }
+            List<ShoppingCartDTO.CartItem> cartItems = cartService.getItemInRestaurantCart(token, restaurantId);
+            return ResponseEntity.ok(cartItems);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ErrorResponse("Lỗi hệ thống", "Đã có lỗi xảy ra, vui lòng thử lại sau"));
+        }
+    }
 
     // Lấy tất cả giỏ hàng của user
     @GetMapping
@@ -98,12 +120,12 @@ public class ShoppingCartController {
     }
 
     // Thanh toán giỏ hàng
-    @PostMapping("/{cartId}/checkout")
+    @PostMapping("/checkout")
     public ResponseEntity<?> checkoutCart(
             @RequestHeader("Authorization") String token,
-            @PathVariable String cartId) {
+            @RequestBody CheckoutDTO checkoutDTO) {
         try {
-            Order order = cartService.checkoutCart(token, cartId);
+            Order order = cartService.checkoutCart(token, checkoutDTO);
             return ResponseEntity.ok(order);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest()

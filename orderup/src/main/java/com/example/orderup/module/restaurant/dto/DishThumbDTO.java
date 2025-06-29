@@ -2,10 +2,14 @@ package com.example.orderup.module.restaurant.dto;
 
 import lombok.Data;
 import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class DishThumbDTO {
     private String id;
     private String name;
@@ -14,5 +18,12 @@ public class DishThumbDTO {
     private int basePrice;
     private int discountPrice;
     private boolean isDiscounted;
-    private boolean isAvailable;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

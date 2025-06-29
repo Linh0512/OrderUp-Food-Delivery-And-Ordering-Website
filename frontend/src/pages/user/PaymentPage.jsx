@@ -4,16 +4,21 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import money from "../../assets/money.png";
 import zalopay from "../../assets/zalopay.png";
-import { formatCurrencyVN } from "../../utils/Format";
-import { getAddress } from "../../services/userServices/Service";
 import { useAuth } from "../../components/common/AuthContext";
+import {
+  createOrder,
+  getAddress,
+  UseVoucher
+} from "../../services/userServices/Service";
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function PaymentPage() {
   const [addresses, setAddresses] = useState([]);
+  const [addressMethod, setAddressMethod] = useState("select");
   const [selectedAddress, setSelectedAddress] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [addressDetail, setAddressDetail] = useState({
-    address: "",
+    address: selectedAddress,
     note: "",
     name: "",
     email: "",
@@ -25,26 +30,31 @@ export default function PaymentPage() {
   const location = useLocation();
   const cart = location.state?.cart || [];
   const subtotal = location.state?.subtotal;
-  const discount = location.state?.discount || 0;
+  const discount = location.state?.discount || {};
 
   useEffect(() => {
     getAddress(user.userId, user.token).then((res) => {
       console.log(res);
       setAddresses(res);
+      const defaultAddr = res.find((item) => item.default);
+      if (defaultAddr) {
+        setAddressDetail((prev) => ({
+          ...prev,
+          address: defaultAddr.fullAddress + " (" + defaultAddr.title + ")",
+        }));
+        setSelectedAddress(
+          defaultAddr.fullAddress + " (" + defaultAddr.title + ")"
+        );
+      }
     });
   }, [user]);
-
-  useEffect(() => {
-    const defaultAddr = addresses.find((item) => item.default);
-    if (defaultAddr) setSelectedAddress(defaultAddr.fullAddress);
-  }, [addresses]);
 
   const handlePaymentMethodChange = (event) => {
     setPaymentMethod(event.target.value);
     setAddressDetail({ ...addressDetail, method: event.target.value });
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const { note, ...fieldsToCheck } = addressDetail;
     const isFilled = Object.values(fieldsToCheck).every(
       (value) => value && value.trim() !== ""
@@ -53,7 +63,49 @@ export default function PaymentPage() {
       alert("Vui lòng nhập đầy đủ thông tin!");
       return;
     }
-    navigate("/tracking", { state: { cart, addressDetail ,subtotal,discount} });
+
+    let orderData = {};
+
+    if (discount.value) {
+      orderData = {
+        cartId: cart.id,
+        deliveryInfo: {
+          fullAddress: addressDetail.address,
+          district: "Quận 3",
+          city: "TP.HCM",
+          customerName: addressDetail.name,
+          customerPhone: addressDetail.phone,
+          deliveryInstructions: addressDetail.note,
+        },
+        paymentInfo: {
+          method: paymentMethod,
+        },
+        promoInfo: {
+          code: discount.code || "",
+        },
+      };
+    } else {
+      orderData = {
+        cartId: cart.id,
+        deliveryInfo: {
+          fullAddress: addressDetail.address,
+          district: "Quận 3",
+          city: "TP.HCM",
+          customerName: addressDetail.name,
+          customerPhone: addressDetail.phone,
+          deliveryInstructions: addressDetail.note,
+        },
+        paymentInfo: {
+          method: paymentMethod,
+        },
+      };
+    }
+
+    await createOrder(user.token, orderData); 
+
+    navigate("/tracking", {
+      state: { cart: cart.items, addressDetail, subtotal, discount },
+    });
   };
   return (
     <div className="w-[70vw] mx-auto">
@@ -74,15 +126,32 @@ export default function PaymentPage() {
           <div className="p-4 shadow rounded-3xl bg-white px-7 space-y-3">
             <h3 className="font-semibold ">Giao đến</h3>
             <div className="flex items-center space-x-4">
+              <input
+                type="radio"
+                name=""
+                id=""
+                value={"select"}
+                checked={addressMethod === "select"}
+                onChange={(e) => setAddressMethod(e.target.value)}
+              />
               <p className="font-semibold text-sm text-gray-400">
                 Chọn địa chỉ
               </p>
               <select
                 value={selectedAddress}
-                onChange={(e) => {setSelectedAddress(e.target.value)
-                  setAddressDetail({ ...addressDetail, address: e.target.value })
+                onChange={(e) => {
+                  setSelectedAddress(e.target.value);
+                  setAddressDetail({
+                    ...addressDetail,
+                    address: e.target.value,
+                  });
                 }}
-                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200 cursor-pointer"
+                disabled={addressMethod !== "select"}
+                className={`w-[80%] px-4 py-3 border ${
+                  addressMethod !== "select"
+                    ? "bg-gray-200 cursor-not-allowed text-gray-500"
+                    : "hover:border-gray-400"
+                } border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200 cursor-pointer`}
               >
                 {addresses.map((item, index) => (
                   <option
@@ -96,13 +165,29 @@ export default function PaymentPage() {
               </select>
             </div>
             <div className="items-center flex space-x-4">
+              <input
+                type="radio"
+                value={"write"}
+                checked={addressMethod === "write"}
+                onChange={(e) => setAddressMethod(e.target.value)}
+              />
               <p className="font-semibold text-sm text-gray-400">
                 Hoặc nhập địa chỉ
               </p>
               <input
                 type="text"
-                onChange={(e)=>setAddressDetail({ ...addressDetail, address: e.target.value })}
-                className="w-[80%] px-4 py-3 border border-gray-300 rounded-lg text-gray-900 focus:outline-none shadow-sm hover:border-gray-400 transition-all duration-200"
+                onChange={(e) =>
+                  setAddressDetail({
+                    ...addressDetail,
+                    address: e.target.value,
+                  })
+                }
+                disabled={addressMethod !== "write"}
+                className={`w-[80%] px-4 py-3 border ${
+                  addressMethod !== "write"
+                    ? "bg-gray-200 cursor-not-allowed text-gray-500"
+                    : "hover:border-gray-400"
+                } border-gray-300 rounded-lg focus:outline-none shadow-sm  transition-all duration-200`}
               />
             </div>
             <p className="font-semibold my-3">Ghi chú</p>
@@ -191,14 +276,16 @@ export default function PaymentPage() {
         </div>
         <div className=" w-[30%]">
           <div className="space-y-7 p-4 shadow h-fit rounded-4xl font-semibold bg-white">
-            <p>chi tiết thanh toán</p>
+            <p>Chi tiết thanh toán</p>
             <div className="flex justify-between">
               <p>Tạm tính</p>
               <p>{formatCurrencyVN(subtotal)}</p>
             </div>
             <div className="flex justify-between">
               <p>Giảm giá</p>
-              <p className="text-red-500">-{formatCurrencyVN(discount)}</p>
+              <p className="text-red-500">
+                -{formatCurrencyVN(discount.value)}
+              </p>
             </div>
             <div className="flex justify-between">
               <p>Phí giao hàng</p>
@@ -208,7 +295,7 @@ export default function PaymentPage() {
             <div className="flex justify-between text-xl">
               <p>Tổng cộng</p>
               <p className="text-green-500 ">
-                {formatCurrencyVN(subtotal + 30000 - discount)}
+                {formatCurrencyVN(subtotal + 30000 - (discount.value || 0))}
               </p>
             </div>
           </div>

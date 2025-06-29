@@ -4,35 +4,33 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.bson.types.ObjectId;
-import java.time.LocalDateTime;
+
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.example.orderup.module.user.entirty.ShoppingCart;
 import com.example.orderup.module.user.repository.ShoppingCartRepository;
-import com.example.orderup.module.restaurant.service.RestaurantService;
 import com.example.orderup.module.user.dto.ShoppingCartDTO;
+import com.example.orderup.module.user.dto.CheckoutDTO;
 import com.example.orderup.module.user.dto.ShoppingCartDTO.*;
-import com.example.orderup.module.restaurant.entity.Restaurant;
-import com.example.orderup.repositories.RestaurantRepository;
 import com.example.orderup.module.user.entirty.Order;
 import com.example.orderup.module.user.repository.UserOrderHistoryRepository;
 import com.example.orderup.module.user.mapper.ShoppingCartMapper;
 import com.example.orderup.config.security.JwtTokenProvider;
 import com.example.orderup.module.restaurant.entity.Dish;
 import com.example.orderup.module.restaurant.repository.DishRepository;
-import com.example.orderup.module.user.service.OrderNumberGenerator;
+import com.example.orderup.module.restaurant.entity.Restaurant;
+import com.example.orderup.module.restaurant.repository.RestaurantDetailRepository;
+import com.example.orderup.module.voucher.entity.Voucher;
+import com.example.orderup.module.voucher.service.VoucherService;
 
 @Service
 public class ShoppingCartService {
     
     @Autowired
     private ShoppingCartRepository cartRepository;
-    
-    @Autowired
-    private RestaurantRepository restaurantRepository;
     
     @Autowired
     private UserOrderHistoryRepository orderRepository;
@@ -49,6 +47,12 @@ public class ShoppingCartService {
     @Autowired
     private OrderNumberGenerator orderNumberGenerator;
 
+    @Autowired
+    private RestaurantDetailRepository restaurantRepository;
+
+    @Autowired
+    private VoucherService voucherService;
+
     public ShoppingCart getOrCreateCart(String token, String restaurantId) {
         String userId = jwtService.getUserIdFromToken(token);
         ObjectId userObjectId = new ObjectId(userId);
@@ -63,6 +67,7 @@ public class ShoppingCartService {
             cart.setUserId(userObjectId);
             cart.setRestaurantId(new ObjectId(restaurantId));
             cart.setItems(new ArrayList<>());
+            updateCartSummary(cart, null, restaurantId);
             cartRepository.save(cart);
         } else if (!cart.getRestaurantId().equals(new ObjectId(restaurantId))) {
             // Nếu user chọn món từ nhà hàng khác, xóa giỏ hàng cũ
@@ -72,6 +77,7 @@ public class ShoppingCartService {
             cart.setRestaurantId(new ObjectId(restaurantId));
             cart.setItems(new ArrayList<>());
             cart.setSummary(new ShoppingCart.OrderSummary());
+            updateCartSummary(cart, null, restaurantId);
             cartRepository.save(cart);
         }
         
@@ -94,80 +100,9 @@ public class ShoppingCartService {
         cart.getItems().add(item);
         
         // Cập nhật subtotal của cart
-        double cartSubtotal = cart.getItems().stream()
-                .mapToDouble(ShoppingCart.CartItem::getSubtotal)
-                .sum();
-        cart.getSummary().setSubtotal(cartSubtotal);
+        updateCartSummary(cart, null, restaurantId);
         
         return cartRepository.save(cart);
-    }
-
-    public ShoppingCart updateCartItem(String userId, String itemId, int quantity) {
-        ObjectId userObjectId = new ObjectId(userId);
-        List<ShoppingCart> carts = cartRepository.findByUserId(userObjectId);
-        ShoppingCart cart = null;
-        if (carts != null && !carts.isEmpty()) {
-            cart = carts.get(0);
-        }
-        
-        if (cart != null) {
-            cart.getItems().stream()
-                .filter(item -> item.getDishId().toString().equals(itemId))
-                .findFirst()
-                .ifPresent(item -> {
-                    item.setQuantity(quantity);
-                    double itemSubtotal = item.getUnitPrice() * quantity;
-                    if (item.getSelectedOptions() != null) {
-                        for (ShoppingCart.SelectedOption option : item.getSelectedOptions()) {
-                            itemSubtotal += option.getAdditionalPrice() * quantity;
-                        }
-                    }
-                    item.setSubtotal(itemSubtotal);
-                });
-            
-            double cartSubtotal = cart.getItems().stream()
-                    .mapToDouble(ShoppingCart.CartItem::getSubtotal)
-                    .sum();
-            cart.getSummary().setSubtotal(cartSubtotal);
-            
-            return cartRepository.save(cart);
-        }
-        
-        return null;
-    }
-
-    public void removeFromCart(String userId, String itemId) {
-        ObjectId userObjectId = new ObjectId(userId);
-        List<ShoppingCart> carts = cartRepository.findByUserId(userObjectId);
-        ShoppingCart cart = null;
-        if (carts != null && !carts.isEmpty()) {
-            cart = carts.get(0);
-        }
-        
-        if (cart != null) {
-            cart.getItems().removeIf(item -> item.getDishId().toString().equals(itemId));
-            
-            double cartSubtotal = cart.getItems().stream()
-                    .mapToDouble(ShoppingCart.CartItem::getSubtotal)
-                    .sum();
-            cart.getSummary().setSubtotal(cartSubtotal);
-            
-            cartRepository.save(cart);
-        }
-    }
-
-    public void clearCart(String userId) {
-        ObjectId userObjectId = new ObjectId(userId);
-        cartRepository.deleteByUserId(userObjectId);
-    }
-
-    public ShoppingCart getCart(String userId) {
-        ObjectId userObjectId = new ObjectId(userId);
-        List<ShoppingCart> carts = cartRepository.findByUserId(userObjectId);
-        if (carts != null && !carts.isEmpty()) {
-            return carts.get(0);
-        }
-        return null;
     }
 
     public List<ShoppingCartDTO> getUserCarts(String token) {
@@ -178,6 +113,7 @@ public class ShoppingCartService {
         List<ShoppingCart> carts = cartRepository.findByUserId(new ObjectId(userId));
         return carts.stream().map(cartMapper::toDTO).collect(Collectors.toList());
     }
+
 
     @Transactional
     public ShoppingCartDTO addToCart(String token, AddToCartRequest request) {
@@ -204,28 +140,16 @@ public class ShoppingCartService {
             cart.setRestaurantId(dish.getRestaurantId());
             cart.setItems(new ArrayList<>());
             cart.setSummary(new ShoppingCart.OrderSummary());
-        } else {
-            // Kiểm tra xem món ăn đã tồn tại trong giỏ hàng chưa
-            boolean dishExists = cart.getItems().stream()
-                .anyMatch(item -> item.getDishId().equals(new ObjectId(request.getDishId())));
-            
-            if (dishExists) {
-                throw new IllegalArgumentException("Món ăn này đã có trong giỏ hàng. Vui lòng sử dụng chức năng cập nhật nếu muốn thay đổi.");
-            }
         }
 
-        // Tạo item mới
-        ShoppingCart.CartItem newItem = new ShoppingCart.CartItem();
-        newItem.setDishId(new ObjectId(request.getDishId()));
-        newItem.setDishName(dish.getBasicInfo().getName());
-        newItem.setDishImage(dish.getBasicInfo().getImages().get(0)); // Lấy ảnh đầu tiên
-        newItem.setQuantity(request.getQuantity());
-        newItem.setUnitPrice(dish.getPricing().getBasePrice());
-        newItem.setSpecialInstructions(request.getSpecialInstructions());
-        newItem.setSelectedOptions(new ArrayList<>());
+        // Tạo selectedOptions trước để có thể so sánh
+        List<ShoppingCart.SelectedOption> selectedOptions = new ArrayList<>();
+        if (request.getSelectedOptions() != null && !request.getSelectedOptions().isEmpty()) {
+            // Kiểm tra xem món ăn có options không
+            if (dish.getOptions() == null || dish.getOptions().isEmpty()) {
+                throw new IllegalArgumentException("Món ăn này không có tùy chọn");
+            }
 
-        // Chuyển đổi selected options và tính giá
-        if (request.getSelectedOptions() != null) {
             for (SelectedOptionRequest optionRequest : request.getSelectedOptions()) {
                 // Tìm option và choice tương ứng từ dish
                 Dish.Option dishOption = dish.getOptions().stream()
@@ -240,24 +164,46 @@ public class ShoppingCartService {
                     .orElseThrow(() -> new IllegalArgumentException(
                         "Không tìm thấy choice: " + optionRequest.getChoiceName()));
 
-                // Thêm option vào item
+                // Thêm option vào list
                 ShoppingCart.SelectedOption option = new ShoppingCart.SelectedOption();
                 option.setOptionName(optionRequest.getOptionName());
                 option.setChoiceName(optionRequest.getChoiceName());
                 option.setAdditionalPrice(dishChoice.getPrice());
-                newItem.getSelectedOptions().add(option);
+                selectedOptions.add(option);
             }
         }
 
-        // Tính subtotal cho item
-        double itemSubtotal = calculateItemSubtotal(newItem);
-        newItem.setSubtotal(itemSubtotal);
+        // Kiểm tra xem có item nào trùng hoàn toàn không
+        String specialInstructions = request.getSpecialInstructions() != null ? request.getSpecialInstructions() : "";
+        ShoppingCart.CartItem existingItem = findExactMatchingItem(cart, new ObjectId(request.getDishId()), selectedOptions, specialInstructions);
+        
+        if (existingItem != null) {
+            // Nếu trùng hoàn toàn, tăng quantity
+            existingItem.setQuantity(existingItem.getQuantity() + request.getQuantity());
+            // Tính lại subtotal
+            double itemSubtotal = calculateItemSubtotal(existingItem);
+            existingItem.setSubtotal(itemSubtotal);
+        } else {
+            // Nếu không trùng, tạo item mới
+            ShoppingCart.CartItem newItem = new ShoppingCart.CartItem();
+            newItem.setDishId(new ObjectId(request.getDishId()));
+            newItem.setDishName(dish.getBasicInfo().getName());
+            newItem.setDishImage(dish.getBasicInfo().getImages().get(0)); // Lấy ảnh đầu tiên
+            newItem.setQuantity(request.getQuantity());
+            newItem.setUnitPrice(dish.getPricing().getBasePrice());
+            newItem.setSpecialInstructions(specialInstructions);
+            newItem.setSelectedOptions(selectedOptions);
 
-        // Thêm item vào giỏ
-        cart.getItems().add(newItem);
+            // Tính subtotal cho item mới
+            double itemSubtotal = calculateItemSubtotal(newItem);
+            newItem.setSubtotal(itemSubtotal);
+
+            // Thêm item mới vào giỏ
+            cart.getItems().add(newItem);
+        }
 
         // Cập nhật tổng giá trị
-        updateCartSummary(cart);
+        updateCartSummary(cart, null, cart.getRestaurantId().toString());
 
         // Lưu giỏ hàng
         cart = cartRepository.save(cart);
@@ -292,7 +238,7 @@ public class ShoppingCartService {
         }
 
         // Cập nhật quantity và specialInstructions
-        item.setQuantity(request.getQuantity());
+                    item.setQuantity(request.getQuantity());
         item.setSpecialInstructions(request.getSpecialInstructions());
         
         // Cập nhật selectedOptions
@@ -329,7 +275,7 @@ public class ShoppingCartService {
         item.setSubtotal(itemSubtotal);
 
         // Cập nhật tổng giá trị
-        updateCartSummary(cart);
+        updateCartSummary(cart, null, dish.getRestaurantId().toString());
 
         cart = cartRepository.save(cart);
         return cartMapper.toDTO(cart);
@@ -356,16 +302,17 @@ public class ShoppingCartService {
         }
 
         // Cập nhật tổng giá trị
-        updateCartSummary(cart);
+        updateCartSummary(cart, null, cart.getRestaurantId().toString());
         cart = cartRepository.save(cart);
         return cartMapper.toDTO(cart);
     }
 
     @Transactional
-    public Order checkoutCart(String token, String cartId) {
+    public Order checkoutCart(String token, CheckoutDTO checkoutDTO) {
         String userId = jwtService.getUserIdFromToken(token);
-        ShoppingCart cart = cartRepository.findById(cartId).orElse(null);
+        ShoppingCart cart = cartRepository.findById(checkoutDTO.getCartId()).orElse(null);
         ObjectId userObjectId = new ObjectId(userId);
+        Restaurant restaurant = restaurantRepository.findRestaurantById(cart.getRestaurantId().toString());
         if (cart == null || !cart.getUserId().equals(userObjectId)) {
             throw new IllegalArgumentException("Không tìm thấy giỏ hàng");
         }
@@ -374,11 +321,12 @@ public class ShoppingCartService {
             throw new IllegalArgumentException("Giỏ hàng trống");
         }
 
-        // Đảm bảo summary không null và được tính toán đúng
+        // Đảm bảo summary không null và được tính toán đúng với voucher
         if (cart.getSummary() == null) {
             cart.setSummary(new ShoppingCart.OrderSummary());
         }
-        updateCartSummary(cart);
+        String voucherCode = checkoutDTO.getPromoInfo() != null ? checkoutDTO.getPromoInfo().getCode() : null;
+        updateCartSummary(cart, voucherCode, cart.getRestaurantId().toString());
 
         // Tạo order mới từ cart
         Order order = new Order();
@@ -399,21 +347,72 @@ public class ShoppingCartService {
         orderDetails.setTax(cart.getSummary().getTax());
         orderDetails.setDiscount(cart.getSummary().getDiscount());
         orderDetails.setTotalAmount(cart.getSummary().getTotal());
-        
         order.setOrderDetails(orderDetails);
+
+        // Thêm thông tin giao hàng
+        if (checkoutDTO.getDeliveryInfo() != null) {
+            Order.DeliveryInfo deliveryInfo = new Order.DeliveryInfo();
+            Order.Address address = new Order.Address();
+            address.setFullAddress(checkoutDTO.getDeliveryInfo().getFullAddress());
+            address.setDistrict(checkoutDTO.getDeliveryInfo().getDistrict());
+            address.setCity(checkoutDTO.getDeliveryInfo().getCity());
+            
+            deliveryInfo.setAddress(address);
+            deliveryInfo.setCustomerName(checkoutDTO.getDeliveryInfo().getCustomerName());
+            deliveryInfo.setCustomerPhone(checkoutDTO.getDeliveryInfo().getCustomerPhone());
+            deliveryInfo.setDeliveryInstructions(checkoutDTO.getDeliveryInfo().getDeliveryInstructions());
+            deliveryInfo.setEstimatedDeliveryTime(new Date());
+            order.setDeliveryInfo(deliveryInfo);
+        }
+
+        // Thêm thông tin thanh toán
+        if (checkoutDTO.getPaymentInfo() != null) {
+            Order.Payment payment = new Order.Payment();
+            payment.setMethod(checkoutDTO.getPaymentInfo().getMethod());
+            payment.setStatus("PENDING");
+            order.setPayment(payment);
+        }
+
+        // Thêm mã giảm giá nếu có
+        if (checkoutDTO.getPromoInfo() != null && checkoutDTO.getPromoInfo().getCode() != null) {
+            Voucher voucher = voucherService.getVoucherByCode(checkoutDTO.getPromoInfo().getCode());
+            Order.Promocode promocode = new Order.Promocode();
+            promocode.setCode(voucher.getCode());
+            promocode.setDiscountAmount(voucher.getValue());
+            promocode.setDiscountType(voucher.getType());
+            order.setPromocode(promocode);
+            
+            // Cập nhật giá trị giảm giá trong OrderDetails
+            order.getOrderDetails().setDiscount(voucher.getValue());
+            // Cập nhật lại tổng tiền sau khi áp dụng giảm giá
+            double total = order.getOrderDetails().getSubtotal() + 
+                          order.getOrderDetails().getDeliveryFee() + 
+                          order.getOrderDetails().getServiceFee() + 
+                          order.getOrderDetails().getDiscount();
+            order.getOrderDetails().setTotalAmount(total);
+            
+            // Cập nhật số lượng voucher còn lại và lưu lịch sử sử dụng
+            voucherService.useVoucher(voucher.getCode(), userId);
+        }
         
-        // Set các giá trị mặc định
-        order.setCreatedAt(LocalDateTime.now());
-        order.setUpdatedAt(LocalDateTime.now());
-        
+        // Set trạng thái đơn hàng
         Order.OrderStatus status = new Order.OrderStatus();
         status.setCurrent("PENDING");
         status.setHistory(new ArrayList<>());
         Order.StatusHistory statusHistory = new Order.StatusHistory();
         statusHistory.setStatus("PENDING");
-        statusHistory.setTimestamp(LocalDateTime.now());
+        statusHistory.setTimestamp(new Date());
         status.getHistory().add(statusHistory);
         order.setStatus(status);
+
+        // Set thời gian
+        Order.Timing timing = new Order.Timing();
+        timing.setPlacedAt(new Date());
+        order.setTiming(timing);
+        
+        // Set thời gian tạo và cập nhật
+        order.setCreatedAt(new Date());
+        order.setUpdatedAt(new Date());
 
         // Lưu order và xóa cart
         order = orderRepository.save(order);
@@ -480,7 +479,7 @@ public class ShoppingCartService {
         return (item.getUnitPrice() + optionsTotal) * item.getQuantity();
     }
 
-    private void updateCartSummary(ShoppingCart cart) {
+    private void updateCartSummary(ShoppingCart cart, String voucherCode, String restaurantId) {
         if (cart.getSummary() == null) {
             cart.setSummary(new ShoppingCart.OrderSummary());
         }
@@ -492,16 +491,169 @@ public class ShoppingCartService {
         
         cart.getSummary().setSubtotal(subtotal);
         
-        // Tính các phí khác (có thể tùy chỉnh theo logic của bạn)
+        // Tính các phí khác
         cart.getSummary().setDeliveryFee(30000); // Phí giao hàng cố định
         cart.getSummary().setServiceFee(subtotal * 0.05); // 5% phí dịch vụ
         cart.getSummary().setTax(subtotal * 0.1); // 10% thuế
-        cart.getSummary().setDiscount(0); // Chưa áp dụng giảm giá
+        
+        // Tính giảm giá nếu có voucher
+        double discount = 0;
+        if (voucherCode != null && !voucherCode.isEmpty()) {
+            try {
+                Voucher voucher = voucherService.getVoucherByCode(voucherCode);
+                if (voucher != null && voucher.isActive()) {
+                    // Kiểm tra điều kiện áp dụng voucher
+                    if (subtotal >= voucher.getConditions().getMinimumOrderAmount()) {
+                        // Kiểm tra loại voucher (GLOBAL hoặc LOCAL)
+                        if (voucher.getType().equals("GLOBAL") || 
+                            (voucher.getType().equals("LOCAL") && voucher.getRestaurantId().equals(restaurantId))) {
+                            
+                            // Tính giảm giá dựa trên giá trị voucher
+                            discount = voucher.getValue();
+                        } else {
+                            throw new IllegalArgumentException("Voucher không áp dụng cho nhà hàng này");
+                        }
+                    } else {
+                        throw new IllegalArgumentException(
+                            String.format("Đơn hàng tối thiểu %,.0fđ để sử dụng voucher này", 
+                                voucher.getConditions().getMinimumOrderAmount()));
+                    }
+                } else {
+                    throw new IllegalArgumentException("Voucher không hợp lệ hoặc đã hết hạn");
+                }
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Lỗi khi áp dụng voucher: " + e.getMessage());
+            }
+        }
+        cart.getSummary().setDiscount(discount);
         
         // Tính tổng
         double total = subtotal + cart.getSummary().getDeliveryFee() + 
                       cart.getSummary().getServiceFee() + cart.getSummary().getTax() - 
                       cart.getSummary().getDiscount();
         cart.getSummary().setTotal(total);
+    }
+
+    public List<ShoppingCartDTO.CartItem> getItemInRestaurantCart(String token, String restaurantId) {
+        String userId = jwtService.getUserIdFromToken(token);
+        
+        // Tìm giỏ hàng của nhà hàng này
+        ShoppingCart cart = cartRepository.findByUserIdAndRestaurantId(
+            new ObjectId(userId), 
+            new ObjectId(restaurantId));
+        if (cart == null) {
+            return new ArrayList<>();
+        }
+
+        // Tìm tất cả món ăn của nhà hàng trong giỏ hàng
+        List<ShoppingCart.CartItem> items = cart.getItems();
+
+        if (items == null || items.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        // Chuyển đổi sang DTO và trả về
+        return items.stream()
+            .map(item -> ShoppingCartDTO.CartItem.builder()
+                .dishId(item.getDishId().toString())
+                .dishName(item.getDishName())
+                .dishImage(item.getDishImage())
+                .quantity(item.getQuantity())
+                .unitPrice(item.getUnitPrice())
+                .selectedOptions(item.getSelectedOptions() != null ? 
+                    item.getSelectedOptions().stream()
+                    .map(opt -> ShoppingCartDTO.SelectedOption.builder()
+                        .optionName(opt.getOptionName())
+                        .choiceName(opt.getChoiceName())
+                        .additionalPrice(opt.getAdditionalPrice())
+                        .build())
+                    .collect(Collectors.toList()) : new ArrayList<>())
+                .subtotal(item.getSubtotal())
+                .specialInstructions(item.getSpecialInstructions())
+                .build())
+            .collect(Collectors.toList());
+    }
+
+    /**
+     * Tìm item trong giỏ hàng trùng hoàn toàn với dish ID, selectedOptions và instructions
+     */
+    private ShoppingCart.CartItem findExactMatchingItem(ShoppingCart cart, ObjectId dishId, 
+                                                       List<ShoppingCart.SelectedOption> selectedOptions, 
+                                                       String specialInstructions) {
+        if (cart.getItems() == null || cart.getItems().isEmpty()) {
+            return null;
+        }
+
+        for (ShoppingCart.CartItem item : cart.getItems()) {
+            // Kiểm tra dishId
+            if (!item.getDishId().equals(dishId)) {
+                continue;
+            }
+
+            // Kiểm tra specialInstructions
+            String itemInstructions = item.getSpecialInstructions() != null ? item.getSpecialInstructions() : "";
+            if (!itemInstructions.equals(specialInstructions)) {
+                continue;
+            }
+
+            // Kiểm tra selectedOptions
+            if (areSelectedOptionsEqual(item.getSelectedOptions(), selectedOptions)) {
+                return item;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * So sánh 2 list selectedOptions xem có trùng hoàn toàn không
+     */
+    private boolean areSelectedOptionsEqual(List<ShoppingCart.SelectedOption> options1, 
+                                           List<ShoppingCart.SelectedOption> options2) {
+        // Cả 2 đều null hoặc empty
+        if ((options1 == null || options1.isEmpty()) && (options2 == null || options2.isEmpty())) {
+            return true;
+        }
+
+        // Một bên null/empty, một bên có data
+        if ((options1 == null || options1.isEmpty()) || (options2 == null || options2.isEmpty())) {
+            return false;
+        }
+
+        // Khác size
+        if (options1.size() != options2.size()) {
+            return false;
+        }
+
+        // Sort cả 2 list theo optionName và choiceName để so sánh chính xác
+        List<ShoppingCart.SelectedOption> sorted1 = options1.stream()
+            .sorted((o1, o2) -> {
+                int compareOption = o1.getOptionName().compareTo(o2.getOptionName());
+                if (compareOption != 0) return compareOption;
+                return o1.getChoiceName().compareTo(o2.getChoiceName());
+            })
+            .collect(Collectors.toList());
+
+        List<ShoppingCart.SelectedOption> sorted2 = options2.stream()
+            .sorted((o1, o2) -> {
+                int compareOption = o1.getOptionName().compareTo(o2.getOptionName());
+                if (compareOption != 0) return compareOption;
+                return o1.getChoiceName().compareTo(o2.getChoiceName());
+            })
+            .collect(Collectors.toList());
+
+        // So sánh từng option
+        for (int i = 0; i < sorted1.size(); i++) {
+            ShoppingCart.SelectedOption opt1 = sorted1.get(i);
+            ShoppingCart.SelectedOption opt2 = sorted2.get(i);
+
+            if (!opt1.getOptionName().equals(opt2.getOptionName()) ||
+                !opt1.getChoiceName().equals(opt2.getChoiceName()) ||
+                Double.compare(opt1.getAdditionalPrice(), opt2.getAdditionalPrice()) != 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 } 

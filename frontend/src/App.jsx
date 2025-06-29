@@ -28,13 +28,14 @@ import CategoryPage from "./pages/hostRes/CategoryPage";
 import AddProduct from "./pages/hostRes/AddProduct";
 import HistoryDetailPage from "./pages/user/HistoryDetailPage";
 import AddressPage from "./pages/user/AddressPage";
+import RestaurantProfile from "./pages/hostRes/ResProfile";
 
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePageLayout />}>
         <Route index element={<HomePage />} />
-        <Route path="shop/:id" element={<ShopPage />} />
+        
       </Route>
 
       <Route path="/" element={<NoBannerLayout />}>
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="history/:id" element={<HistoryDetailPage />} />
           <Route path="chat" element={<ChatPage />} />
           <Route path="address" element={<AddressPage />} />
+          <Route path="shop/:id" element={<ShopPage />} />
         </Route>
         <Route path="unAuth" element={<UnAuthorizedPage />} />
       </Route>
@@ -68,6 +70,7 @@ export default function App() {
           <Route path="Product/add" element={<AddProduct />} />
           <Route path="Product/:id" element={<ProductDetailPage />} />
           <Route path="Voucher" element={<CategoryPage />} />
+          <Route path="ResProfile" element={<RestaurantProfile />} />
         </Route>
       </Route>
     </Routes>

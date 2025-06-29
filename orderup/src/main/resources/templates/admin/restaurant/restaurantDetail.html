@@ -356,8 +356,8 @@
                 <h4>Thông tin thời gian</h4>
             </div>
             <div class="card-body">
-                <p><strong>Ngày tạo:</strong> <span th:text="${#temporals.format(restaurant.createdAt, 'dd/MM/yyyy HH:mm')}"></span></p>
-                <p><strong>Cập nhật lần cuối:</strong> <span th:text="${#temporals.format(restaurant.updatedAt, 'dd/MM/yyyy HH:mm')}"></span></p>
+                <p><strong>Ngày tạo:</strong> <span th:text="${restaurant.createdAt != null ? #dates.format(restaurant.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span></p>
+                <p><strong>Cập nhật lần cuối:</strong> <span th:text="${restaurant.updatedAt != null ? #dates.format(restaurant.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></span></p>
             </div>
         </div>
     </div>
@@ -382,6 +382,7 @@
                         <i class="bi bi-x-circle"></i> Hủy
                     </button>
                     <form th:action="@{/admin/restaurants/{id}/delete(id=${restaurant?.id})}" method="post" style="display: inline;">
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn btn-danger">
                             <i class="bi bi-trash"></i> Xác nhận xóa
                         </button>

@@ -34,3 +34,6 @@ build/
 
 ### Frontend ###
 node_modules/
+
+### Database ###
+Database/

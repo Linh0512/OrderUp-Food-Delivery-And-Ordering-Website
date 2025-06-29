@@ -92,4 +92,8 @@ public class User {
     public void setVerified(boolean isVerified) {
         this.verified = isVerified;
     }
+
+    public String getFullName() {
+        return profile.getFirstName() + " " + profile.getLastName();
+    }
 }

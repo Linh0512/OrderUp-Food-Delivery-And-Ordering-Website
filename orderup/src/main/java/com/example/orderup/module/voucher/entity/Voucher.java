@@ -2,8 +2,11 @@ package com.example.orderup.module.voucher.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
-import java.time.LocalDateTime;
+import org.springframework.data.mongodb.core.mapping.Field;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -18,9 +21,12 @@ public class Voucher {
     private VoucherCondition conditions;
     private VoucherValidity validity;
     private List<VoucherUsage> usage;
-    private int remainingValue;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    
+    @JsonProperty("remainingValue")
+    private Integer remainingValue;
+    
+    private Date createdAt;
+    private Date updatedAt;
     private boolean isActive;
     
     public boolean isActive() {
@@ -32,9 +38,13 @@ public class Voucher {
     }
 
     public void updateActiveStatus() {
-        boolean isExpired = this.validity.getExpiresAt().isBefore(LocalDateTime.now());
-        boolean isOutOfStock = this.remainingValue <= 0;
-        this.isActive = !isExpired && !isOutOfStock;
+        if (this.validity != null && this.validity.getExpiresAt() != null) {
+            boolean isExpired = this.validity.getExpiresAt().before(new Date());
+            boolean isOutOfStock = this.remainingValue != null && this.remainingValue <= 0;
+            this.isActive = !isExpired && !isOutOfStock;
+        } else {
+            this.isActive = false;
+        }
     }
     
     // Nested classes
@@ -45,13 +55,13 @@ public class Voucher {
 
     @Data
     public static class VoucherValidity {
-        private LocalDateTime issuedAt;
-        private LocalDateTime expiresAt;
+        private Date issuedAt;
+        private Date expiresAt;
     }
 
     @Data
     public static class VoucherUsage {
         private String userId;
-        private LocalDateTime usedAt;
+        private Date usedAt;
     }
 }

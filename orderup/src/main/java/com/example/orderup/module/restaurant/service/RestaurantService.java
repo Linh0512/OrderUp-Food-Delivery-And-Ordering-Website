@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,13 +26,17 @@ public class RestaurantService {
      */
     public Page<Restaurant> getAllRestaurants(int page, int size) {
         Pageable pageable = org.springframework.data.domain.PageRequest.of(page, size);
-        return restaurantRepository.findByActiveTrue(pageable);
+        return restaurantRepository.findAll(pageable);
     }
     
     /**
      * Get all restaurants with pagination using Pageable
      */
     public Page<Restaurant> getAllRestaurantsPage(Pageable pageable) {
+        return restaurantRepository.findAll(pageable);
+    }
+
+    public Page<Restaurant> getActiveRestaurants(Pageable pageable) {
         return restaurantRepository.findByActiveTrue(pageable);
     }
     
@@ -48,8 +52,8 @@ public class RestaurantService {
      * Create a new restaurant
      */
     public Restaurant createRestaurant(Restaurant restaurant) {
-        restaurant.setCreatedAt(LocalDateTime.now());
-        restaurant.setUpdatedAt(LocalDateTime.now());
+        restaurant.setCreatedAt(new Date());
+        restaurant.setUpdatedAt(new Date());
         restaurant.setVerificationStatus("pending");
         restaurant.setActive(true);
         
@@ -81,8 +85,10 @@ public class RestaurantService {
                     if (restaurantDetails.getTags() != null) {
                         restaurant.setTags(restaurantDetails.getTags());
                     }
+                    restaurant.setActive(restaurantDetails.isActive());
+
                     
-                    restaurant.setUpdatedAt(LocalDateTime.now());
+                    restaurant.setUpdatedAt(new Date());
                     
                     return restaurantRepository.save(restaurant);
                 })
@@ -94,7 +100,7 @@ public class RestaurantService {
      */
     public Restaurant saveRestaurant(Restaurant restaurant) {
         // Đảm bảo đã set ngày cập nhật
-        restaurant.setUpdatedAt(LocalDateTime.now());
+        restaurant.setUpdatedAt(new Date());
         
         // Lưu và trả về restaurant đã lưu
         Restaurant saved = restaurantRepository.save(restaurant);
@@ -129,7 +135,7 @@ public class RestaurantService {
         return restaurantRepository.findById(id)
                 .map(restaurant -> {
                     restaurant.setActive(isActive);
-                    restaurant.setUpdatedAt(LocalDateTime.now());
+                    restaurant.setUpdatedAt(new Date());
                     return restaurantRepository.save(restaurant);
                 })
                 .orElse(null);
@@ -147,7 +153,7 @@ public class RestaurantService {
                     } else if ("rejected".equals(status)) {
                         restaurant.setVerified(false);
                     }
-                    restaurant.setUpdatedAt(LocalDateTime.now());
+                    restaurant.setUpdatedAt(new Date());
                     return restaurantRepository.save(restaurant);
                 })
                 .orElse(null);
@@ -218,8 +224,10 @@ public class RestaurantService {
         long totalRestaurants = restaurantRepository.count();
         long activeRestaurants = restaurantRepository.countByActiveTrue();
         
-        LocalDateTime thirtyDaysAgo = LocalDateTime.now().minusDays(30);
-        long newRestaurants = restaurantRepository.countByCreatedAtAfter(thirtyDaysAgo);
+        Date thirtyDaysAgo = new Date(System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000);
+        // Convert Date to LocalDateTime for repository method
+        java.time.LocalDateTime thirtyDaysAgoLocal = thirtyDaysAgo.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDateTime();
+        long newRestaurants = restaurantRepository.countByCreatedAtAfter(thirtyDaysAgoLocal);
         
         stats.put("totalRestaurants", totalRestaurants);
         stats.put("activeRestaurants", activeRestaurants);
@@ -251,11 +259,13 @@ public class RestaurantService {
             return false;
         }
 
-        LocalDateTime now = LocalDateTime.now();
-        int dayOfWeek = now.getDayOfWeek().getValue(); // 1 = Monday, 7 = Sunday
+        Date now = new Date();
+        java.util.Calendar cal = java.util.Calendar.getInstance();
+        cal.setTime(now);
+        int dayOfWeek = cal.get(java.util.Calendar.DAY_OF_WEEK); // 1 = Sunday, 7 = Saturday
         
-        // Chuyển đổi Sunday từ 7 thành 0 để khớp với dữ liệu
-        final int currentDayOfWeek = dayOfWeek == 7 ? 0 : dayOfWeek;
+        // Chuyển đổi từ Calendar format (1=Sunday) sang format của chúng ta (0=Sunday)
+        final int currentDayOfWeek = dayOfWeek == 1 ? 0 : dayOfWeek - 1;
 
         // Tìm thời gian hoạt động của ngày hiện tại
         Restaurant.OperatingHour todayHours = restaurant.getOperatingHours().stream()
@@ -276,12 +286,21 @@ public class RestaurantService {
         int closeHour = Integer.parseInt(closeTimeParts[0]);
         int closeMinute = Integer.parseInt(closeTimeParts[1]);
 
-        // Tạo LocalDateTime cho thời gian mở cửa và đóng cửa
-        LocalDateTime openTime = now.withHour(openHour).withMinute(openMinute).withSecond(0);
-        LocalDateTime closeTime = now.withHour(closeHour).withMinute(closeMinute).withSecond(0);
+        // Tạo Date cho thời gian mở cửa và đóng cửa
+        java.util.Calendar openCal = java.util.Calendar.getInstance();
+        openCal.setTime(now);
+        openCal.set(java.util.Calendar.HOUR_OF_DAY, openHour);
+        openCal.set(java.util.Calendar.MINUTE, openMinute);
+        openCal.set(java.util.Calendar.SECOND, 0);
+        
+        java.util.Calendar closeCal = java.util.Calendar.getInstance();
+        closeCal.setTime(now);
+        closeCal.set(java.util.Calendar.HOUR_OF_DAY, closeHour);
+        closeCal.set(java.util.Calendar.MINUTE, closeMinute);
+        closeCal.set(java.util.Calendar.SECOND, 0);
 
         // Kiểm tra xem thời gian hiện tại có nằm trong khoảng hoạt động không
-        return now.isAfter(openTime) && now.isBefore(closeTime);
+        return now.after(openCal.getTime()) && now.before(closeCal.getTime());
     }
 
     /**

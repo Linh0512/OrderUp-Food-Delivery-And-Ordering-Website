@@ -38,7 +38,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/admin-auth/**").permitAll()
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/api/shop/**").permitAll()
-                .requestMatchers("/api/category/**").permitAll()
+
                 .requestMatchers("/api/dish/**").permitAll()
                 .requestMatchers("/api/review/**").permitAll()
                 // Chỉ các endpoint khác mới cần authentication
@@ -65,11 +65,15 @@ public class SecurityConfig {
                 .requestMatchers("/").permitAll()
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/css/**", "/js/**", "/images/**", "/webjars/**").permitAll()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/admin/**").hasAuthority("admin")
             )
             .addFilterBefore(adminSessionAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+            )
+            .formLogin(form -> form
+                .loginPage("/admin/login")
+                .permitAll()
             );
             
         return http.build();

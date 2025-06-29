@@ -47,6 +47,23 @@ public class RestaurantController {
             return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi lấy danh sách nhà hàng"));
         }
     }
+
+    @GetMapping("/active")
+    public ResponseEntity<?> getActiveRestaurants(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestHeader(value = "Authorization", required = false) String token) {
+        try {
+            String userId = token != null ? jwtTokenProvider.getUserIdFromToken(token) : null;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Restaurant> restaurants = restaurantService.getActiveRestaurants(pageable);
+        ShopThumbResponseDTO shopThumbResponseDTO = restaurantMapper.toShopThumbResponseDTO(restaurants, userId);
+            return ResponseEntity.ok(shopThumbResponseDTO);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(new ErrorResponse("Đã xảy ra lỗi khi lấy danh sách nhà hàng"));
+        }
+    }
     
     @GetMapping("/{id}")
     public ResponseEntity<?> getRestaurantById(

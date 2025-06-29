@@ -7,24 +7,42 @@ import {
   faReceipt,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import avatar from "../../assets/avatar.png";
+import { useAuth } from "../../components/common/AuthContext";
 import OrderItem from "../../components/hostRes/OrderItem";
-import { useNavigate } from "react-router-dom";
+import { getHistotyDetail } from "../../services/userServices/Service";
+import { formatCurrencyVN } from "../../utils/Format";
 
 export default function OrderDetailPage() {
-  const nav=useNavigate()
+  const nav = useNavigate();
+  const { id } = useParams();
+  const { user } = useAuth();
+  const [order, setOrder] = useState({});
+
+  useEffect(() => {
+    getHistotyDetail(id, user.token).then((res) => {
+      console.log(res);
+      setOrder(res);
+    });
+  }, [user, id]);
+
   return (
     <div className="w-[60vw] mx-auto bg-gray-200 p-2 my-5 rounded-2xl space-y-6">
       <div className="bg-white rounded-xl shadow p-4">
         <div className="flex items-center gap-4 ">
-          <button className="p-2 hover:bg-gray-100 rounded-full transition-colors" onClick={()=>nav('/Order')}>
+          <button
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+            onClick={() => nav("/Order")}
+          >
             <FontAwesomeIcon icon={faArrowLeft} />
           </button>
           <div>
             <h1 className="text-2xl font-bold text-gray-800">
               Chi tiết đơn hàng
             </h1>
-            <p className="text-gray-600">#123567</p>
+            <p className="text-gray-600">{order.orderNumber}</p>
           </div>
         </div>
       </div>
@@ -35,25 +53,29 @@ export default function OrderDetailPage() {
         </h2>
         <div className="space-y-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <img src={avatar} alt="" />
+            <div className="size-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <img src={order.userProfile?.avatar} alt="" className="size-12 rounded-full object-cover"/>
             </div>
             <div>
-              <p className="font-semibold text-gray-800">vô danh</p>
+              <p className="font-semibold text-gray-800">
+                {order.userProfile?.fullName}
+              </p>
               <p className="text-sm text-gray-600">Khách hàng</p>
             </div>
           </div>
           <div className="flex items-center gap-3 text-gray-600">
             <FontAwesomeIcon icon={faPhone} className="w-6" />
-            <span>093274832</span>
+            <span>{order.deliveryInfo?.customerPhone}</span>
           </div>
           <div className="flex items-center gap-3 text-gray-600">
             <FontAwesomeIcon icon={faLocationDot} className="w-6" />
-            <span className="leading-relaxed">quận 9 Hồ Chí Minh</span>
+            <span className="leading-relaxed">
+              {order.deliveryInfo?.fullAddress}
+            </span>
           </div>
           <div className="flex items-center gap-3 text-gray-600">
             <FontAwesomeIcon icon={faCalendar} className="w-6" />
-            <span>Đặt ngày 10/0/0000</span>
+            <span>Đặt ngày {order.orderDate}</span>
           </div>
         </div>
       </div>
@@ -62,40 +84,41 @@ export default function OrderDetailPage() {
           Món ăn đã đặt (2 món)
         </h2>
         <div className="space-y-4">
-          {Array.from({ length: 2 }).map((_, index) => (
-            <OrderItem key={index} />
+          {order.orderItems?.map((item, index) => (
+            <OrderItem key={index} orderItem={item} />
           ))}
         </div>
       </div>
       <div className="bg-white rounded-xl shadow-md p-6">
         <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-          <FontAwesomeIcon icon={faReceipt}/>
+          <FontAwesomeIcon icon={faReceipt} />
           Tóm tắt đơn hàng
         </h2>
-        <div className="space-y-3">
-          <div className="flex justify-between text-gray-600">
-            <span>Tạm tính:</span>
-            <span>100.000</span>
-          </div>
-          <div className="flex justify-between text-gray-600">
-            <span>Phí giao hàng:</span>
-            <span>100.000</span>
-          </div>
-          <div className="flex justify-between text-green-600">
-            <span>Giảm giá:</span>
-            <span>100.000</span>
-          </div>
-          <div className="border-t pt-3">
-            <div className="flex justify-between text-lg font-bold text-gray-800">
-              <span>Tổng cộng:</span>
-              <span className="text-green-600">100.000</span>
+        {order.orderSummary && (
+          <div className="space-y-3">
+            <div className="flex justify-between text-gray-600">
+              <span>Tạm tính:</span>
+              <span>{formatCurrencyVN(order.orderSummary.subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-gray-600">
+              <span>Phí giao hàng:</span>
+              <span>{formatCurrencyVN(order.orderSummary.deliveryFee)}</span>
+            </div>
+            <div className="flex justify-between text-green-600">
+              <span>Giảm giá:</span>
+              <span>{formatCurrencyVN(order.orderSummary.discount)}</span>
+            </div>
+            <div className="border-t pt-3">
+              <div className="flex justify-between text-lg font-bold text-gray-800">
+                <span>Tổng cộng:</span>
+                <span className="text-green-600">
+                  {formatCurrencyVN(order.orderSummary.total)}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
-      <button className="block w-[90%] mx-auto bg-green-500 p-2 text-2xl text-white font-semibold rounded-xl">
-        Xác nhận đơn hàng
-      </button>
     </div>
   );
 }

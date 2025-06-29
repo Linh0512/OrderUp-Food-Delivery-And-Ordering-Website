@@ -4,13 +4,13 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Date;
 import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Data
 @Document(collection = "restaurants")
@@ -39,8 +39,8 @@ public class Restaurant {
     
     private String verificationStatus;
     private BankInfo bankInfo;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Date createdAt;
+    private Date updatedAt;
 
     public boolean isActive() {
         return active;
@@ -124,6 +124,7 @@ public class Restaurant {
         private int dayOfWeek;
 
         @Field("isOpen")
+        @JsonProperty("isOpen")
         private boolean open;
         
         private String openTime;
@@ -149,7 +150,6 @@ public class Restaurant {
 
     @Data
     public static class DeliveryInfo {
-        // FIX: Đổi tên để khớp với HTML form
         private boolean deliveryAvailable;
         private int deliveryRadius;
         private double deliveryFee;
@@ -166,7 +166,6 @@ public class Restaurant {
             this.deliveryAreas = new ArrayList<>();
         }
 
-        // FIX: Giữ lại cả hai method để tương thích
         public boolean isDeliveryAvailable() {
             return deliveryAvailable;
         }
@@ -175,7 +174,6 @@ public class Restaurant {
             this.deliveryAvailable = deliveryAvailable;
         }
         
-        // Backward compatibility
         public boolean getDeliveryAvailable() {
             return deliveryAvailable;
         }
@@ -199,12 +197,6 @@ public class Restaurant {
         private String bankName;
         private String accountNumber;
         private String accountHolder;
-
-        public BankInfo() {
-            this.bankName = "";
-            this.accountNumber = "";
-            this.accountHolder = "";
-        }
     }
 
     @Data
@@ -218,11 +210,10 @@ public class Restaurant {
         private String avatar;
 
         public String getFullName() {
-            return (firstName != null ? firstName : "") + " " + (lastName != null ? lastName : "").trim();
+            return firstName + " " + lastName;
         }
     }
 
-    // Constructor cho class chính
     public Restaurant() {
         this.basicInfo = new BasicInfo();
         this.address = new Address();
@@ -233,35 +224,27 @@ public class Restaurant {
         this.tags = new ArrayList<>();
         this.bankInfo = new BankInfo();
         this.hostInfo = new HostInfo();
-        this.active = true;
-        this.verified = false;
-        this.featured = false;
-        this.verificationStatus = "pending";
         
-        // FIX: Khởi tạo operating hours cho 7 ngày với đúng thứ tự
-        // 0 = Thứ Hai, 1 = Thứ Ba, ..., 6 = Chủ Nhật
-        for (int i = 0; i < 7; i++) {
-            OperatingHour hour = new OperatingHour(i);
-            this.operatingHours.add(hour);
-        }
+        // Initialize operating hours for all days of the week
+        ensureOperatingHours();
     }
-    
-    // FIX: Method để đảm bảo operatingHours luôn có đủ 7 phần tử
+
     public void ensureOperatingHours() {
         if (this.operatingHours == null) {
             this.operatingHours = new ArrayList<>();
         }
         
-        // Đảm bảo có đủ 7 ngày
-        while (this.operatingHours.size() < 7) {
-            OperatingHour hour = new OperatingHour(this.operatingHours.size());
-            this.operatingHours.add(hour);
-        }
-        
-        // Đảm bảo dayOfWeek được set đúng
-        for (int i = 0; i < this.operatingHours.size() && i < 7; i++) {
-            if (this.operatingHours.get(i) != null) {
-                this.operatingHours.get(i).setDayOfWeek(i);
+        // Ensure we have entries for all 7 days of the week
+        for (int i = 1; i <= 7; i++) {
+            boolean found = false;
+            for (OperatingHour hour : this.operatingHours) {
+                if (hour.getDayOfWeek() == i) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                this.operatingHours.add(new OperatingHour(i));
             }
         }
     }

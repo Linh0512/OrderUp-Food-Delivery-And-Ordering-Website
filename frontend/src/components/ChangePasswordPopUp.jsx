@@ -74,7 +74,7 @@ export default function ChangePasswordPopUp({ handleClose, token }) {
                 onChange={(e) => setoldPassword(e.target.value)}
               />
               <FontAwesomeIcon
-                icon={showPassword ? faEyeSlash : faEye}
+                icon={showPassword[0] ? faEyeSlash : faEye}
                 onClick={() => handleShowPassword(0)}
                 className="cursor-pointer select-none text-2xl"
               />
@@ -93,7 +93,7 @@ export default function ChangePasswordPopUp({ handleClose, token }) {
                 onChange={(e) => setNewPassword(e.target.value)}
               />
               <FontAwesomeIcon
-                icon={showPassword ? faEyeSlash : faEye}
+                icon={showPassword[1] ? faEyeSlash : faEye}
                 onClick={() => handleShowPassword(1)}
                 className="cursor-pointer select-none text-2xl"
               />
@@ -129,7 +129,7 @@ export default function ChangePasswordPopUp({ handleClose, token }) {
                 onChange={(e) => setConfirmPassword(e.target.value)}
               />
               <FontAwesomeIcon
-                icon={showPassword ? faEyeSlash : faEye}
+                icon={showPassword[2] ? faEyeSlash : faEye}
                 onClick={() => handleShowPassword(2)}
                 className="cursor-pointer select-none text-2xl"
               />

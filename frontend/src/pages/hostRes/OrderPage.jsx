@@ -12,23 +12,62 @@ import OrderCard from "../../components/hostRes/OrderCard";
 import Pagination from "../../components/Pagination";
 import CustomSelect from "../../components/CustomSelect";
 import { useAuth } from "../../components/common/AuthContext";
-import { getOrderData } from "../../services/hosResServices/service";
+import {
+  getDashboardData,
+  getOrderData,
+} from "../../services/hosResServices/service";
 
 export default function OrderPage() {
-  const { user } = useAuth();
+  const { user, resId } = useAuth();
+  const LIMIT = 12;
+  const [page, setPage] = useState(1);
+  const [count, setCount] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [priceSort, setPriceSort] = useState(0);
   const [dateSort, setDateSort] = useState(0);
   const [orderStatus, setOrderStatus] = useState("all");
-  const [orders, setOrders] = useState();
+  const [orders, setOrders] = useState([]);
+  const [data, setData] = useState();
 
   useEffect(() => {
-    getOrderData("684844b61a05cf815c50eb74", user.token).then((res) => {
-      console.log(res);
-      setOrders(res);
-    });
-    setTimeout(() => setIsLoading(false), 1000);
-  },[user]);
+    if (resId) {
+      getOrderData(resId, user.token).then((res) => {
+        console.log(res);
+        setOrders(res.orders);
+        setCount(res.totalItems || 0);
+      });
+      getDashboardData(resId, user.token).then((res) => {
+        console.log(res);
+        setData(res);
+      });
+    }
+    setTimeout(() => setIsLoading(false), 500);
+  }, [user, resId]);
+
+  const getFilteredOrders = () => {
+    let filtered = [...orders];
+    // Lọc theo trạng thái
+    if (orderStatus !== "all" && orderStatus !== "pending") {
+      filtered = filtered.filter((order) => order.status === orderStatus);
+    }
+
+    // Sắp xếp theo ngày tạo
+    if (dateSort === -1) {
+      filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)); // Mới nhất
+    } else if (dateSort === 1) {
+      filtered.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt)); // Cũ nhất
+    }
+
+    // Sắp xếp theo giá tiền
+    if (priceSort === 1) {
+      filtered.sort((a, b) => a.totalAmount - b.totalAmount); // Tăng dần
+    } else if (priceSort === -1) {
+      filtered.sort((a, b) => b.totalAmount - a.totalAmount); // Giảm dần
+    }
+
+    return filtered;
+  };
+
   return (
     <div className="w-full p-3 space-y-5">
       <div className="flex items-center space-x-2 font-semibold text-2xl mb-4">
@@ -46,22 +85,22 @@ export default function OrderPage() {
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-amber-500 to-orange-500 rounded-xl text-white  ">
               <FontAwesomeIcon icon={faClock} className="mr-2" />
               Số lượng đơn hôm nay
-              <p className="mt-2">100</p>
+              <p className="mt-2">{data?.todayOrders}</p>
             </div>
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl text-white ">
               <FontAwesomeIcon icon={faCalendarAlt} className="mr-2" />
               Số lượng đơn tháng này
-              <p className="mt-2">100</p>
+              <p className="mt-2">{data?.processingOrders}</p>
             </div>
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-rose-500 to-pink-500 rounded-xl text-white ">
               <FontAwesomeIcon icon={faGlobe} className="mr-2" />
               Tổng đơn hàng
-              <p className="mt-2">100</p>
+              <p className="mt-2">{data?.totalOrders}</p>
             </div>
             <div className="p-3 font-semibold text-xl bg-gradient-to-r from-indigo-500 to-blue-500 rounded-xl text-white ">
               <FontAwesomeIcon icon={faTruck} className="mr-2" />
               Số lượng đơn đang được giao
-              <p className="mt-2">100</p>
+              <p className="mt-2">{data?.processingOrders}</p>
             </div>
           </div>
         </div>
@@ -77,7 +116,7 @@ export default function OrderPage() {
         </div>
       </div>
       <div className="bg-gray-200 p-3 px-5 rounded-xl flex items-center text-sm">
-        <p className="text-xl font-semibold">49 Đơn hàng</p>
+        <p className="text-xl font-semibold">{orders?.length} Đơn hàng</p>
         <div className="flex items-center ml-auto space-x-4">
           <div className="bg-white flex items-center p-1 space-x-2 rounded">
             <p>Trạng thái:</p>
@@ -121,11 +160,16 @@ export default function OrderPage() {
           ? Array.from({ length: 10 }).map((_, index) => (
               <OrderCard key={index} loading={true} />
             ))
-          : Array.from({ length: 10 }).map((_, index) => (
-              <OrderCard key={index} />
-            ))}
+          : getFilteredOrders()
+              .slice((page - 1) * LIMIT, page * LIMIT)
+              .map((item, index) => <OrderCard key={index} item={item} />)}
       </div>
-      <Pagination />
+      <Pagination
+        limit={LIMIT}
+        count={count}
+        current={page}
+        onPageChange={setPage}
+      />
     </div>
   );
 }

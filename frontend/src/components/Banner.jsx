@@ -24,7 +24,16 @@ const bannerData = [
     subtitle1: 'Nhanh Chóng Tiện Lợi',
     subtitle2: 'Món Ngon Mỗi Ngày',
     buttonText: 'Đặt món ngay',
-    backgroundImage: banner,
+    backgroundImage: "https://res.cloudinary.com/dwwyrgl2y/image/upload/v1751215161/Facebook_Banner_Design_eviowm.jpg",
+  },
+  {
+    id: 3,
+    bgColor: 'bg-green-500', // Có thể đổi màu nếu muốn
+    title: 'ORDER UP',
+    subtitle1: 'Nhanh Chóng Tiện Lợi',
+    subtitle2: 'Món Ngon Mỗi Ngày',
+    buttonText: 'Đặt món ngay',
+    backgroundImage: "https://res.cloudinary.com/dwwyrgl2y/image/upload/v1751215423/download_1_uunb0y.jpg",
   },
   // Thêm các slide khác nếu cần
 ];
@@ -50,7 +59,7 @@ export default function Banner() {
             key={slide.id}
             style={{ backgroundImage: `url(${slide.backgroundImage})` }}
             // Thêm bg-no-repeat và một màu nền fallback cho khoảng trống
-            className="bg-contain bg-center bg-no-repeat relative bg-gray-100"
+            className="bg-cover bg-center bg-no-repeat relative bg-gray-100 w-full"
             // Nếu bạn muốn ảnh tối hơn và chữ dễ đọc hơn, lớp phủ vẫn có thể hữu ích
             // ngay cả với bg-contain, nhưng nó sẽ phủ cả vùng ảnh và vùng trống.
           >

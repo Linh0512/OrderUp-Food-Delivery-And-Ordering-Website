@@ -8,7 +8,10 @@ import Pagination from "../components/Pagination";
 import ProductCard from "../components/ProductCard";
 import ProductCategory from "../components/ProductCategory";
 import ReviewBox from "../components/ReviewBox";
-import { getShopDetail } from "../services/userServices/Service";
+import {
+  getCartForCheck,
+  getShopDetail,
+} from "../services/userServices/Service";
 import { useAuth } from "../components/common/AuthContext";
 
 export default function ShopPage() {
@@ -16,6 +19,7 @@ export default function ShopPage() {
   const [products, setProducts] = useState([]);
   const [count, setCount] = useState(0);
   const [page, setPage] = useState(1);
+  const [cart, setCart] = useState([]);
   const [review, setReview] = useState();
   const { id } = useParams();
   const { user } = useAuth();
@@ -26,6 +30,21 @@ export default function ShopPage() {
   ];
   const [priceSort, setPriceSort] = useState(0);
   const [shopDetail, setShopDetail] = useState({});
+  const [search, setSearch] = useState("");
+
+  let sortedProduct = [...products];
+
+  if (priceSort === 1) {
+    sortedProduct.sort((a, b) => a.basePrice - b.basePrice);
+  } else if (priceSort === -1) {
+    sortedProduct.sort((a, b) => b.basePrice - a.basePrice);
+  }
+
+  const reloadShop = () => {
+    getCartForCheck(id, user.token).then((res) => {
+      setCart(res);
+    });
+  };
 
   useEffect(() => {
     getShopDetail(id, user.token).then((res) => {
@@ -38,6 +57,7 @@ export default function ShopPage() {
         address: res.data.restaurantAddress,
         timeRange: res.data.restaurantTimeRange,
         isActive: res.data.restaurantIsActive,
+        image:res.data.restaurantImage
       });
       setProducts(res.data.dishes);
       setCount(res.data.dishes.length);
@@ -47,6 +67,9 @@ export default function ShopPage() {
         star: res.data.restaurantStar,
       });
     });
+    getCartForCheck(id, user.token).then((res) => {
+      setCart(res);
+    });
   }, [id, user.token]);
   return (
     <div className="w-[80vw] mx-auto">
@@ -54,7 +77,9 @@ export default function ShopPage() {
         <div className="w-[65%]">
           <BigShopCard shop={shopDetail} />
         </div>
-        <div className="w-[30%]">{review && <ReviewBox review={review} id={id}/>}</div>
+        <div className="w-[30%]">
+          {review && <ReviewBox review={review} id={id} />}
+        </div>
       </div>
       <div className="mt-10 flex">
         <div className="space-y-4 w-1/5">
@@ -68,16 +93,28 @@ export default function ShopPage() {
               type="text"
               name=""
               id=""
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Tìm món"
               className="w-full focus:outline-none focus:ring-0 focus:border-none "
             />
           </div>
           <div className="grid grid-cols-3 gap-7 ">
             {Array.isArray(products) &&
-              products
+              sortedProduct
+                .filter((item) =>
+                  item.name.toLowerCase().includes(search.toLowerCase())
+                )
                 .slice((page - 1) * PRODUCT_LIMIT, page * PRODUCT_LIMIT)
                 .map((item, index) => (
-                  <ProductCard key={index} productDetail={item} token={user.token}/>
+                  <ProductCard
+                    key={index}
+                    productDetail={item}
+                    token={user.token}
+                    quantity={cart.find((c) => c.dishId === item.id)?.quantity}
+                    reloadShop={reloadShop}
+                    shopActive={shopDetail.isActive}
+                  />
                 ))}
           </div>
           <Pagination

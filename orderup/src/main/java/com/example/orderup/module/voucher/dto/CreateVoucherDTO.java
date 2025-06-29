@@ -1,7 +1,6 @@
 package com.example.orderup.module.voucher.dto;
 
 import lombok.Data;
-import java.time.LocalDateTime;
 
 @Data
 public class CreateVoucherDTO {
@@ -10,7 +9,10 @@ public class CreateVoucherDTO {
     private String type; // Chỉ admin mới được set GLOBAL
     private String restaurantId; // Bắt buộc cho LOCAL voucher
     private Double minimumOrderAmount;
-    private LocalDateTime issuedAt;
-    private LocalDateTime expiresAt;
+    
+    // Tạm thời dùng String để debug format từ frontend
+    private String issuedAt;
+    private String expiresAt;
+    
     private Integer remainingValue;
 } 

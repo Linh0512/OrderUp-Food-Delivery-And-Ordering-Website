@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -15,6 +17,8 @@ import java.util.stream.Collectors;
 @Controller
 @RequestMapping("/admin/view")
 public class AdminVoucherViewController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(AdminVoucherViewController.class);
     
     @Autowired
     private VoucherService voucherService;
@@ -55,36 +59,45 @@ public class AdminVoucherViewController {
     public ResponseEntity<VoucherDetailDTO> createVoucher(
             @RequestBody CreateVoucherDTO dto,
             @RequestHeader(value = "Authorization", required = false) String token) {
-        return ResponseEntity.ok(voucherService.createVoucher(dto, token));
+        try {
+            logger.info("Creating voucher with DTO: {}", dto);
+            logger.info("DTO values - code: {}, value: {}, type: {}, restaurantId: {}, minimumOrderAmount: {}, issuedAt: {}, expiresAt: {}, remainingValue: {}", 
+                dto.getCode(), dto.getValue(), dto.getType(), dto.getRestaurantId(), 
+                dto.getMinimumOrderAmount(), dto.getIssuedAt(), dto.getExpiresAt(), dto.getRemainingValue());
+            return ResponseEntity.ok(voucherService.createVoucher(dto, token));
+        } catch (Exception e) {
+            logger.error("Error creating voucher", e);
+            throw e;
+        }
     }
 
-    @PatchMapping("/api/vouchers/{code}")
+    @PatchMapping("/api/vouchers/{voucherId}")
     @ResponseBody
     public ResponseEntity<VoucherDetailDTO> updateVoucher(
-            @PathVariable String code,
+            @PathVariable String voucherId,
             @RequestBody CreateVoucherDTO dto,
             @RequestHeader(value = "Authorization", required = false) String token) {
         try {
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            return ResponseEntity.ok(voucherService.updateVoucher(code, dto, token));
+            return ResponseEntity.ok(voucherService.updateVoucher(voucherId, dto, token));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @DeleteMapping("/api/vouchers/{code}")
+    @DeleteMapping("/api/vouchers/{voucherId}")
     @ResponseBody
     public ResponseEntity<Void> deleteVoucher(
-            @PathVariable String code,
+            @PathVariable String voucherId,
             @RequestHeader(value = "Authorization", required = false) String token) {
         try {
             if (token != null && token.startsWith("Bearer ")) {
                 token = token.substring(7);
             }
-            voucherService.deleteVoucher(code, token);
+            voucherService.deleteVoucher(voucherId, token);
             return ResponseEntity.ok().build();
         } catch (Exception e) {
             e.printStackTrace();

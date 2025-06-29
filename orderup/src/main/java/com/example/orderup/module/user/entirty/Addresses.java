@@ -1,7 +1,5 @@
 package com.example.orderup.module.user.entirty;
 
-import com.example.orderup.module.user.entirty.Coordinates;
-
 import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Field;
 import org.springframework.data.annotation.Id;
@@ -18,7 +16,7 @@ public class Addresses {
     private String fullAddress;
     
     @Field("isDefault")
-    private boolean isDefault;
+    private Boolean isDefault;
 
     @Field("coordinates")
     private Coordinates coordinates;
@@ -27,7 +25,7 @@ public class Addresses {
         // Default constructor
     }
 
-    public Addresses(String title, String fullAddress, boolean isDefault, Coordinates coordinates) {
+    public Addresses(String title, String fullAddress, Boolean isDefault, Coordinates coordinates) {
         this.title = title;
         this.fullAddress = fullAddress;
         this.isDefault = isDefault;

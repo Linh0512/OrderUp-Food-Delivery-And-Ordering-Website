@@ -3,7 +3,7 @@ package com.example.orderup.module.user.entirty;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.bson.types.ObjectId;
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import lombok.Data;
 
@@ -23,8 +23,9 @@ public class Order {
     private OrderStatus status;
     private Timing timing;
     private ObjectId assignedDriver;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private boolean isReview = false; // Trường để kiểm tra order đã được review chưa
+    private Date createdAt;
+    private Date updatedAt;
     
     @Data
     public static class OrderDetails {
@@ -63,8 +64,8 @@ public class Order {
         private String customerPhone;
         private String deliveryInstructions;
         private String deliveryType;
-        private LocalDateTime estimatedDeliveryTime;
-        private LocalDateTime actualDeliveryTime;
+        private Date estimatedDeliveryTime;
+        private Date actualDeliveryTime;
     }
     
     @Data
@@ -86,7 +87,7 @@ public class Order {
         private String method;
         private String status;
         private String transactionId;
-        private LocalDateTime paidAt;
+        private Date paidAt;
     }
     
     @Data
@@ -99,7 +100,7 @@ public class Order {
     @Data
     public static class StatusHistory {
         private String status;
-        private LocalDateTime timestamp;
+        private Date timestamp;
         private String note;
     }
     
@@ -111,11 +112,11 @@ public class Order {
     
     @Data
     public static class Timing {
-        private LocalDateTime placedAt;
-        private LocalDateTime confirmedAt;
-        private LocalDateTime preparingAt;
-        private LocalDateTime readyAt;
-        private LocalDateTime pickedUpAt;
-        private LocalDateTime deliveredAt;
+        private Date placedAt;
+        private Date confirmedAt;
+        private Date preparingAt;
+        private Date readyAt;
+        private Date pickedUpAt;
+        private Date deliveredAt;
     }
 }
