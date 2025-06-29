@@ -81,7 +81,7 @@ export default function PaymentPage() {
           method: paymentMethod,
         },
         promoInfo: {
-          code: discount.id || "",
+          code: discount.code || "",
         },
       };
     } else {

@@ -13,7 +13,7 @@ export default function ProductCard({ item, Loading }) {
       <img
         src={item.image}
         alt=""
-        className="w-[20%] h-fit object-contain shadow"
+        className="w-24 h-24 object-cover shadow"
       />
       <div className="flex flex-col justify-between ml-5 py-3 w-full">
         <div className="space-y-1">

@@ -21,15 +21,15 @@ export default function CartItem({
   return (
     <div className="flex w-full shadow caret-transparent bg-white p-3">
       <button
-        className="mr-3 text-red-500 bg-red-100 my-auto p-1 rounded-lg"
+        className="mr-3 text-xs text-red-500 bg-red-100 my-auto p-1 rounded"
         onClick={deleteOne}
       >
         <FontAwesomeIcon icon={faX} />
       </button>
       <img
-        src={ cartItem.dishImage}
+        src={cartItem.dishImage}
         alt={cartItem.dishName}
-        className="w-[15%] h-auto object-contain shadow"
+        className="w-24 h-24 object-cover shadow"
       />
       <div className="flex justify-between w-full ml-5 py-2">
         <div className="flex-col flex justify-between">
