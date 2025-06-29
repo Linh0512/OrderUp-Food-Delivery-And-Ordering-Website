@@ -1,11 +1,6 @@
 package com.example.orderup.module.voucher.dto;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.example.orderup.config.JacksonConfig;
 import lombok.Data;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
 public class CreateVoucherDTO {
@@ -15,12 +10,9 @@ public class CreateVoucherDTO {
     private String restaurantId; // Bắt buộc cho LOCAL voucher
     private Double minimumOrderAmount;
     
-    @JsonDeserialize(using = JacksonConfig.LocalDateTimeDeserializer.class)
-    private LocalDateTime issuedAt;
-    
-    @JsonDeserialize(using = JacksonConfig.LocalDateDeserializer.class)
-    @JsonSerialize(using = JacksonConfig.LocalDateSerializer.class)
-    private LocalDate expiresAt;
+    // Tạm thời dùng String để debug format từ frontend
+    private String issuedAt;
+    private String expiresAt;
     
     private Integer remainingValue;
 } 

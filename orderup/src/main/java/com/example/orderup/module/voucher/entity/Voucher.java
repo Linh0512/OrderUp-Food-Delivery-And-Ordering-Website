@@ -2,7 +2,10 @@ package com.example.orderup.module.voucher.entity;
 
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.ReadOnlyProperty;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.mapping.Field;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,7 +22,11 @@ public class Voucher {
     private VoucherCondition conditions;
     private VoucherValidity validity;
     private List<VoucherUsage> usage;
-    private int remainingValue;
+    
+    @Field("remainingValue")
+    @JsonProperty("remainingValue")
+    private Long remainingValue;
+    
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private boolean isActive;
@@ -35,7 +42,7 @@ public class Voucher {
     public void updateActiveStatus() {
         if (this.validity != null && this.validity.getExpiresAt() != null) {
             boolean isExpired = this.validity.getExpiresAt().isBefore(LocalDate.now());
-            boolean isOutOfStock = this.remainingValue <= 0;
+            boolean isOutOfStock = this.remainingValue != null && this.remainingValue <= 0;
             this.isActive = !isExpired && !isOutOfStock;
         } else {
             this.isActive = false;

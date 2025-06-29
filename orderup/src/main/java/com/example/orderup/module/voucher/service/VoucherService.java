@@ -8,6 +8,9 @@ import com.example.orderup.module.voucher.repository.VoucherRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import com.example.orderup.module.user.entirty.User;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -56,9 +59,9 @@ public class VoucherService {
             throw new RuntimeException("Voucher code already exists");
         }
 
-        String role = jwtTokenProvider.getRoleFromToken(token);
+        String role = getUserRole(token);
         if (role == null) {
-            throw new RuntimeException("Invalid token");
+            throw new RuntimeException("Invalid authentication");
         }
 
         // Set type based on role
@@ -112,9 +115,9 @@ public class VoucherService {
 
     // Restaurant methods
     public List<VoucherThumbDTO> getVouchersByUserRole(String token, String restaurantId) {
-        String role = jwtTokenProvider.getRoleFromToken(token);
+        String role = getUserRole(token);
         if (role == null) {
-            throw new RuntimeException("Invalid token");
+            throw new RuntimeException("Invalid authentication");
         }
 
         List<Voucher> vouchers;
@@ -253,12 +256,35 @@ public class VoucherService {
         voucher.getUsage().add(usage);
 
         // Giảm số lượng còn lại
-        voucher.setRemainingValue(voucher.getRemainingValue() - 1);
+        voucher.setRemainingValue(voucher.getRemainingValue() - 1L);
 
         // Cập nhật trạng thái
         voucher.updateActiveStatus();
 
         // Lưu voucher
         voucherRepository.save(voucher);
+    }
+
+    /**
+     * Get user role from either JWT token or session authentication
+     */
+    private String getUserRole(String token) {
+        // First try to get from session (for admin)
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.isAuthenticated() && auth.getPrincipal() instanceof User) {
+            User user = (User) auth.getPrincipal();
+            return user.getRole();
+        }
+        
+        // Fallback to JWT token (for mobile/API users)
+        if (token != null && !token.trim().isEmpty()) {
+            try {
+                return jwtTokenProvider.getRoleFromToken(token);
+            } catch (Exception e) {
+                // Token parsing failed, ignore
+            }
+        }
+        
+        return null;
     }
 } 
