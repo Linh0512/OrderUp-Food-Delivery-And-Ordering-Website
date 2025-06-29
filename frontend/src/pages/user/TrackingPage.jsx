@@ -6,11 +6,11 @@ import {
   faMotorcycle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import OrderItem from "../../components/hostRes/OrderItem";
-import money from '../../assets/money.png'
-import zalo from '../../assets/zalopay.png'
+import money from "../../assets/money.png";
+import zalo from "../../assets/zalopay.png";
 import { formatCurrencyVN } from "../../utils/Format";
 
 export default function TrackingPage() {
@@ -19,15 +19,29 @@ export default function TrackingPage() {
   const location = useLocation();
   const cart = location.state?.cart || [];
   const address = location.state?.addressDetail || {};
-  const subtotal=location.state?.subtotal||0
+  const subtotal = location.state?.subtotal || 0;
   const discount = location.state?.discount || 0;
+  const orderStage = useMemo(
+    () => ["pending", "cooking", "delivering", "completed"],
+    []
+  );
 
   const isActive = (current) => {
-    const orderStage = ["pending", "cooking", "delivering", "completed"];
     return orderStage.indexOf(stage) >= orderStage.indexOf(current);
   };
 
-  
+  useEffect(() => {
+    const currentIndex = orderStage.indexOf(stage);
+    if (currentIndex < orderStage.length - 1) {
+      const timer = setTimeout(() => {
+        setStage(orderStage[currentIndex + 1]);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+    if(currentIndex===3)
+      navigate('/history')
+  }, [stage, orderStage, navigate]);
+
   return (
     <div className="w-[70%] mx-auto">
       <div className="flex items-center">
@@ -98,7 +112,7 @@ export default function TrackingPage() {
             {/* Bước 4: Hoàn tất */}
             <div
               className={`${
-                isActive("delivering") ? "text-red-500" : "text-black"
+                isActive("completed") ? "text-red-500" : "text-black"
               } text-end`}
             >
               <FontAwesomeIcon icon={faHome} />
@@ -125,8 +139,11 @@ export default function TrackingPage() {
             </p>
             <p className="text-sm">{address.email}</p>
             <div className="text-sm flex items-center">
-              Thanh toán: 
-              <img src={address.method==='cash'?money:zalo} className="size-10 ml-2"/>
+              Thanh toán:
+              <img
+                src={address.method === "cash" ? money : zalo}
+                className="size-10 ml-2"
+              />
             </div>
           </div>
         </div>
@@ -151,7 +168,9 @@ export default function TrackingPage() {
               <p>Phí vận chuyển</p>
               <p>{formatCurrencyVN(30000)}</p>
             </div>
-            <p className="text-end mt-7 text-2xl font-semibold">{formatCurrencyVN(subtotal-(discount.value||0)+30000)}</p>
+            <p className="text-end mt-7 text-2xl font-semibold">
+              {formatCurrencyVN(subtotal - (discount.value || 0) + 30000)}
+            </p>
           </div>
         </div>
       </div>

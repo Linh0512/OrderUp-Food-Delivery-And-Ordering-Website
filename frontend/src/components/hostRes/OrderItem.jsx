@@ -7,7 +7,7 @@ export default function OrderItem({ orderItem }) {
       <img
         src={orderItem.dishImage}
         alt={orderItem?.dishName}
-        className="w-[10%] h-auto object-contain shadow"
+        className="w-18 h-18 object-cover shadow"
       />
       <div className="flex justify-between w-full ml-5">
         <div className="space-y-2">

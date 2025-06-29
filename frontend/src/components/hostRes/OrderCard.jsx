@@ -7,9 +7,8 @@ import {
   faQuestion,
   faTruck,
 } from "@fortawesome/free-solid-svg-icons";
-import avatar from "../../assets/avatar.png";
-import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from "react-router-dom";
 import { formatCurrencyVN } from "../../utils/Format";
 
 const OrderCard = ({ loading,item }) => {
