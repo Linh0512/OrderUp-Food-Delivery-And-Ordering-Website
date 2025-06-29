@@ -111,11 +111,11 @@
                                     </tr>
                                     <tr>
                                         <th>Ngày tạo:</th>
-                                        <td th:text="${#dates.format(user.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                        <td th:text="${user.createdAt != null ? #dates.format(user.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
                                     </tr>
                                     <tr>
                                         <th>Cập nhật cuối:</th>
-                                        <td th:text="${#dates.format(user.updatedAt, 'dd/MM/yyyy HH:mm')}"></td>
+                                        <td th:text="${user.updatedAt != null ? #dates.format(user.updatedAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
                                     </tr>
                                 </table>
                             </div>
@@ -137,7 +137,7 @@
                                             <td th:text="${address.title}"></td>
                                             <td th:text="${address.fullAddress}"></td>
                                             <td>
-                                                <span th:if="${address.default}" class="badge bg-primary">Mặc định</span>
+                                                <span th:if="${address.isDefault}" class="badge bg-primary">Mặc định</span>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -163,7 +163,7 @@
                                             <td th:text="${payment.ewalletType}"></td>
                                             <td th:text="${payment.ewalletAccount}"></td>
                                             <td>
-                                                <span th:if="${payment.default}" class="badge bg-primary">Mặc định</span>
+                                                <span th:if="${payment.isDefault}" class="badge bg-primary">Mặc định</span>
                                             </td>
                                         </tr>
                                     </tbody>

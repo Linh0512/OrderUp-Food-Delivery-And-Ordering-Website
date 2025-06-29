@@ -94,11 +94,11 @@
                         <td th:text="${restaurant.address != null ? restaurant.address.fullAddress : 'N/A'}"></td>
                         <td th:text="${restaurant.basicInfo != null ? restaurant.basicInfo.phone : 'N/A'}"></td>
                         <td>
-                            <span th:if="${restaurant.isActive}" class="badge badge-status-active">Hoạt động</span>
-                            <span th:unless="${restaurant.isActive}" class="badge badge-status-inactive">Tạm dừng</span>
+                            <span th:if="${restaurant.active}" class="badge badge-status-active">Hoạt động</span>
+                            <span th:unless="${restaurant.active}" class="badge badge-status-inactive">Tạm dừng</span>
                             <span th:if="${restaurant.verificationStatus == 'pending'}" class="badge badge-status-pending">Chờ duyệt</span>
                         </td>
-                        <td th:text="${#temporals.format(restaurant.createdAt, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${restaurant.createdAt != null ? #dates.format(restaurant.createdAt, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <a th:href="@{/admin/restaurants/{id}/view(id=${restaurant.id})}" class="btn btn-info">Xem</a>

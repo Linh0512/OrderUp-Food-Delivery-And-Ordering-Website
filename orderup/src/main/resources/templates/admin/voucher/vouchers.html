@@ -251,7 +251,7 @@
             const col = document.createElement('div');
             col.className = 'col-md-4';
             col.innerHTML = `
-                <div class="card voucher-card" data-voucher-code="${voucher.code}">
+                <div class="card voucher-card" data-voucher-id="${voucher.id}" data-voucher-code="${voucher.code}">
                     <div class="card-body">
                         <div class="d-flex justify-content-between align-items-start mb-2">
                             <h5 class="card-title">${voucher.code}</h5>
@@ -288,7 +288,7 @@
             const deleteBtn = card.querySelector('.delete-btn');
 
             editBtn.addEventListener('click', () => editVoucher(voucher));
-            deleteBtn.addEventListener('click', () => deleteVoucher(voucher.code));
+            deleteBtn.addEventListener('click', () => deleteVoucher(voucher.id));
 
             return col;
         }
@@ -302,7 +302,7 @@
         }
 
         function editVoucher(voucher) {
-            currentVoucherId = voucher.code;
+            currentVoucherId = voucher.id;
             document.getElementById('modalTitle').textContent = 'Chỉnh sửa Voucher';
             document.getElementById('code').value = voucher.code;
             document.getElementById('type').value = voucher.type;

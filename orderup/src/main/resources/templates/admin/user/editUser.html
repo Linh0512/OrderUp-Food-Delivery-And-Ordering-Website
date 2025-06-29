@@ -49,12 +49,10 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <input type="text" class="form-control" th:field="*{addresses[__${stat.index}__].fullAddress}" placeholder="Địa chỉ chi tiết"/>
-                                                <input type="text" class="form-control" th:field="*{addresses[__${stat.index}__].coordinates.lat}" placeholder="Vĩ độ"/>
-                                                <input type="text" class="form-control" th:field="*{addresses[__${stat.index}__].coordinates.lng}" placeholder="Kinh độ"/>
                                             </div>
                                             <div class="col-md-2">
                                                 <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" th:field="*{addresses[__${stat.index}__].default}"/>
+                                                    <input class="form-check-input" type="checkbox" th:field="*{addresses[__${stat.index}__].isDefault}"/>
                                                     <label class="form-check-label">Mặc định</label>
                                                 </div>
                                             </div>
@@ -158,12 +156,10 @@
                         </div>
                         <div class="col-md-6">
                             <input type="text" class="form-control" name="addresses[${index}].fullAddress" placeholder="Địa chỉ chi tiết"/>
-                            <input type="text" class="form-control" name="addresses[${index}].coordinates.lat" placeholder="Vĩ độ"/>
-                            <input type="text" class="form-control" name="addresses[${index}].coordinates.lng" placeholder="Kinh độ"/>
                         </div>
                         <div class="col-md-2">
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="addresses[${index}].default"/>
+                                <input class="form-check-input" type="checkbox" name="addresses[${index}].isDefault"/>
                                 <label class="form-check-label">Mặc định</label>
                             </div>
                         </div>

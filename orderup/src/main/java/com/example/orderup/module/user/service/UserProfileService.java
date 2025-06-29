@@ -158,7 +158,7 @@ public class UserProfileService {
         Addresses newAddress = new Addresses();
         newAddress.setTitle(request.getTitle());
         newAddress.setFullAddress(request.getFullAddress());
-        newAddress.setDefault(request.isDefault());
+        newAddress.setIsDefault(request.isDefault());
 
         if (request.getCoordinates() != null) {
             Coordinates coordinates = new Coordinates();
@@ -174,8 +174,8 @@ public class UserProfileService {
         }
 
         // Nếu địa chỉ mới là mặc định, cập nhật các địa chỉ khác
-        if (newAddress.isDefault()) {
-            addresses.forEach(addr -> addr.setDefault(false));
+        if (newAddress.getIsDefault() != null && newAddress.getIsDefault()) {
+            addresses.forEach(addr -> addr.setIsDefault(false));
         }
         addresses.add(newAddress);
         user.setAddresses(addresses);
@@ -200,10 +200,10 @@ public class UserProfileService {
         addressToUpdate.setFullAddress(request.getFullAddress());
         
         // Xử lý trường hợp đổi địa chỉ mặc định
-        if (request.isDefault() && !addressToUpdate.isDefault()) {
-            addresses.forEach(addr -> addr.setDefault(false));
+        if (request.isDefault() && (addressToUpdate.getIsDefault() == null || !addressToUpdate.getIsDefault())) {
+            addresses.forEach(addr -> addr.setIsDefault(false));
         }
-        addressToUpdate.setDefault(request.isDefault());
+        addressToUpdate.setIsDefault(request.isDefault());
 
         if (request.getCoordinates() != null) {
             Coordinates coordinates = new Coordinates();
@@ -227,12 +227,12 @@ public class UserProfileService {
         List<Addresses> addresses = user.getAddresses();
         
         // Kiểm tra nếu xóa địa chỉ mặc định
-        boolean wasDefault = addresses.get(addressIndex).isDefault();
+        boolean wasDefault = addresses.get(addressIndex).getIsDefault() != null && addresses.get(addressIndex).getIsDefault();
         addresses.remove(addressIndex);
 
         // Nếu xóa địa chỉ mặc định và còn địa chỉ khác, set địa chỉ đầu tiên làm mặc định
         if (wasDefault && !addresses.isEmpty()) {
-            addresses.get(0).setDefault(true);
+            addresses.get(0).setIsDefault(true);
         }
 
         user.setAddresses(addresses);
@@ -259,10 +259,10 @@ public class UserProfileService {
         }
 
         // Set tất cả địa chỉ thành không mặc định
-        addresses.forEach(addr -> addr.setDefault(false));
+        addresses.forEach(addr -> addr.setIsDefault(false));
         
         // Set địa chỉ được chọn thành mặc định
-        addresses.get(addressIndex).setDefault(true);
+        addresses.get(addressIndex).setIsDefault(true);
 
         user.setAddresses(addresses);
         userProfileRepository.updateUser(user);
@@ -284,7 +284,7 @@ public class UserProfileService {
 
         // Tìm địa chỉ mặc định và index của nó
         for (int i = 0; i < addresses.size(); i++) {
-            if (addresses.get(i).isDefault()) {
+            if (addresses.get(i).getIsDefault() != null && addresses.get(i).getIsDefault()) {
                 Addresses defaultAddress = addresses.get(i);
                 return DefaultAddressDTO.builder()
                     .addressIndex(i)
@@ -301,7 +301,7 @@ public class UserProfileService {
         return UserProfileDTO.AddressInfo.builder()
             .title(address.getTitle())
             .fullAddress(address.getFullAddress())
-            .isDefault(address.isDefault())
+            .isDefault(address.getIsDefault() != null && address.getIsDefault())
             .build();
     }
 

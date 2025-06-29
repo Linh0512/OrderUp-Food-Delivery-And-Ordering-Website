@@ -99,7 +99,7 @@
                             <span th:if="${user.isActive}" class="badge bg-success">Hoạt động</span>
                             <span th:unless="${user.isActive}" class="badge bg-danger">Đã khóa</span>
                         </td>
-                        <td th:text="${#dates.format(user.lastLogin, 'dd/MM/yyyy HH:mm')}"></td>
+                        <td th:text="${user.lastLogin != null ? #dates.format(user.lastLogin, 'dd/MM/yyyy HH:mm') : 'N/A'}"></td>
                         <td>
                             <div class="btn-group btn-group-sm">
                                 <a th:href="@{/admin/users/{id}/view(id=${user.id})}" class="btn btn-info">Xem</a>

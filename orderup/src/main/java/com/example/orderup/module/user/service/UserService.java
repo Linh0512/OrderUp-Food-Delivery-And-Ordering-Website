@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.repository.UserRepository;
-import com.example.orderup.utils.EntityUpdater;
 import com.example.orderup.module.user.entirty.Profile;
 
 @Service

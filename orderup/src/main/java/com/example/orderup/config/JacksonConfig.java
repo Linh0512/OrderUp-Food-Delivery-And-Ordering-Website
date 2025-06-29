@@ -28,11 +28,12 @@ public class JacksonConfig {
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
         
-        SimpleModule module = new SimpleModule();
-        module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
-        module.addDeserializer(LocalDate.class, new LocalDateDeserializer());
-        module.addSerializer(LocalDate.class, new LocalDateSerializer());
-        mapper.registerModule(module);
+        // REMOVED custom deserializers that might cause int->Date conversion issues
+        // SimpleModule module = new SimpleModule();
+        // module.addDeserializer(LocalDateTime.class, new LocalDateTimeDeserializer());
+        // module.addDeserializer(LocalDate.class, new LocalDateDeserializer());
+        // module.addSerializer(LocalDate.class, new LocalDateSerializer());
+        // mapper.registerModule(module);
         
         return mapper;
     }
