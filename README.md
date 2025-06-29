@@ -51,25 +51,25 @@ git clone [https://github.com/Linh0512/OrderUp-Food-Delivery-And-Ordering-Websit
 ```
 
 2. Cấu hình môi trường:
-- Tạo file `.env` trong thư mục gốc
-- Sao chép nội dung từ file `.env.example` và điền thông tin cần thiết
+- Tạo file `.env` trong thư mục C:\Storage\Repo\Intellij\FP\orderup\src\main\resources
+- Sao chép nội dung từ file `.env.example` và điền thông tin cần thiết (vui lòng liên hệ email: quilinh831@gmail.com nếu có yêu cầu về cấu hình connection cho MongoDB)
 
 3. Khởi động Backend (trong thư mục orderup):
 ```bash
+cd orderup
 mvnw spring-boot:run
 ```
 
-4. Cài đặt dependencies Frontend (trong thư mục frontend):
+4. Cài đặt dependencies và khỏi động Frontend (trong thư mục frontend):
 ```bash
-npm install
-```
+cd frontend
 
-5. Khởi động Frontend:
-```bash
+npm install
+
 npm run dev
 ```
 
-6. Truy cập ứng dụng tại http://localhost:5173/
+5. Truy cập ứng dụng tại http://localhost:5173/
 
 ### Tài khoản demo
 <a name="taikhoan"></a>
