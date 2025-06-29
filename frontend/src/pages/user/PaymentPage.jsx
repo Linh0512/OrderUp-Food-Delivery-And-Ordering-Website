@@ -101,11 +101,7 @@ export default function PaymentPage() {
       };
     }
 
-    console.log(orderData);
-
     await createOrder(user.token, orderData); 
-
-    (discount.id&& await UseVoucher(discount.id, user.token))
 
     navigate("/tracking", {
       state: { cart: cart.items, addressDetail, subtotal, discount },
