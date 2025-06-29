@@ -48,7 +48,7 @@ export default function ProductPage() {
         <p>Món ăn</p>
       </div>
       <div className="bg-gray-200 flex justify-between p-2 px-4 rounded-xl text-xl font-semibold items-center">
-        <p>10 Món ăn</p>
+        <p>{dish.length} Món ăn</p>
         <button
           className="text-white bg-green-500 text-lg p-2 rounded-lg"
           onClick={() => nav("/Product/add")}

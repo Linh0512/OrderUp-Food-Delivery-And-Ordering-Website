@@ -70,6 +70,7 @@ export default function ProfilePage() {
         setUserDetail(tmp);
       });
     }
+    console.log(tmp)
     await updatedUser(user.userId, tmp, user.token);
     setFileSelected(null);
     setPreviewImage(null);

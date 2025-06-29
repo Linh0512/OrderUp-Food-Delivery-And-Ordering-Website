@@ -14,7 +14,7 @@ export default function ProductCard({
 
   const handleShowPopUp=()=>{
     if(shopActive)
-      if(productDetail)
+      if(productDetail.active)
         setShowPopup(true)
       else
         alert("Hiện tại món ăn không khả dụng !!!")
