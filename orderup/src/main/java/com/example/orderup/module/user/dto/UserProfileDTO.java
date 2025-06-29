@@ -3,9 +3,13 @@ package com.example.orderup.module.user.dto;
 import java.util.List;
 import lombok.Data;
 import lombok.Builder;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserProfileDTO {
     private String id;
     private String email;
@@ -16,6 +20,8 @@ public class UserProfileDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UserProfileInfo {
         private String firstName;
         private String lastName;
@@ -28,6 +34,8 @@ public class UserProfileDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class AddressInfo {
         private String title;
         private String fullAddress;
@@ -37,6 +45,8 @@ public class UserProfileDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class GeoCoordinates {
         private double lat;
         private double lng;
@@ -44,6 +54,8 @@ public class UserProfileDTO {
 
     @Data
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RestaurantInfo {
         private String id;
         private String name;
@@ -63,11 +75,15 @@ public class UserProfileDTO {
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class UpdateProfileRequest {
         private UserProfileInfo profile;
     }
 
     @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class AddAddressRequest {
         private String title;
         private String fullAddress;

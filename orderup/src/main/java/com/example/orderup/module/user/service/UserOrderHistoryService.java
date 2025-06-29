@@ -47,6 +47,12 @@ public class UserOrderHistoryService {
     public Page<UserOrderHistoryThumbDTO> getUserOrderHistory(String token, Pageable pageable) {
         logger.debug("Finding orders for userId: {} with pageable: {}", token, pageable);
         String userId = jwtTokenProvider.getUserIdFromToken(token);
+        
+        // Validate userId before creating ObjectId
+        if (userId == null || userId.trim().isEmpty()) {
+            logger.error("Invalid or expired JWT token, userId is null");
+            throw new RuntimeException("Invalid or expired JWT token");
+        }
 
         ObjectId userIdObject = new ObjectId(userId);
         Page<Order> orders = orderRepository.findByCustomerId(userIdObject, pageable);
@@ -73,14 +79,18 @@ public class UserOrderHistoryService {
 
         Page<Order> orders;
         if (orderDate != null) {
-            // Convert LocalDateTime for MongoDB query
+            // Convert LocalDateTime to Date for MongoDB query
             LocalDateTime startOfDay = orderDate.toLocalDate().atStartOfDay();
             LocalDateTime endOfDay = orderDate.toLocalDate().atStartOfDay().plusDays(1);
             
+            // Convert LocalDateTime to Date
+            Date startDate = Date.from(startOfDay.atZone(java.time.ZoneId.systemDefault()).toInstant());
+            Date endDate = Date.from(endOfDay.atZone(java.time.ZoneId.systemDefault()).toInstant());
+            
             orders = orderRepository.findByCustomerIdAndDateRange(
                 userIdObject, 
-                startOfDay,
-                endOfDay,
+                startDate,
+                endDate,
                 pageable
             );
         } else {
@@ -101,14 +111,18 @@ public class UserOrderHistoryService {
         
         Page<Order> orders;
         if (orderDate != null) {
-            // Convert LocalDateTime for MongoDB query
+            // Convert LocalDateTime to Date for MongoDB query
             LocalDateTime startOfDay = orderDate.toLocalDate().atStartOfDay();
             LocalDateTime endOfDay = orderDate.toLocalDate().atStartOfDay().plusDays(1);
             
+            // Convert LocalDateTime to Date
+            Date startDate = Date.from(startOfDay.atZone(java.time.ZoneId.systemDefault()).toInstant());
+            Date endDate = Date.from(endOfDay.atZone(java.time.ZoneId.systemDefault()).toInstant());
+            
             orders = orderRepository.findByRestaurantIdAndDateRange(
                 restaurantObjectId, 
-                startOfDay,
-                endOfDay,
+                startDate,
+                endDate,
                 pageable
             );
         } else {
@@ -148,5 +162,10 @@ public class UserOrderHistoryService {
         
         logger.debug("Found order detail for orderId: {}", orderId);
         return dto;
+    }
+    
+    // Debug method để test repository
+    public Page<Order> getOrdersByCustomerId(ObjectId customerId, Pageable pageable) {
+        return orderRepository.findByCustomerId(customerId, pageable);
     }
 }
