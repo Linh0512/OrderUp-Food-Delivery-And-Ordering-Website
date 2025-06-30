@@ -115,7 +115,7 @@ export default function HistoryDetailPage() {
                   <FontAwesomeIcon icon={faReceipt} /> Tổng cộng:
                 </p>
                 <span className="text-green-600 text-lg font-semibold">
-                  {formatCurrencyVN(detail.orderSummary.total)}
+                  {formatCurrencyVN(detail.orderSummary.subtotal-detail.orderSummary.discount+detail.orderSummary.deliveryFee)}
                 </span>
               </div>
             </div>

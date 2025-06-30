@@ -51,3 +51,27 @@ export const formatCurrencyVN = (amount) => {
   
   return number.toLocaleString('vi-VN') + ' VNĐ';
 };
+
+export const formatCartForCheck = (cartData) => {
+  if (!Array.isArray(cartData)) {
+    return [];
+  }
+
+  const cartMap = new Map();
+
+  cartData.forEach(item => {
+    const dishId = item.dishId;
+    const quantity = item.quantity || 0;
+
+    if (cartMap.has(dishId)) {
+      cartMap.set(dishId, cartMap.get(dishId) + quantity);
+    } else {
+      cartMap.set(dishId, quantity);
+    }
+  });
+
+  return Array.from(cartMap, ([id, quantity]) => ({
+    id,
+    quantity
+  }));
+};

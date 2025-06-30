@@ -112,7 +112,7 @@ export default function OrderDetailPage() {
               <div className="flex justify-between text-lg font-bold text-gray-800">
                 <span>Tổng cộng:</span>
                 <span className="text-green-600">
-                  {formatCurrencyVN(order.orderSummary.total)}
+                  {formatCurrencyVN(detail.orderSummary.subtotal-detail.orderSummary.discount+detail.orderSummary.deliveryFeetotal)}
                 </span>
               </div>
             </div>
