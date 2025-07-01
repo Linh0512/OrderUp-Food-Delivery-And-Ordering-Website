@@ -1,6 +1,5 @@
 package com.example.orderup.module.restaurant.dto;
 
-import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Field;
 
 import com.fasterxml.jackson.annotation.JsonProperty;

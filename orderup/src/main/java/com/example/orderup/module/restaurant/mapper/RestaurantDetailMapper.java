@@ -2,7 +2,6 @@ package com.example.orderup.module.restaurant.mapper;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 
 import com.example.orderup.module.restaurant.dto.RestaurantDetailDTO;
 import com.example.orderup.module.restaurant.dto.RestaurantDetailResponseDTO;
@@ -11,9 +10,7 @@ import com.example.orderup.module.restaurant.dto.RestaurantProfileDTO;
 import com.example.orderup.module.restaurant.dto.RestaurantProfileResponseDTO;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.entity.Dish;
-import com.example.orderup.module.restaurant.entity.Review;
 import com.example.orderup.module.restaurant.service.RestaurantService;
-import com.example.orderup.module.user.entirty.Order;
 
 import java.util.List;
 import java.util.ArrayList;

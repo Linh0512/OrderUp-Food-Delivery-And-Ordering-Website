@@ -11,8 +11,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.orderup.config.security.AdminSessionAuthenticationFilter;
 import com.example.orderup.config.security.JwtAuthorizationFilter;
-import com.example.orderup.module.user.service.UserService;
-
 
 @Configuration
 @EnableWebSecurity

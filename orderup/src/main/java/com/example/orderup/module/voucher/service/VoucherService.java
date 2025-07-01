@@ -13,7 +13,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.example.orderup.module.user.entirty.User;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +97,14 @@ public class VoucherService {
             throw new RuntimeException("Voucher not found");
         }
         
+        boolean wasActive = voucher.isActive();
         voucherMapper.updateFromDTO(voucher, dto);
+
+        if (wasActive && dto.getActive() != null) {
+            voucher.setActive(dto.getActive()); // Cập nhật trạng thái active nếu có trong DTO
+        } else {
+            voucher.setActive(wasActive); // Giữ nguyên trạng thái active cũ nếu không có trong DTO
+        }
         voucher.updateActiveStatus();
         voucher = voucherRepository.save(voucher);
         return voucherMapper.toDetailDTO(voucher);

@@ -9,9 +9,6 @@ import com.example.orderup.module.restaurant.service.DishService;
 import com.example.orderup.module.restaurant.service.RestaurantDetailService;
 import com.example.orderup.module.restaurant.dto.DishListResponseDTO;
 import com.example.orderup.module.restaurant.dto.DishDetailDTO;
-import com.example.orderup.module.restaurant.entity.Dish;
-import com.example.orderup.module.restaurant.mapper.DishMapper;
-import org.bson.types.ObjectId;
 
 @RestController
 @RequestMapping("/api/dishes")
@@ -22,9 +19,6 @@ public class DishController {
 
     @Autowired
     private RestaurantDetailService restaurantDetailService;
-
-    @Autowired
-    private DishMapper dishMapper;
 
     @GetMapping("/restaurant/{restaurantId}")
     public ResponseEntity<DishListResponseDTO> getDishesByRestaurantId(@PathVariable String restaurantId) {

@@ -17,8 +17,6 @@ public class UserPasswordService {
     private static final Logger logger = LoggerFactory.getLogger(UserPasswordService.class);
     @Autowired
     private MongoTemplate mongoTemplate;
-    @Autowired
-    private UserPasswordRepository userPasswordRepository;
 
     public String updateUserPassword(String id, String oldPassword, String newPassword, String confirmPassword) {
         // Tìm user theo id

@@ -1,6 +1,5 @@
 package com.example.orderup.module.admin.controller;
 
-import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.repositories.RestaurantRepository;
 import com.example.orderup.module.voucher.dto.*;
 import com.example.orderup.module.voucher.service.VoucherService;

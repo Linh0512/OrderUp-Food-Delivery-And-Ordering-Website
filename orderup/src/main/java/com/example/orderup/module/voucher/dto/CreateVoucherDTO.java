@@ -13,6 +13,7 @@ public class CreateVoucherDTO {
     // Tạm thời dùng String để debug format từ frontend
     private String issuedAt;
     private String expiresAt;
+    private Boolean active;
     
     private Integer remainingValue;
 } 

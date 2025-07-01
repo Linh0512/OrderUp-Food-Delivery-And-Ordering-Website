@@ -21,7 +21,6 @@ import com.example.orderup.module.user.mapper.ShoppingCartMapper;
 import com.example.orderup.config.security.JwtTokenProvider;
 import com.example.orderup.module.restaurant.entity.Dish;
 import com.example.orderup.module.restaurant.repository.DishRepository;
-import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.repository.RestaurantDetailRepository;
 import com.example.orderup.module.voucher.entity.Voucher;
 import com.example.orderup.module.voucher.service.VoucherService;
@@ -312,7 +311,7 @@ public class ShoppingCartService {
         String userId = jwtService.getUserIdFromToken(token);
         ShoppingCart cart = cartRepository.findById(checkoutDTO.getCartId()).orElse(null);
         ObjectId userObjectId = new ObjectId(userId);
-        Restaurant restaurant = restaurantRepository.findRestaurantById(cart.getRestaurantId().toString());
+        restaurantRepository.findRestaurantById(cart.getRestaurantId().toString());
         if (cart == null || !cart.getUserId().equals(userObjectId)) {
             throw new IllegalArgumentException("Không tìm thấy giỏ hàng");
         }

@@ -9,7 +9,6 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import avatar from "../../assets/avatar.png";
 import { useAuth } from "../../components/common/AuthContext";
 import OrderItem from "../../components/hostRes/OrderItem";
 import { getHistotyDetail } from "../../services/userServices/Service";
@@ -81,7 +80,7 @@ export default function OrderDetailPage() {
       </div>
       <div className="bg-white rounded-xl shadow-md p-6">
         <h2 className="text-xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          Món ăn đã đặt (2 món)
+          Món ăn đã đặt ({order.orderItems?.length || 0} món)
         </h2>
         <div className="space-y-4">
           {order.orderItems?.map((item, index) => (
@@ -104,6 +103,10 @@ export default function OrderDetailPage() {
               <span>Phí giao hàng:</span>
               <span>{formatCurrencyVN(order.orderSummary.deliveryFee)}</span>
             </div>
+            <div className="flex justify-between text-gray-600">
+              <span>Phí dịch vụ:</span>
+              <span>{formatCurrencyVN(order.orderSummary.serviceFee)}</span>
+            </div>
             <div className="flex justify-between text-green-600">
               <span>Giảm giá:</span>
               <span>{formatCurrencyVN(order.orderSummary.discount)}</span>
@@ -112,7 +115,7 @@ export default function OrderDetailPage() {
               <div className="flex justify-between text-lg font-bold text-gray-800">
                 <span>Tổng cộng:</span>
                 <span className="text-green-600">
-                  {formatCurrencyVN(detail.orderSummary.subtotal-detail.orderSummary.discount+detail.orderSummary.deliveryFeetotal)}
+                  {formatCurrencyVN(order.orderSummary.total)}
                 </span>
               </div>
             </div>

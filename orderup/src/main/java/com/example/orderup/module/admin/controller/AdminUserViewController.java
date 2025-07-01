@@ -1,6 +1,5 @@
 package com.example.orderup.module.admin.controller;
 
-import com.example.orderup.config.security.JwtTokenProvider;
 import com.example.orderup.module.user.entirty.Profile;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.service.UserService;
@@ -32,9 +31,6 @@ import java.util.Map;
 public class AdminUserViewController {
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
     
     @GetMapping("/users")
     public String viewUsers(Model model, 
@@ -146,7 +142,7 @@ public class AdminUserViewController {
             user.setCreatedAt(now);
             user.setUpdatedAt(now);
 
-            User savedUser = userService.saveUser(user);
+            userService.saveUser(user);
             redirectAttributes.addFlashAttribute("message", "User created successfully: ");
             return "redirect:/admin/users";
         }

@@ -7,7 +7,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 public class OrderNumberGenerator {
     private static final String PREFIX = "Or_";
-    private static final int SEQUENCE_LENGTH = 6;
     private final AtomicInteger sequence = new AtomicInteger(1);
     private final Random random = new Random();
 
