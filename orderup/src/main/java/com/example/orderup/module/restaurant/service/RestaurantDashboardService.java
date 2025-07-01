@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.example.orderup.module.restaurant.dto.OrderDashboardDTO;
 import com.example.orderup.module.restaurant.dto.OrderSummaryDTO;
 import com.example.orderup.module.restaurant.repository.OrderRepository;
-import com.example.orderup.module.restaurant.repository.RestaurantDetailRepository;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -21,9 +20,6 @@ public class RestaurantDashboardService {
 
     @Autowired
     private OrderRepository orderRepository;
-
-    @Autowired
-    private RestaurantDetailRepository restaurantRepository;
     
     @Autowired
     private MongoTemplate mongoTemplate;

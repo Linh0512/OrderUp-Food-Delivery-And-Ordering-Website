@@ -12,7 +12,6 @@ import com.example.orderup.module.user.dto.ShoppingCartDTO.*;
 import com.example.orderup.module.user.service.ShoppingCartService;
 import com.example.orderup.module.user.entirty.Order;
 import com.example.orderup.module.user.dto.CheckoutDTO;
-import com.example.orderup.module.user.dto.ErrorResponse;
 import lombok.Data;
 
 @RestController

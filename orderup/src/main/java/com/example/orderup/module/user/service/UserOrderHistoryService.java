@@ -17,10 +17,7 @@ import com.example.orderup.module.user.repository.UserOrderHistoryRepository;
 import com.example.orderup.module.user.repository.UserRepository;
 import com.example.orderup.config.security.JwtTokenProvider;
 
-import java.util.Comparator;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.LocalDate;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

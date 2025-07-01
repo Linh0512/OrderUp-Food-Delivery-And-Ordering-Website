@@ -15,7 +15,6 @@ import java.util.stream.Collectors;
 @Component
 public class VoucherMapper {
     
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     private static final DateTimeFormatter HTML_DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final DateTimeFormatter HTML_DATETIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
     private static final SimpleDateFormat SIMPLE_DATE_FORMATTER = new SimpleDateFormat("dd/MM/yyyy");
@@ -162,11 +161,20 @@ public class VoucherMapper {
         }
         
         if (dto.getExpiresAt() != null && !dto.getExpiresAt().isEmpty()) {
+            System.out.println("ExpiresAt from DTO: " + dto.getExpiresAt());        
             try {
-                LocalDate localDate = LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER);
-                validity.setExpiresAt(Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
-            } catch (Exception e) {
-                // Keep existing value if parsing fails
+                // Thử parse với format datetime trước
+                LocalDateTime localDateTime = LocalDateTime.parse(dto.getExpiresAt(), HTML_DATETIME_FORMATTER);
+                validity.setExpiresAt(Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+            } catch (Exception e1) {
+                try {
+                    // Nếu không được thì thử parse với format date
+                    LocalDate localDate = LocalDate.parse(dto.getExpiresAt(), HTML_DATE_FORMATTER);
+                    validity.setExpiresAt(Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant()));
+                } catch (Exception e2) {
+                    System.err.println("Failed to parse expiresAt: " + dto.getExpiresAt());
+                    e2.printStackTrace();
+                }
             }
         }
         

@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 import com.example.orderup.module.restaurant.entity.Restaurant;
 import com.example.orderup.module.restaurant.service.RestaurantService;
 import com.example.orderup.module.user.entirty.Order;
-import com.example.orderup.module.user.entirty.Order.OrderItem;
 import com.example.orderup.module.user.dto.UserOrderHistoryDetailDTO;
 import com.example.orderup.module.user.dto.UserOrderHistoryThumbDTO;
 import com.example.orderup.module.user.entirty.User;
