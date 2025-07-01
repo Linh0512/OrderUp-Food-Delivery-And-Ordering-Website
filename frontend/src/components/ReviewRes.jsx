@@ -1,13 +1,14 @@
 import { faStar, faX } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useRef, useState } from "react";
-import { addReview } from "../services/userServices/Service";
+import { addReview, getReview, getShopById, getShopDetail } from "../services/userServices/Service";
 import { useAuth } from "./common/AuthContext";
 
 export default function ReviewRes({ handleClose, resDetail }) {
   const [hoveredStar, setHoveredStar] = useState(null);
   const [star, setStar] = useState(0);
   const [review, setReview] = useState("");
+  const [reviewData, setReviewData] = useState({});
   const selectRef = useRef(null);
   const { user } = useAuth();
   const handle = () => {
@@ -43,6 +44,12 @@ export default function ReviewRes({ handleClose, resDetail }) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [handleClose]);
+
+  useEffect(()=>{
+    getShopDetail(resDetail.restaurantId,user.token).then((res)=>{ 
+      console.log(res.data)
+      setReviewData(res.data)})
+  },[])
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
       <div className="bg-white w-[40vw] mx-auto rounded-2xl" ref={selectRef}>
@@ -63,7 +70,7 @@ export default function ReviewRes({ handleClose, resDetail }) {
               <div className="flex space-x-4 items-center text-xl">
                 <p className=" font-semibold">{resDetail.restaurantName}</p>
                 <p>
-                  4.8{" "}
+                  {reviewData.restaurantStar}{" "}
                   <FontAwesomeIcon icon={faStar} className="text-yellow-400" />{" "}
                 </p>
               </div>

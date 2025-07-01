@@ -13,6 +13,7 @@ import {
   getShopDetail,
 } from "../services/userServices/Service";
 import { useAuth } from "../components/common/AuthContext";
+import { formatCartForCheck } from "../utils/Format";
 
 export default function ShopPage() {
   const PRODUCT_LIMIT = 12;
@@ -42,7 +43,7 @@ export default function ShopPage() {
 
   const reloadShop = () => {
     getCartForCheck(id, user.token).then((res) => {
-      setCart(res);
+      setCart(formatCartForCheck(res));
     });
   };
 
@@ -68,7 +69,8 @@ export default function ShopPage() {
       });
     });
     getCartForCheck(id, user.token).then((res) => {
-      setCart(res);
+      console.log(res);
+      setCart(formatCartForCheck(res));
     });
   }, [id, user.token]);
   return (
@@ -111,7 +113,7 @@ export default function ShopPage() {
                     key={index}
                     productDetail={item}
                     token={user.token}
-                    quantity={cart.find((c) => c.dishId === item.id)?.quantity}
+                    quantity={cart.find((c) => c.id === item.id)?.quantity}
                     reloadShop={reloadShop}
                     shopActive={shopDetail.isActive}
                   />
