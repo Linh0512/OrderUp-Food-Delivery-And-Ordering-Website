@@ -20,7 +20,10 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Production stage
-FROM openjdk:21-jre-slim
+FROM eclipse-temurin:21-jre-alpine
+
+# Install curl for health check
+RUN apk add --no-cache curl
 
 # Thiết lập working directory
 WORKDIR /app
@@ -29,14 +32,11 @@ WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
 
 # Tạo user non-root cho bảo mật
-RUN addgroup --system spring && adduser --system spring --ingroup spring
+RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 
 # Expose port 8080
 EXPOSE 8080
-
-# Install curl for health check
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=30s --retries=3 \
