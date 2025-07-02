@@ -44,15 +44,21 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         if ("OPTIONS".equalsIgnoreCase(method)) {
             return true;
         }
+
+        // Cho phép truy cập các template HTML admin nếu đã có session
+        if (path.startsWith("/admin/") && request.getSession(false) != null) {
+            User adminUser = (User) request.getSession(false).getAttribute("adminUser");
+            if (adminUser != null && "admin".equals(adminUser.getRole())) {
+                return true;
+            }
+        }
         
         // Danh sách các đường dẫn công khai không cần xác thực
         return path.startsWith("/api/auth/") ||
             path.startsWith("/api/admin-auth/") ||
             path.startsWith("/api/shop") ||
-
             path.startsWith("/api/dish") ||
             path.startsWith("/api/review") ||
-            path.startsWith("/admin/") || 
             path.equals("/") || 
             path.startsWith("/swagger-ui") ||
             path.startsWith("/v3/api-docs") ||
@@ -102,10 +108,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             String role = claims.get("role", String.class);
             
             // Tìm user tương ứng trong database
-            // Sử dụng getByEmail nếu đã có sẵn và có thể lấy email từ token
             User user = userService.getByEmail(claims.get("email", String.class));
-            // Hoặc nếu đã thêm method findById
-            // User user = userService.findById(userId);
             
             if (user == null || !user.isActive()) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -117,7 +120,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                 userId,
                 null,
-                Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + role.toUpperCase()))
+                Collections.singletonList(new SimpleGrantedAuthority(role))
             );
             
             // Thiết lập đối tượng Authentication vào Security Context
