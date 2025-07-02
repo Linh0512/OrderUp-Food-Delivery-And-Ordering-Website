@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package.json và package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install ALL dependencies (cần devDependencies để build)
+RUN npm ci
 
 # Copy source code
 COPY . .
