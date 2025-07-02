@@ -10,6 +10,8 @@
 2. [Thông tin nhóm](#thongtinnhom)
 3. [Giới thiệu dự án](#gioithieuduan)
 4. [Hướng dẫn cài đặt](#huongdancaidat)
+   - [Cài đặt thủ công](#caidatthucongh)
+   - [Cài đặt với Docker](#caidatvoidocker)
 5. [Tài khoản demo](#taikhoan)
 
 ## **SE330.P21 - Java programming language - UIT**
@@ -45,31 +47,59 @@ OrderUp là một nền tảng đặt đồ ăn trực tuyến, kết nối ngư
 ### Hướng dẫn cài đặt
 <a name="huongdancaidat"></a>
 
-1. Clone dự án:
+#### Bước 1: Clone dự án
 ```bash
 git clone [https://github.com/Linh0512/OrderUp-Food-Delivery-And-Ordering-Website/tree/main]
+cd FP
 ```
 
-2. Cấu hình môi trường:
-- Tạo file `.env` trong thư mục C:\Storage\Repo\Intellij\FP\orderup\src\main\resources
-- Sao chép nội dung từ file `.env.example` và điền thông tin cần thiết (vui lòng liên hệ email: quilinh831@gmail.com nếu có yêu cầu về cấu hình connection cho MongoDB)
+#### Bước 2: Cấu hình môi trường
+- Tạo file `.env` trong thư mục gốc từ template:
+```bash
+cp environment.template .env
+```
+- Điền thông tin MongoDB Atlas và Cloudinary vào file `.env` (vui lòng liên hệ email: quilinh831@gmail.com nếu cần hỗ trợ)
 
-3. Khởi động Backend (trong thư mục orderup):
+---
+
+## 🐳 Cài đặt với Docker (Khuyến nghị)
+<a name="caidatvoidocker"></a>
+
+**Yêu cầu**: Docker Desktop
+
+### Khởi động nhanh:
+```bash
+docker-compose up --build -d
+```
+
+### Truy cập ứng dụng:
+- **Frontend**: http://localhost
+- **Backend**: http://localhost:8080
+
+📚 **Hướng dẫn chi tiết**: Xem [`docker/README.md`](docker/README.md)
+
+---
+
+## ⚙️ Cài đặt thủ công
+<a name="caidatthucongh"></a>
+
+**Yêu cầu**: Node.js, Java 21, Maven
+
+### 1. Khởi động Backend:
 ```bash
 cd orderup
 mvnw spring-boot:run
 ```
 
-4. Cài đặt dependencies và khỏi động Frontend (trong thư mục frontend):
+### 2. Khởi động Frontend:
 ```bash
 cd frontend
-
 npm install
-
 npm run dev
 ```
 
-5. Truy cập ứng dụng tại http://localhost:5173/
+### 3. Truy cập ứng dụng:
+http://localhost:5173/
 
 ### Tài khoản demo
 <a name="taikhoan"></a>
