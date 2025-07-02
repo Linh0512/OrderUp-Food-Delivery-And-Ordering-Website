@@ -3,7 +3,8 @@ import {
   faList,
   faLocationDot,
   faRightToBracket,
-  faUser
+  faUser,
+  faUserShield
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
@@ -14,16 +15,28 @@ export default function CustomIconButtonSelect() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const selectRef = useRef(null);
-  const { Logout } = useAuth();
+  const { Logout, role } = useAuth();
 
   const options = [
     { label: "Hồ sơ", value: "profile", icon: faUser },
     { label: "Lịch sử", value: "history", icon: faClockRotateLeft },
     { label: "Địa chỉ", value: "address", icon: faLocationDot },
+    ...(role === "admin" ? [
+      { 
+        label: "Trang Admin", 
+        value: "admin", 
+        icon: faUserShield,
+        onClick: () => window.location.href = "http://localhost:8080"
+      }
+    ] : [])
   ];
 
   const handleMove = (value) => {
-    navigate(`/${value}`);
+    if (options.find(opt => opt.value === value)?.onClick) {
+      options.find(opt => opt.value === value).onClick();
+    } else {
+      navigate(`/${value}`);
+    }
     setIsOpen(false);
   };
 
@@ -68,7 +81,7 @@ export default function CustomIconButtonSelect() {
           {options.map((option) => (
             <div
               key={option.value}
-              className=" flex items-center space-x-2 p-3 px-5 text-lg cursor-pointer hover:bg-blue-100 transition-colors duration-150 "
+              className={`flex items-center space-x-2 p-3 px-5 text-lg cursor-pointer hover:bg-blue-100 transition-colors duration-150 ${option.value === 'admin' ? 'text-blue-600 font-medium' : ''}`}
               onClick={() => handleMove(option.value)}
             >
               <FontAwesomeIcon icon={option.icon} />

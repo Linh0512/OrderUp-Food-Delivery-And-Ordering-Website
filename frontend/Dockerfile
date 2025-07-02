@@ -1,3 +1,24 @@
+# Development stage
+FROM node:18-alpine
+
+# Thiết lập working directory
+WORKDIR /app
+
+# Copy package.json và package-lock.json
+COPY package*.json ./
+
+# Install dependencies
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Expose port 5173
+EXPOSE 5173
+
+# Start development server
+CMD ["npm", "run", "dev", "--", "--host"]
+
 # Stage 1: Build stage
 FROM node:18-alpine AS build
 
