@@ -1,4 +1,5 @@
 import api from "../api";
+import axios from "axios";
 
 export const login = async (email, password) => {
   try {
@@ -29,6 +30,49 @@ export const login = async (email, password) => {
   } catch (error) {
     return {
       message: error.response?.data?.message || "Đã xảy ra lỗi khi đăng nhập",
+    };
+  }
+};
+
+export const adminLogin = async (email, password) => {
+  try {
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+    
+    const response = await axios.post("http://localhost:8080/api/admin-auth/login", formData, {
+      withCredentials: true
+    });
+    
+    if (response.data.success) {
+      const userData = {
+        userId: response.data.userId,
+        role: response.data.role,
+        token: response.data.token,
+        email: email,
+        expiresAt: new Date().getTime() + 24 * 60 * 60 * 1000,
+      };
+      localStorage.setItem(
+        import.meta.env.VITE_LOCAL_STORAGE_KEY,
+        JSON.stringify(userData)
+      );
+
+      return {
+        userId: response.data.userId,
+        role: response.data.role,
+        token: response.data.token,
+        success: true
+      };
+    }
+
+    return {
+      message: response.data?.message || "Đăng nhập admin thất bại",
+      success: false
+    };
+  } catch (error) {
+    return {
+      message: error.response?.data || "Đã xảy ra lỗi khi đăng nhập admin",
+      success: false
     };
   }
 };

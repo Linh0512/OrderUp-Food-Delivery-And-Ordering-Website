@@ -9,6 +9,7 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";
+import { adminLogin } from "../../services/authServices/authServices";
 
 export default function LoginPage() {
   const [account, setAccount] = useState({ email: "", password: "" });
@@ -19,11 +20,39 @@ export default function LoginPage() {
   const handleLogin = async () => {
     const res = await Login(account.email, account.password);
     if (res.token) {
-      if (res.role === "admin")
-        window.location.href = `http://localhost:8080/api/admin-auth/login-with-token?token=${res.token}`;
-      else if (res.role === "restaurantHost") nav("hostres");
-      else nav("/");
-    } else alert("đăng nhập thất bại");
+      if (res.role === "admin") {
+        // Gọi admin login để tạo JWT cookie và lưu vào localStorage
+        const adminRes = await adminLogin(account.email, account.password);
+        if (adminRes.success) {
+          console.log("Admin login successful, checking cookies...");
+          
+          // Thêm delay để đảm bảo cookie được set
+          setTimeout(async () => {
+            // Debug: kiểm tra cookies
+            try {
+              const debugRes = await fetch("http://localhost:8080/api/admin-auth/debug-cookies", {
+                credentials: 'include' // Đảm bảo cookies được gửi
+              });
+              const debugText = await debugRes.text();
+              console.log("Debug cookies response:", debugText);
+            } catch (err) {
+              console.error("Debug cookies error:", err);
+            }
+            
+            // Redirect đến admin page
+            window.location.href = "http://localhost:8080/admin/";
+          }, 200); // Tăng delay lên 1 giây
+        } else {
+          alert("Lỗi khi đăng nhập admin: " + adminRes.message);
+        }
+      } else if (res.role === "restaurantHost") {
+        nav("hostres");
+      } else {
+        nav("/");
+      }
+    } else {
+      alert("đăng nhập thất bại");
+    }
   };
 
   return (
@@ -74,7 +103,7 @@ export default function LoginPage() {
           Login
         </button>
         <p className="text-center text-white my-auto font-light">
-          Don’t have an account?{" "}
+          Don't have an account?{" "}
           <Link to={"/signup"}>
             <span className="text-lime-500">Sign Up</span>
           </Link>

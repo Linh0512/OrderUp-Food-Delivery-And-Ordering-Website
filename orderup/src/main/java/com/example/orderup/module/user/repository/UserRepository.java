@@ -9,6 +9,9 @@ import com.example.orderup.module.user.entirty.User;
 
 public interface UserRepository  extends MongoRepository<User, String> {
 
+    @Query("{ 'email': ?0 }")
+    User findByEmail(String email);
+
     @Query("{ 'email': { $regex: ?0, $options: 'i' } }")
     List<User> getByEmail(String email);
 

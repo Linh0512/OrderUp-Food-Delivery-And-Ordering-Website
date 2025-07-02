@@ -169,7 +169,7 @@
             </div>
         </div>
         
-        <a href="/" class="btn btn-secondary mt-3">Quay lại Trang chủ</a>
+        <a href="/admin/" class="btn btn-secondary mt-3">Quay lại Dashboard</a>
     </div>
     
     <!-- Modal xác nhận xóa -->
@@ -186,7 +186,6 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
                     <form id="deleteForm" method="POST">
-                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                         <button type="submit" class="btn btn-danger">Xóa</button>
                     </form>
                 </div>

@@ -18,6 +18,9 @@ export default function CustomIconButtonSelect() {
   const selectRef = useRef(null);
   const { Logout, role } = useAuth();
 
+  // Debug role
+  console.log("ProfileSelect - Current role:", role);
+
   const options = [
     { label: "Hồ sơ", value: "profile", icon: faUser },
     { label: "Lịch sử", value: "history", icon: faClockRotateLeft },
@@ -27,15 +30,62 @@ export default function CustomIconButtonSelect() {
         label: "Trang Admin", 
         value: "admin", 
         icon: faUserShield,
-        onClick: () => window.location.href = "http://localhost:8080"
+        isAdmin: true
       }
     ] : [])
   ];
 
+  const handleAdminRedirect = async () => {
+    console.log("Admin redirect triggered");
+    console.log("Current role:", role);
+    
+    try {
+      // Lấy token từ localStorage
+      const userData = JSON.parse(localStorage.getItem(import.meta.env.VITE_LOCAL_STORAGE_KEY || 'orderup_user'));
+      const token = userData?.token;
+      
+      if (!token) {
+        console.error("No token found, cannot access admin");
+        alert("Vui lòng đăng nhập lại để truy cập trang admin");
+        return;
+      }
+      
+      console.log("Found token, setting up admin session...");
+      
+      // Gửi token đến backend để set cookie admin
+      const response = await fetch('http://localhost:8080/api/admin-auth/setup-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include', // Để nhận cookie
+        body: JSON.stringify({ token: token })
+      });
+      
+      if (response.ok) {
+        console.log("Admin session setup successful, redirecting...");
+        // Delay một chút để cookie được set, rồi redirect về admin dashboard
+        setTimeout(() => {
+          window.location.replace('http://localhost:8080/admin/');
+        }, 200);
+      } else {
+        console.error("Failed to setup admin session");
+        alert("Không thể thiết lập phiên admin. Vui lòng thử lại.");
+      }
+      
+    } catch (error) {
+      console.error("Error setting up admin session:", error);
+      alert("Lỗi khi truy cập trang admin. Vui lòng thử lại.");
+    }
+  };
+
   const handleMove = (value) => {
-    if (options.find(opt => opt.value === value)?.onClick) {
-      options.find(opt => opt.value === value).onClick();
+    console.log("ProfileSelect - handleMove called with value:", value);
+    
+    if (value === "admin") {
+      handleAdminRedirect();
     } else {
+      console.log("Navigating to:", `/${value}`);
       navigate(`/${value}`);
     }
     setIsOpen(false);

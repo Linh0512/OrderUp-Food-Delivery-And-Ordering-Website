@@ -7,8 +7,9 @@ import org.springframework.web.servlet.view.RedirectView;
 @Controller
 public class WebController {    
     @GetMapping("/")
-    public String home() {
-        return "index";
+    public RedirectView home() {
+        // Redirect root path về frontend React app
+        return new RedirectView("http://localhost:5173");
     }
     
     @GetMapping("/users")
