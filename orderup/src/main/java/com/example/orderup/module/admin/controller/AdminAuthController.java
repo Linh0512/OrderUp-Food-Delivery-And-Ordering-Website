@@ -9,12 +9,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -67,29 +69,12 @@ public class AdminAuthController {
         }
     }
 
-    @GetMapping("/logout")
-    public String logout(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            // Xóa session
-            HttpSession session = request.getSession(false);
-            if (session != null) {
-                session.invalidate();
-            }
-            
-            // Xóa security context
-            SecurityContextHolder.clearContext();
-            
-            // Xóa JWT token bằng cách set cookie hết hạn
-            Cookie cookie = new Cookie("jwt", "");
-            cookie.setMaxAge(0);
-            cookie.setPath("/");
-            response.addCookie(cookie);
-            
-            // Chuyển hướng về trang đăng nhập frontend với tham số để xóa token
-            return "redirect:http://localhost:5173/login?clearToken=true";
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/error?reason=logout-error";
+    @PostMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
         }
+        return ResponseEntity.ok("Logged out successfully");
     }
 }

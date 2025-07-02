@@ -10,6 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "./common/AuthContext";
+import axios from "axios";
 
 export default function CustomIconButtonSelect() {
   const navigate = useNavigate();
@@ -40,10 +41,22 @@ export default function CustomIconButtonSelect() {
     setIsOpen(false);
   };
 
-  const handleLogOut=()=>{
-    Logout()
-    navigate('/login')
-  }
+  const handleLogOut = async () => {
+    try {
+      // Gọi API để logout và xóa session admin
+      if (role === "admin") {
+        await axios.post("http://localhost:8080/api/admin-auth/logout");
+      }
+      // Logout ở frontend
+      Logout();
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Vẫn logout ở frontend nếu có lỗi
+      Logout();
+      navigate('/login');
+    }
+  };
 
   // Effect to handle clicks outside the component to close the dropdown
   useEffect(() => {

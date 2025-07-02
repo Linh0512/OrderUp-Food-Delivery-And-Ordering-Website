@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,12 +14,16 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.example.orderup.module.user.entirty.User;
+import com.example.orderup.module.user.service.UserService;
 
 import java.io.IOException;
 import java.util.Collections;
 
 @Component
 public class AdminSessionAuthenticationFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private UserService userService;
 
     @Override
     protected void doFilterInternal(
@@ -47,6 +52,37 @@ public class AdminSessionAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             
+            // Kiểm tra thời gian tạo session
+            long sessionCreationTime = session.getCreationTime();
+            long currentTime = System.currentTimeMillis();
+            long sessionTimeout = 30 * 60 * 1000; // 30 phút
+
+            if (currentTime - sessionCreationTime > sessionTimeout) {
+                session.invalidate();
+                handleUnauthorized(request, response);
+                return;
+            }
+
+            // Kiểm tra email từ token nếu có
+            String tokenEmail = null;
+            if (SecurityContextHolder.getContext().getAuthentication() != null) {
+                Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                if (principal instanceof User) {
+                    tokenEmail = ((User) principal).getEmail();
+                }
+            }
+
+            // Nếu có email từ token, kiểm tra xem có khớp với email trong session không
+            if (tokenEmail != null && !tokenEmail.equals(adminUser.getEmail())) {
+                session.invalidate();
+                handleUnauthorized(request, response);
+                return;
+            }
+
+            // Cập nhật lại thời gian truy cập gần nhất
+            adminUser.setLastLogin(new java.util.Date());
+            userService.updateUser(adminUser);
+            
             // Set authentication nếu chưa có
             if (SecurityContextHolder.getContext().getAuthentication() == null ||
                 !SecurityContextHolder.getContext().getAuthentication().isAuthenticated() ||
@@ -68,6 +104,11 @@ public class AdminSessionAuthenticationFilter extends OncePerRequestFilter {
     private void handleUnauthorized(HttpServletRequest request, HttpServletResponse response) throws IOException {
         // Nếu là request đến template HTML, redirect về trang login
         if (!request.getHeader("Accept").contains("application/json")) {
+            // Xóa session hiện tại nếu có
+            HttpSession session = request.getSession(false);
+            if (session != null) {
+                session.invalidate();
+            }
             response.sendRedirect("http://localhost:5173/login");
             return;
         }
