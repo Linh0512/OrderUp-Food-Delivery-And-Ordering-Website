@@ -189,52 +189,61 @@
 - Quantity > 0 và <= maxQuantity
 - Check dish availability và restaurant operating hours
 
-#### UC06: Quản lý giỏ hàng
+#### UC06: Quản lý nhiều giỏ hàng **[CẬP NHẬT - MULTIPLE CARTS]**
 **Actor**: Customer  
-**Preconditions**: Customer có items trong shopping cart  
-**Postconditions**: Cart được cập nhật theo yêu cầu  
+**Preconditions**: Customer có items trong shopping carts từ các nhà hàng khác nhau  
+**Postconditions**: Carts được cập nhật theo yêu cầu  
 
 **Main Flow**:
 1. Customer truy cập CartPage qua `/cart`
-2. Frontend gọi `/api/cart/user/{userId}` để load cart data
-3. Hiển thị cart với CartItem components:
-   - Dish image, name, selected options
-   - Unit price, quantity controls, subtotal
-   - Special instructions
-   - Remove item button
-4. Customer có thể:
+2. Frontend gọi `/api/cart` để load tất cả carts của user (trả về List)
+3. Hiển thị multiple carts với CartItem components và restaurant grouping:
+   - **Grouped by restaurant**: Mỗi restaurant có section riêng
+   - **Checkbox selection**: Chọn cart nào để checkout
+   - Dish image, name, selected options per cart
+   - Unit price, quantity controls, subtotal per item
+   - Special instructions per item  
+   - Remove item button, remove entire cart button
+4. **Multiple Cart Management**:
+   - Customer có thể có carts từ nhiều nhà hàng cùng lúc
+   - Mỗi cart maintain riêng biệt, không bị overwrite
+   - Chỉ có thể checkout 1 cart tại một thời điểm
+5. Customer có thể:
+   - **Select cart for checkout**: Checkbox để chọn cart active
    - **Update quantity**: Click +/- buttons
-     - Gọi API `/api/cart/update-quantity`
+     - Gọi API `/api/cart/{cartId}/item/{itemIndex}` với PUT method
      - Validate quantity > 0
-     - Recalculate prices
+     - Recalculate prices for specific cart
    - **Remove item**: Click remove button  
-     - Gọi API `/api/cart/remove-item`
-     - Confirm action
-   - **Edit instructions**: Inline edit field
-     - Auto-save on blur
-5. **Pricing calculation**:
-   - Items subtotal = Σ(item price × quantity)
+     - Gọi API `/api/cart/{cartId}/item/{itemIndex}` với DELETE method
+     - If last item → xóa entire cart
+   - **Remove entire cart**: Xóa toàn bộ cart của restaurant
+   - **Continue shopping**: Navigate back to specific restaurant
+6. **Pricing calculation** (for selected cart only):
+   - Items subtotal = Σ(item price × quantity) của cart được chọn
    - Delivery fee (dựa trên restaurant policy)
-   - Service fee (platform fee)
+   - Service fee (platform fee)  
    - Tax calculation
    - **Voucher discount** (nếu có):
-     - Apply voucher code
+     - Apply voucher code specific cho restaurant
      - Validate voucher conditions
      - Calculate discount amount
    - **Final total** = Subtotal + Delivery + Service + Tax - Discount
-6. Show order summary với breakdown chi tiết
-7. "Proceed to Checkout" button nếu cart không empty
+7. Show order summary với breakdown chi tiết cho selected cart
+8. "Proceed to Checkout" button chỉ active khi có cart được chọn
 
 **Alternative Flows**:
-- A1: Cart empty → Hiển thị "Your cart is empty" với link back to restaurants
-- A2: Item hết hàng → Mark item unavailable, option to remove
-- A3: Restaurant closed → Warning message, cannot proceed checkout
-- A4: Voucher invalid → "Voucher expired or not applicable"
+- A1: All carts empty → Hiển thị "Your cart is empty" với link back to restaurants  
+- A2: No cart selected → "Please select a cart to proceed"
+- A3: Item hết hàng → Mark item unavailable, option to remove
+- A4: Restaurant closed → Warning message for specific cart, cannot proceed checkout
+- A5: Voucher invalid → "Voucher expired or not applicable for this restaurant"
 
 **Real-time Updates**:
-- Auto-save changes
-- Sync cart across devices nếu user login nhiều nơi
-- Update pricing khi có changes từ restaurant
+- Auto-save changes per cart
+- Sync all carts across devices nếu user login nhiều nơi
+- Update pricing khi có changes từ restaurant specific
+- Preserve all carts when adding items from different restaurants
 
 #### UC07: Áp dụng voucher
 **Actor**: Customer  
@@ -276,14 +285,15 @@
 - A4: Đã sử dụng → "Voucher already used"
 - A5: Voucher hết lượt → "Voucher is no longer available"
 
-#### UC08: Đặt hàng và thanh toán
+#### UC08: Đặt hàng và thanh toán **[CẬP NHẬT - SELECTED CART]**
 **Actor**: Customer  
-**Preconditions**: Cart có items, user đã đăng nhập  
-**Postconditions**: Order được tạo thành công, payment processed  
+**Preconditions**: Customer đã chọn 1 cart để checkout, user đã đăng nhập  
+**Postconditions**: Order được tạo thành công cho selected cart, payment processed  
 
 **Main Flow**:
-1. Customer click "Proceed to Checkout" từ cart
-2. Navigate đến PaymentPage (`/payment`)
+1. Customer chọn cart muốn checkout (checkbox selection)
+2. Customer click "Proceed to Checkout" từ selected cart
+3. Navigate đến PaymentPage (`/payment`) với selectedCartId
 3. **Delivery Information**:
    - Load user addresses từ profile
    - Chọn delivery address hoặc add new
@@ -302,30 +312,29 @@
 6. Click "Place Order"
 7. **Order Creation Process**:
    ```javascript
-   // Frontend gọi API
-   POST /api/order/create
+   // Frontend gọi API với selected cart
+   POST /api/cart/{selectedCartId}/checkout
    {
-     "cartId": "cart_id",
      "deliveryAddress": {...},
-     "paymentMethod": "card",
+     "paymentMethod": "card", 
      "deliveryInstructions": "Ring doorbell",
      "voucherCode": "NEWUSER20"
    }
    ```
 8. **Backend xử lý**:
-   - Validate cart contents
-   - Re-check item availability
+   - Validate selected cart contents only
+   - Re-check item availability for selected cart
    - Generate unique orderNumber
-   - Calculate final pricing
+   - Calculate final pricing for selected cart
    - Process payment (nếu không phải COD):
      - Call payment gateway API
      - Handle payment response
-   - Create Order record trong MongoDB
+   - Create Order record từ selected cart items
    - Update voucher usage
-   - Clear shopping cart
+   - Clear ONLY selected shopping cart (other carts preserved)
    - Send notifications:
      - Email confirmation to customer
-     - New order notification to restaurant
+     - New order notification to restaurant of selected cart
 9. **Response handling**:
    - Payment success → Redirect to order confirmation
    - Payment failed → Show error, allow retry
@@ -819,6 +828,96 @@
    - Error rates và debugging
    - Security incident reports
 
+### 3.4 Admin Web Interface Use Cases **[HOÀN TOÀN MỚI]**
+
+#### UC21: Admin Web Dashboard **[MỚI]**
+**Actor**: Admin  
+**Preconditions**: Admin đã authenticate qua web interface  
+**Postconditions**: Hiển thị dashboard với full management capabilities  
+
+**Main Flow**:
+1. **Admin Authentication Flow**:
+   - Admin login từ React frontend (`/login`)
+   - Sau khi login thành công, click "Trang Admin" trong ProfileSelect
+   - Frontend gọi `/api/admin-auth/setup-session` với JWT token
+   - Backend validate token và set admin session cookie
+   - Redirect về `/admin/` dashboard
+2. **Dashboard Features**:
+   - Welcome screen với admin email
+   - Navigation cards đến các management modules
+   - Quick statistics overview
+   - Recent activity summary
+3. **Web Routes**:
+   - GET `/admin/` - Main dashboard
+   - GET `/admin/users` - User management interface
+   - GET `/admin/restaurants` - Restaurant management interface  
+   - GET `/admin/view/vouchers` - Voucher management interface
+
+#### UC22: Web User Management **[MỚI]**
+**Actor**: Admin
+**Description**: Complete CRUD interface cho user management
+**Web Features**:
+1. **User List View**:
+   - Paginated table với user information
+   - Search by user name functionality
+   - Filter by role (user/restaurantHost/admin)
+   - Sort by registration date, last login
+2. **User Details**:
+   - View full user profile
+   - Order history và statistics
+   - Address information
+   - Account status management
+3. **User Creation/Editing**:
+   - HTML forms với validation
+   - Role assignment (user/restaurantHost/admin)
+   - Active/inactive status control
+   - Password management
+4. **Bulk Operations**:
+   - Export user data
+   - Mass status updates
+   - User analytics dashboard
+
+#### UC23: Web Restaurant Management **[MỚI]**
+**Actor**: Admin
+**Description**: Restaurant management through web interface
+**Features**:
+1. **Restaurant List**:
+   - Grid view với restaurant cards
+   - Search by restaurant name
+   - Filter by status (active/inactive/pending)
+   - Statistics cards (total, new, active restaurants)
+2. **Restaurant Details**:
+   - Complete restaurant profile view
+   - Host information display
+   - Business info và operating hours
+   - Menu preview và dish count
+3. **Restaurant Operations**:
+   - Create new restaurant với form wizard
+   - Edit restaurant information
+   - Assign restaurant hosts
+   - Status management (verify/activate/deactivate)
+   - Delete restaurants với confirmation
+
+#### UC24: Web Voucher Management **[MỚI]**
+**Actor**: Admin  
+**Description**: Interactive voucher management interface
+**Features**:
+1. **Voucher Dashboard**:
+   - Visual voucher cards với status indicators
+   - Filter by type (GLOBAL/LOCAL) và status
+   - Search by voucher code
+   - Real-time voucher statistics
+2. **Voucher Operations**:
+   - Create new vouchers với interactive forms
+   - Edit existing vouchers
+   - Delete vouchers với confirmation
+   - Toggle voucher active status
+3. **Advanced Features**:
+   - Restaurant selection for LOCAL vouchers
+   - Date picker cho validity periods
+   - Discount type selection (percentage/fixed)
+   - Usage tracking và analytics
+
 ---
 
 ## 4. ACTIVITY DIAGRAMS CHI TIẾT
@@ -913,4 +1012,69 @@
 
 ---
 
-Báo cáo này cung cấp framework hoàn chỉnh để development team implement các features theo đúng business requirements và user expectations. 
+## 6. CẬP NHẬT QUAN TRỌNG VÀ THAY ĐỔI CHÍNH **[2025]**
+
+### 6.1 Multiple Shopping Carts **[BREAKING CHANGE]**
+**Thay đổi quan trọng nhất**: Hệ thống hiện tại hỗ trợ multiple shopping carts từ các nhà hàng khác nhau:
+
+**Trước đây (Outdated)**:
+- User chỉ có 1 cart duy nhất
+- Khi thêm món từ nhà hàng mới → xóa cart cũ
+- Không thể duy trì items từ nhiều nhà hàng
+
+**Hiện tại (Updated)**:
+- User có thể có nhiều carts từ các nhà hàng khác nhau cùng lúc
+- Mỗi cart được maintain độc lập
+- Frontend hiển thị tất cả carts với checkbox selection
+- Chỉ có thể checkout 1 cart tại một thời điểm
+- Other carts được preserve sau khi checkout
+
+### 6.2 Admin Web Interface **[HOÀN TOÀN MỚI]**
+**Tính năng mới**: Complete admin web interface được phát triển:
+
+**Components**:
+- **Admin Dashboard** (`/admin/`) với Bootstrap UI
+- **User Management** với CRUD operations
+- **Restaurant Management** với detailed views
+- **Voucher Management** với interactive interface
+
+**Authentication Flow**:
+- Dual authentication: JWT (API) + Session (Web)
+- Token-to-session conversion mechanism
+- Cross-domain authentication giữa React app và admin interface
+
+### 6.3 Enhanced API Endpoints
+**Cập nhật endpoints**:
+- `/api/cart` → returns List<ShoppingCart> thay vì single cart
+- `/api/cart/restaurant/{restaurantId}` → get specific restaurant cart
+- `/api/cart/{cartId}/checkout` → checkout specific cart
+- `/api/admin-auth/setup-session` → JWT to session conversion
+- `/api/reviews/order/{orderId}` → create review for completed order
+
+### 6.4 Role-Based Architecture Enhancements
+**3 distinct roles với specific capabilities**:
+- **user**: Multiple cart management, order tracking, reviews
+- **restaurantHost**: Restaurant management, order processing, local vouchers
+- **admin**: Web interface access, system-wide management, global vouchers
+
+### 6.5 Technology Stack Updates
+**Current implementation**:
+- **Frontend**: React 18 + Vite + React Router v6
+- **Backend**: Spring Boot 3.x + Spring Security 6.x
+- **Database**: MongoDB với proper indexing
+- **File Storage**: Cloudinary integration
+- **UI Framework**: Bootstrap 5 cho admin interface
+- **Authentication**: JWT + HttpOnly Cookies hybrid
+
+---
+
+## 7. KẾT LUẬN
+
+Báo cáo này đã được cập nhật để phản ánh chính xác implementation thực tế của OrderUp project. Những thay đổi quan trọng nhất bao gồm:
+
+1. **Multiple Shopping Carts**: Thay đổi fundamental trong cart management behavior
+2. **Complete Admin Web Interface**: Tính năng hoàn toàn mới với full CRUD capabilities  
+3. **Enhanced Authentication**: Dual-mode authentication cho different user types
+4. **Updated API Design**: RESTful endpoints phù hợp với thực tế implementation
+
+Framework này cung cấp hướng dẫn chính xác cho development team để maintain và extend các features theo đúng architecture hiện tại và business requirements. 
