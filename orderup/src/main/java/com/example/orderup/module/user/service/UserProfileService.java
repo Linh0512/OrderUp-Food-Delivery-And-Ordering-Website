@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.orderup.module.user.repository.UserProfileRepository;
 import com.example.orderup.module.restaurant.entity.Restaurant;
-import com.example.orderup.repositories.RestaurantRepository;
+import com.example.orderup.module.restaurant.repository.RestaurantRepository;
 import com.example.orderup.module.user.dto.UserProfileDTO;
 import com.example.orderup.module.user.dto.UserProfileDTO.*;
 import com.example.orderup.module.user.entirty.Profile;

@@ -1,6 +1,6 @@
 package com.example.orderup.module.admin.controller;
 
-import com.example.orderup.repositories.RestaurantRepository;
+import com.example.orderup.module.restaurant.repository.RestaurantRepository;
 import com.example.orderup.module.voucher.dto.*;
 import com.example.orderup.module.voucher.service.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;

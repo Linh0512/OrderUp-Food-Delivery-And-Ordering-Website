@@ -2,6 +2,8 @@ package com.example.orderup.module.restaurant.service;
 
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import com.example.orderup.module.restaurant.repository.RestaurantRepository;
 import com.example.orderup.module.restaurant.repository.ReviewRepository;
 import com.example.orderup.module.restaurant.dto.ReviewDTO;
 import com.example.orderup.module.restaurant.mapper.ReviewMapper;
@@ -17,7 +19,6 @@ import com.example.orderup.module.user.repository.UserProfileRepository;
 import com.example.orderup.module.user.entirty.User;
 import com.example.orderup.module.user.repository.UserOrderHistoryRepository;
 import com.example.orderup.module.user.entirty.Order;
-import com.example.orderup.repositories.RestaurantRepository;
 import com.example.orderup.config.security.JwtTokenProvider;
 
 @Service

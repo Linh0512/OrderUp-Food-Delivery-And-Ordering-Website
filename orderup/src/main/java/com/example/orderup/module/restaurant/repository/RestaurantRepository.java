@@ -1,4 +1,4 @@
-package com.example.orderup.repositories;
+package com.example.orderup.module.restaurant.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
