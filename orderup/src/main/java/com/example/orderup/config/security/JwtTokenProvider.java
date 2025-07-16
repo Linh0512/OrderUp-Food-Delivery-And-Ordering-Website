@@ -42,6 +42,40 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public boolean isTokenValid(String token) {
+        try {
+            byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+            var key = Keys.hmacShaKeyFor(keyBytes);
+            
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+                
+            return !claims.getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public String getEmailFromToken(String token) {
+        try {
+            byte[] keyBytes = jwtSecret.getBytes(StandardCharsets.UTF_8);
+            var key = Keys.hmacShaKeyFor(keyBytes);
+            
+            Claims claims = Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+                
+            return claims.get("email", String.class);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     private String extractToken(String bearerToken) {
         if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);

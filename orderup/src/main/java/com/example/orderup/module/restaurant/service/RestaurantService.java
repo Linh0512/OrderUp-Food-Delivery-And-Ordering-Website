@@ -1,7 +1,8 @@
 package com.example.orderup.module.restaurant.service;
 
 import com.example.orderup.module.restaurant.entity.Restaurant;
-import com.example.orderup.repositories.RestaurantRepository;
+import com.example.orderup.module.restaurant.repository.RestaurantRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

@@ -32,12 +32,15 @@ public class AdminUserViewController {
     @Autowired
     private UserService userService;
     
+    @Autowired
+    private AdminViewController adminViewController;
+    
     @GetMapping("/users")
-    public String viewUsers(Model model, 
+    public String viewUsers(HttpServletRequest request, Model model, 
             @RequestParam(defaultValue = "0") int page, 
             @RequestParam(defaultValue = "10") int size) {
         try {
-            System.out.println("AdminViewController.viewUsers() called");
+            System.out.println("AdminUserViewController.viewUsers() called");
             System.out.println("Current authentication: " + SecurityContextHolder.getContext().getAuthentication());
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -47,7 +50,6 @@ public class AdminUserViewController {
             } else {
                 System.out.println("Authentication principal is not a User object: " + auth.getPrincipal());
             }
-
 
             Page<User> usersPage = userService.getAllUsers(page, size, new String[]{"updatedAt"}, "desc");
             
@@ -74,7 +76,7 @@ public class AdminUserViewController {
             
             return "admin/user/users";
         } catch (Exception e) {
-            System.err.println("Error in AdminViewController.viewUsers(): " + e.getMessage());
+            System.err.println("Error in AdminUserViewController.viewUsers(): " + e.getMessage());
             e.printStackTrace();
             return "error";
         }

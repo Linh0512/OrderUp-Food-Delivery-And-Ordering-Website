@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.Date;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Controller
 @RequestMapping("/admin/restaurants")
@@ -31,11 +32,19 @@ public class AdminResViewController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AdminViewController adminViewController;
+    
     @GetMapping("")
-    public String viewRestaurants(Model model, 
+    public String viewRestaurants(HttpServletRequest request, Model model, 
             @RequestParam(defaultValue = "0") int page, 
             @RequestParam(defaultValue = "10") int size) {
         try {
+            // Kiểm tra authentication
+            if (!adminViewController.isAdminAuthenticated(request)) {
+                return "redirect:http://localhost:5173/login";
+            }
+            
             Pageable pageable = PageRequest.of(page, size);
             Page<Restaurant> restaurantsPage = restaurantService.getAllRestaurantsPage(pageable);
             

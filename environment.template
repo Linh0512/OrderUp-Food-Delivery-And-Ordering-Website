@@ -1,0 +1,18 @@
+# ==============================================
+# OrderUp Environment Configuration
+# ==============================================
+# Hướng dẫn: Copy file này thành C:\Storage\Repo\Intellij\FP\orderup\src\main\resources\.env 
+và điền thông tin cần thiết để connect bên dưới
+
+# MongoDB Atlas Configuration
+MONGO_USER=your_mongo_username
+MONGO_PASSWORD=your_mongo_password  
+MONGO_CLUSTER=cluster0.xxxxx.mongodb.net
+MONGO_DATABASE=orderup_db
+
+# Cloudinary Configuration
+CLOUDINARY_URL=cloudinary://api_key:api_secret@cloud_name
+
+# JWT Configuration (Optional - có giá trị mặc định)
+JWT_SECRET=yourSecretKeyHereShouldBeAtLeast32CharactersLong
+JWT_EXPIRATION=86400000 

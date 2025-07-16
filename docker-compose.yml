@@ -1,0 +1,38 @@
+services:
+  backend:
+    build:
+      context: ./orderup
+      dockerfile: Dockerfile
+    container_name: orderup-backend
+    ports:
+      - "8080:8080"
+    environment:
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASSWORD=${MONGO_PASSWORD}
+      - MONGO_CLUSTER=${MONGO_CLUSTER}
+      - MONGO_DATABASE=${MONGO_DATABASE}
+      - CLOUDINARY_URL=${CLOUDINARY_URL}
+      - JWT_SECRET=${JWT_SECRET:-defaultSecretKeyShouldBeAtLeast32Characters}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
+      - SPRING_PROFILES_ACTIVE=production
+      - FRONTEND_URL=http://localhost:5173
+    networks:
+      - orderup-network
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: orderup-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - orderup-network
+    restart: unless-stopped
+
+networks:
+  orderup-network:
+    driver: bridge 

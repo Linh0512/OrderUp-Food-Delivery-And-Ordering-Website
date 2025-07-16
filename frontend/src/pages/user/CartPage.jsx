@@ -5,7 +5,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import CartItem from "../../components/CartItem";
-import VoucherPopUp from "../../components/voucherPopUp";
+import VoucherPopUp from "../../components/VoucherPopUp";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../components/common/AuthContext";

@@ -1,6 +1,6 @@
 package com.example.orderup.module.admin.controller;
 
-import com.example.orderup.repositories.RestaurantRepository;
+import com.example.orderup.module.restaurant.repository.RestaurantRepository;
 import com.example.orderup.module.voucher.dto.*;
 import com.example.orderup.module.voucher.service.VoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +9,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -25,8 +26,14 @@ public class AdminVoucherViewController {
     @Autowired
     private RestaurantRepository restaurantRepository;
 
+    @Autowired
+    private AdminViewController adminViewController;
+    
     @GetMapping("/vouchers")
-    public String viewVouchers() {
+    public String viewVouchers(HttpServletRequest request) {
+        if (!adminViewController.isAdminAuthenticated(request)) {
+            return "redirect:http://localhost:5173/login";
+        }
         return "admin/voucher/vouchers";
     }
 
